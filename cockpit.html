@@ -5337,6 +5337,9 @@
                 populateBlocks(blocks);
                 updatePreviewUrl(profile.handle);
                 
+                // Update live preview with real data
+                setTimeout(() => updatePreview(), 100);
+                
                 console.log('UI populated successfully');
                 
             } catch (error) {
@@ -5973,8 +5976,8 @@
             
             const profileUpdates = {
                 display_name: document.getElementById('input-display-name')?.value.trim(),
-                bio: document.getElementById('input-bio')?.value.trim(),
-                spotlight: document.getElementById('input-spotlight')?.value.trim()
+                bio: document.getElementById('input-bio')?.value.trim()
+                // Note: spotlight column doesn't exist in profiles table
             };
             
             try {
@@ -6039,6 +6042,84 @@
         }
 
         // ══════════════════════════════════════
+        // AVATAR UPLOAD
+        // ══════════════════════════════════════
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                oolalaToast('Please select an image file');
+                return;
+            }
+            
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                oolalaToast('Image must be less than 2MB');
+                return;
+            }
+            
+            try {
+                oolalaToast('Uploading avatar...');
+                
+                // Upload to Supabase Storage
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                const fileName = `${currentUser.id}/avatar-${Date.now()}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('avatars')
+                    .upload(fileName, file, { 
+                        upsert: true,
+                        contentType: file.type
+                    });
+                
+                if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    oolalaToast('Upload failed: ' + uploadError.message);
+                    return;
+                }
+                
+                // Get public URL
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('avatars')
+                    .getPublicUrl(fileName);
+                
+                const avatarUrl = urlData.publicUrl;
+                console.log('Avatar URL:', avatarUrl);
+                
+                // Update profile in database
+                const { error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ avatar_url: avatarUrl })
+                    .eq('id', currentUser.id);
+                
+                if (updateError) {
+                    console.error('Profile update error:', updateError);
+                    oolalaToast('Failed to save avatar: ' + updateError.message);
+                    return;
+                }
+                
+                // Update UI
+                const avatarPreview = document.getElementById('avatar-preview');
+                if (avatarPreview) {
+                    avatarPreview.style.backgroundImage = `url(${avatarUrl})`;
+                    avatarPreview.innerHTML = ''; // Remove initials
+                }
+                
+                currentProfile.avatar_url = avatarUrl;
+                updatePreview();
+                oolalaToast('Avatar updated!');
+                
+            } catch (error) {
+                console.error('Avatar upload error:', error);
+                oolalaToast('Error: ' + error.message);
+            }
+        }
+
+        // ══════════════════════════════════════
         // UPDATE PREVIEW URL
         // ══════════════════════════════════════
         function updatePreviewUrl(handle) {
@@ -6046,9 +6127,65 @@
             if (sidebarUrl) {
                 sidebarUrl.textContent = `myoolala.com/u/${handle || 'username'}`;
             }
+        }
+        
+        function updatePreview() {
+            const iframe = document.getElementById('preview-iframe');
+            if (!iframe || !currentProfile) return;
             
-            // Preview iframe - don't load external URL in standalone mode
-            // Will be connected to actual profile renderer in production
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            if (!iframeDoc) return;
+            
+            // Update profile info
+            const nameEl = iframeDoc.querySelector('.name');
+            const handleEl = iframeDoc.querySelector('.handle');
+            const bioEl = iframeDoc.querySelector('.bio');
+            const flagsEl = iframeDoc.querySelector('.flags');
+            const citizenEl = iframeDoc.querySelector('.citizen-badge');
+            const sigCitizenEl = iframeDoc.querySelector('.sig-citizen');
+            
+            if (nameEl) nameEl.textContent = currentProfile.display_name || 'Your Name';
+            if (handleEl) handleEl.textContent = '@' + (currentProfile.handle || 'handle');
+            if (bioEl) bioEl.textContent = currentProfile.bio || 'Your bio will appear here...';
+            
+            // Flags
+            const originFlag = currentProfile.origin_flags?.[0] || '🌍';
+            const locationFlag = currentProfile.based_in_flag || '🌍';
+            if (flagsEl) flagsEl.textContent = `${originFlag} → ${locationFlag}`;
+            
+            // Citizen ID
+            const citizenId = currentProfile.citizen_id || '';
+            const citizenDisplay = citizenId ? citizenId.replace('#', '').replace('-', ' · ') : '';
+            if (citizenEl) citizenEl.textContent = citizenDisplay || 'Citizen ID';
+            if (sigCitizenEl) sigCitizenEl.textContent = citizenDisplay || '';
+            
+            // Update links
+            const linksContainer = iframeDoc.querySelector('.main');
+            if (linksContainer && currentBlocks.length > 0) {
+                // Remove existing links
+                iframeDoc.querySelectorAll('.link').forEach(el => el.remove());
+                
+                // Find where to insert (before footer-icons)
+                const footerIcons = iframeDoc.querySelector('.footer-icons');
+                
+                // Add real links
+                currentBlocks.filter(b => b.type === 'link').forEach(block => {
+                    const linkEl = iframeDoc.createElement('a');
+                    linkEl.className = 'link';
+                    linkEl.innerHTML = `
+                        <div class='link-icon'>${(block.title || 'L')[0]}</div>
+                        <div>
+                            <div class='link-title'>${block.title || ''}</div>
+                            <div class='link-sub'>${block.url || ''}</div>
+                        </div>
+                    `;
+                    if (footerIcons) {
+                        linksContainer.insertBefore(linkEl, footerIcons);
+                    } else {
+                        linksContainer.appendChild(linkEl);
+                    }
+                });
+            }
         }
 
         function copyProfileUrl() {
