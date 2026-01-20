@@ -656,13 +656,13 @@
             try {
                 const { data: profile, error } = await supabaseClient
                     .from('profiles')
-                    .select('id, username')
+                    .select('id, handle')
                     .eq('id', userId)
                     .maybeSingle();
 
                 if (error) throw error;
 
-                if (profile && profile.username) {
+                if (profile && profile.handle) {
                     // Profile exists → Cockpit
                     window.location.href = '/cockpit';
                 } else {
