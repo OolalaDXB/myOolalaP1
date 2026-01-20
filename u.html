@@ -388,22 +388,38 @@
 
         async function loadProfile(handle) {
             try {
-                // Utiliser la RPC pour charger toutes les données publiques en un seul appel
-                // Plus sûr que select('*') - retourne uniquement les colonnes autorisées
+                // Parse view name from URL if present (e.g., /u/mickael/work)
+                const pathParts = window.location.pathname.split('/').filter(Boolean);
+                const viewName = pathParts.length > 2 ? pathParts[2] : 'social';
+                
+                // SINGLE RPC CALL - the only public data boundary
                 const { data: result, error } = await supabaseClient
-                    .rpc('get_public_profile', { 
+                    .rpc('get_public_view', { 
                         p_handle: handle, 
-                        p_view_name: 'social' 
+                        p_view_name: viewName 
                     });
                 
-                if (error || !result || !result.profile) { 
-                    console.error('Profile not found or RPC error:', error);
-                    showError(); 
-                    return; 
+                // Handle errors
+                if (error) {
+                    console.error('RPC error:', error);
+                    showError();
+                    return;
                 }
                 
+                if (result?.error) {
+                    console.error('Profile/view error:', result.error);
+                    showError();
+                    return;
+                }
+                
+                if (!result?.profile) {
+                    showError();
+                    return;
+                }
+                
+                // Extract data from RPC response
                 currentProfile = result.profile;
-                const view = result.view;
+                const view = result.view || {};
                 const blocks = result.blocks || [];
                 const socials = result.socials || [];
                 
@@ -412,58 +428,6 @@
                 console.error('loadProfile error:', err); 
                 showError(); 
             }
-        }
-
-        // Fallback if RPC doesn't exist (for backwards compatibility)
-        async function loadProfileFallback(handle) {
-            try {
-                // Explicit columns only - never use select('*')
-                const { data: profile, error } = await supabaseClient
-                    .from('profiles')
-                    .select('id, handle, display_name, avatar_url, citizen_id, origin_flags, based_in_flag, based_in_city')
-                    .eq('handle', handle)
-                    .single();
-                    
-                if (error || !profile) { showError(); return; }
-                currentProfile = profile;
-
-                // Get the social view with explicit columns
-                const { data: socialView } = await supabaseClient
-                    .from('views')
-                    .select('id, name, label, bio, spotlight, origin_flags, based_in_flag, based_in_flags, based_in_city, based_in_cities, based_in_airport, based_in_airports')
-                    .eq('user_id', profile.id)
-                    .eq('name', 'social')
-                    .eq('visibility', 'public')
-                    .single();
-                
-                let blocks = [];
-                if (socialView) {
-                    const { data: viewBlocks } = await supabaseClient
-                        .from('blocks')
-                        .select('id, type, title, url, icon, order, data')
-                        .eq('view_id', socialView.id)
-                        .order('order', { ascending: true });
-                    if (viewBlocks) blocks = viewBlocks;
-                }
-                
-                // Get visible socials via socials_views
-                let socials = [];
-                if (socialView) {
-                    const { data: visibleSocials } = await supabaseClient
-                        .from('socials_views')
-                        .select('social_id, socials(id, platform, username, url)')
-                        .eq('view_id', socialView.id)
-                        .eq('visible', true)
-                        .order('order', { ascending: true });
-                    
-                    if (visibleSocials) {
-                        socials = visibleSocials.map(sv => sv.socials).filter(Boolean);
-                    }
-                }
-                
-                renderProfile(profile, socialView, blocks, socials);
-            } catch (err) { console.error(err); showError(); }
-        }
         }
 
         function renderProfile(profile, view, blocks, socials) {
