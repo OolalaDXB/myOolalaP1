@@ -811,13 +811,21 @@
                     <a href="/auth" class="confirmation-btn">Back to Sign in</a>
                     <p class="confirmation-help">
                         Didn't receive the email? Check your spam folder or 
-                        <button onclick="resendConfirmation('${escapeHtml(email)}')" class="resend-link">resend it</button>
+                        <button onclick="resendConfirmation()" class="resend-link">resend it</button>
                     </p>
                 </div>
             `;
+            // Store email for resend
+            window._pendingConfirmationEmail = email;
         }
 
-        async function resendConfirmation(email) {
+        async function resendConfirmation() {
+            const email = window._pendingConfirmationEmail;
+            if (!email) {
+                showToast('No email to resend to', 'error');
+                return;
+            }
+            
             try {
                 const { error } = await supabaseClient.auth.resend({
                     type: 'signup',
@@ -830,7 +838,8 @@
                 if (error) throw error;
                 showToast('Confirmation email resent!');
             } catch (err) {
-                showToast('Could not resend email', 'error');
+                console.error('Resend error:', err);
+                showToast(err.message || 'Could not resend email', 'error');
             }
         }
 
