@@ -3382,9 +3382,26 @@
                     </div>
                 </div>
 
+                <!-- EDIT VIEW SELECTOR -->
+                <div class="card" style="background: linear-gradient(135deg, var(--signature) 0%, var(--signature-light) 100%); color: white;">
+                    <div class="card-header" style="border: none;">
+                        <span class="card-title" style="color: white;">Editing View</span>
+                    </div>
+                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 1rem;">
+                        Each view can have different content. Select which view to edit.
+                    </p>
+                    <select class="form-input" id="edit-view-select" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: 500;">
+                        <option value="social">Social</option>
+                        <option value="work">Work</option>
+                        <option value="events">Events</option>
+                        <option value="exclusive">Exclusive</option>
+                    </select>
+                </div>
+
                 <div class="card">
                     <div class="card-header">
                         <span class="card-title">Basic Info</span>
+                        <span class="card-badge" style="font-size: 0.7rem; background: var(--surface);">Shared across views</span>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Display Name</label>
@@ -3392,8 +3409,15 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Handle</label>
-                        <input type="text" class="form-input" id="input-username" placeholder="username" onchange="markUnsaved()">
-                        <div class="form-hint">myoolala.com/<strong id="username-preview">username</strong></div>
+                        <input type="text" class="form-input" id="input-username" placeholder="username" disabled style="opacity: 0.6;">
+                        <div class="form-hint">myoolala.com/u/<strong id="username-preview">username</strong></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">View Content</span>
+                        <span class="card-badge" id="editing-view-badge" style="font-size: 0.7rem; background: #E8F5E9; color: #2E7D5A;">Social</span>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Bio</label>
@@ -3401,6 +3425,21 @@
                         <div class="form-hint">
                             <span class="char-count"><span id="bio-count">0</span>/160</span>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Spotlight</label>
+                        <input type="text" class="form-input" id="input-spotlight" placeholder="Featured message or quote..." maxlength="100" onchange="markUnsaved()">
+                        <div class="form-hint">
+                            <span class="char-count"><span id="spotlight-count">0</span>/100</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-input" id="input-city" placeholder="Dubai" onchange="markUnsaved()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Airport Code</label>
+                        <input type="text" class="form-input" id="input-airport" placeholder="DXB" maxlength="4" style="text-transform: uppercase;" onchange="markUnsaved()">
                     </div>
                 </div>
 
@@ -3916,6 +3955,13 @@
                                 YouTube
                             </label>
                             <input type="text" class="social-input" placeholder="@channel" id="social-youtube" onchange="markUnsaved()">
+                        </div>
+                        <div class="social-input-group">
+                            <label class="social-input-label">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                                Spotify
+                            </label>
+                            <input type="text" class="social-input" placeholder="profile link or username" id="social-spotify" onchange="markUnsaved()">
                         </div>
                         <div class="social-input-group">
                             <label class="social-input-label">
@@ -5192,7 +5238,10 @@
         let supabaseClient;
         let currentUser = null;
         let currentProfile = null;
+        let currentViews = [];
+        let currentView = null;
         let currentBlocks = [];
+        let currentSocials = [];
         let hasUnsavedChanges = false;
 
         // ══════════════════════════════════════
@@ -5301,44 +5350,28 @@
                 console.log('Profile loaded:', profile.handle);
                 currentProfile = profile;
                 
-                // Get "social" view for this user
-                const { data: socialView, error: viewError } = await supabaseClient
+                // Get all views for this user
+                const { data: allViews, error: viewsError } = await supabaseClient
                     .from('views')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('name', 'social')
-                    .single();
+                    .select('*')
+                    .eq('user_id', currentUser.id);
                 
-                if (viewError) {
-                    console.warn('No social view found:', viewError.message);
+                if (viewsError) {
+                    console.warn('Error loading views:', viewsError.message);
                 }
                 
-                let blocks = [];
-                if (socialView) {
-                    console.log('Social view found:', socialView.id);
-                    const { data: viewBlocks, error: blocksError } = await supabaseClient
-                        .from('blocks')
-                        .select('*')
-                        .eq('view_id', socialView.id)
-                        .order('order', { ascending: true });
-                    
-                    if (blocksError) {
-                        console.warn('Blocks error:', blocksError.message);
-                    }
-                    blocks = viewBlocks || [];
-                }
+                currentViews = allViews || [];
+                console.log('Views loaded:', currentViews.length);
                 
-                console.log('Blocks loaded:', blocks.length);
-                currentBlocks = blocks;
+                // Populate view selector
+                populateViewSelector(currentViews);
                 
-                // Populate UI
+                // Load the selected view (default: social, or first available)
+                const selectedViewName = document.getElementById('edit-view-select')?.value || 'social';
+                await loadViewData(selectedViewName);
+                
+                // Populate base profile UI (citizen panel - immutable data)
                 populateCitizenPanel(profile);
-                populateProfileForm(profile);
-                populateBlocks(blocks);
-                updatePreviewUrl(profile.handle);
-                
-                // Update live preview with real data
-                setTimeout(() => updatePreview(), 100);
                 
                 console.log('UI populated successfully');
                 
@@ -5349,16 +5382,140 @@
         }
 
         // ══════════════════════════════════════
+        // VIEW SELECTOR & MANAGEMENT
+        // ══════════════════════════════════════
+        function populateViewSelector(views) {
+            const selector = document.getElementById('edit-view-select');
+            const previewSelector = document.getElementById('preview-view-select');
+            if (!selector) return;
+            
+            selector.innerHTML = '';
+            if (previewSelector) previewSelector.innerHTML = '';
+            
+            views.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.name;
+                option.textContent = v.name.charAt(0).toUpperCase() + v.name.slice(1);
+                selector.appendChild(option);
+                
+                if (previewSelector) {
+                    const previewOption = option.cloneNode(true);
+                    previewSelector.appendChild(previewOption);
+                }
+            });
+            
+            // Add change listener
+            selector.addEventListener('change', async (e) => {
+                if (hasUnsavedChanges) {
+                    if (!confirm('You have unsaved changes. Switch view anyway?')) {
+                        selector.value = currentView?.name || 'social';
+                        return;
+                    }
+                }
+                await loadViewData(e.target.value);
+                
+                // Sync preview selector
+                if (previewSelector) previewSelector.value = e.target.value;
+                
+                // Update badge
+                const badge = document.getElementById('editing-view-badge');
+                if (badge) {
+                    badge.textContent = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
+                }
+            });
+        }
+        
+        async function loadViewData(viewName) {
+            if (!currentUser || !currentViews.length) return;
+            
+            // Find the view
+            const view = currentViews.find(v => v.name === viewName);
+            if (!view) {
+                console.warn('View not found:', viewName);
+                return;
+            }
+            
+            currentView = view;
+            console.log('Loading view:', viewName, view.id);
+            
+            // Load blocks for this view
+            const { data: blocks, error: blocksError } = await supabaseClient
+                .from('blocks')
+                .select('*')
+                .eq('view_id', view.id)
+                .order('order', { ascending: true });
+            
+            if (blocksError) {
+                console.warn('Blocks error:', blocksError.message);
+            }
+            currentBlocks = blocks || [];
+            console.log('Blocks loaded:', currentBlocks.length);
+            
+            // Load socials visibility for this view
+            const { data: socialsVisibility, error: socialsError } = await supabaseClient
+                .from('socials_views')
+                .select(`
+                    visible,
+                    order,
+                    social_id,
+                    socials (
+                        id,
+                        platform,
+                        username,
+                        url
+                    )
+                `)
+                .eq('view_id', view.id);
+            
+            if (socialsError) {
+                console.warn('Socials visibility error:', socialsError.message);
+            }
+            
+            // Populate UI with view data
+            populateProfileForm(view);
+            populateBlocks(currentBlocks);
+            populateSocialsVisibility(socialsVisibility || []);
+            updatePreviewUrl(currentProfile.handle);
+            
+            // Update live preview
+            setTimeout(() => updatePreview(), 100);
+            
+            hasUnsavedChanges = false;
+            document.getElementById('save-btn')?.classList.remove('has-changes');
+        }
+        
+        function populateSocialsVisibility(socialsVisibility) {
+            // Map visibility to checkboxes
+            const visibilityMap = {};
+            socialsVisibility.forEach(sv => {
+                if (sv.socials) {
+                    visibilityMap[sv.socials.platform] = sv.visible;
+                }
+            });
+            
+            // Update checkboxes for each platform
+            const platforms = ['instagram', 'twitter', 'tiktok', 'linkedin', 'youtube', 'spotify', 'whatsapp', 'website'];
+            platforms.forEach(platform => {
+                const checkbox = document.getElementById(`social-visible-${platform}`);
+                if (checkbox) {
+                    checkbox.checked = visibilityMap[platform] !== false; // Default to visible
+                }
+            });
+        }
+
+        // ══════════════════════════════════════
         // POPULATE CITIZEN PANEL
         // ══════════════════════════════════════
         function populateCitizenPanel(profile) {
             const getEl = (id) => document.getElementById(id);
             
-            // Citizen ID
-            const citizenId = profile.citizen_id || profile.id?.substring(0, 4) || '0001';
+            // Citizen ID - format: XXX-XXXXX (stored without #)
+            const citizenId = profile.citizen_id || '000-00000';
             const citizenDisplay = getEl('citizen-id-display');
             if (citizenDisplay) {
-                citizenDisplay.textContent = `#${citizenId.toString().padStart(4, '0')}`;
+                // Display with single # prefix, remove any existing #
+                const cleanId = citizenId.replace(/^#+/, '');
+                citizenDisplay.textContent = `#${cleanId}`;
             }
             
             // Plan badge
@@ -5422,9 +5579,9 @@
         }
 
         // ══════════════════════════════════════
-        // POPULATE PROFILE FORM
+        // POPULATE PROFILE FORM (from view data)
         // ══════════════════════════════════════
-        function populateProfileForm(profile) {
+        function populateProfileForm(view) {
             const setVal = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.value = val || '';
@@ -5434,23 +5591,39 @@
                 if (el) el.textContent = val || '';
             };
 
-            setVal('input-display-name', profile.display_name);
-            setVal('input-username', profile.handle);
-            setVal('input-bio', profile.bio);
-            setVal('input-spotlight', profile.spotlight);
+            // Base profile data (from currentProfile)
+            setVal('input-display-name', currentProfile.display_name);
+            setVal('input-username', currentProfile.handle);
+            
+            // View-specific data
+            setVal('input-bio', view.bio);
+            setVal('input-spotlight', view.spotlight);
+            setVal('input-city', view.based_in_city);
+            setVal('input-airport', view.based_in_airport);
             
             // Update previews
-            setText('username-preview', profile.handle || 'username');
-            setText('spotlight-preview-text', `"${profile.spotlight || 'The journey is the destination...'}"`);
+            setText('username-preview', currentProfile.handle || 'username');
+            setText('spotlight-preview-text', `"${view.spotlight || 'The journey is the destination...'}"`);
             
             // Update char counts
             updateCharCount('input-bio', 'bio-count');
             updateCharCount('input-spotlight', 'spotlight-count');
             
-            // Flags (use origin_flags array and based_in_flag)
-            const originFlag = profile.origin_flags && profile.origin_flags.length > 0 ? profile.origin_flags[0] : '🌍';
-            const locationFlag = profile.based_in_flag || '🌍';
+            // Flags (from view)
+            const originFlag = view.origin_flags && view.origin_flags.length > 0 ? view.origin_flags[0] : '🌍';
+            const locationFlag = view.based_in_flag || '🌍';
             setText('flags-preview', `${originFlag} → ${locationFlag}`);
+            
+            // Update Home Base display
+            const homeBaseDisplay = document.getElementById('home-base-display');
+            if (homeBaseDisplay) {
+                const airport = view.based_in_airport || 'DXB';
+                const city = view.based_in_city || 'Dubai';
+                homeBaseDisplay.innerHTML = `
+                    <strong>${airport}</strong> ${city}
+                    <div class="home-base-sub">${airport} • ${currentProfile.citizen_id || '000-00000'}</div>
+                `;
+            }
             
             // Socials from socials table - load async
             loadSocials();
@@ -5972,16 +6145,14 @@
         // SAVE ALL CHANGES
         // ══════════════════════════════════════
         async function saveAllChanges() {
-            if (!currentProfile) return;
-            
-            const profileUpdates = {
-                display_name: document.getElementById('input-display-name')?.value.trim(),
-                bio: document.getElementById('input-bio')?.value.trim()
-                // Note: spotlight column doesn't exist in profiles table
-            };
+            if (!currentProfile || !currentView) return;
             
             try {
-                // Update profile
+                // 1. Update base profile data (display_name only)
+                const profileUpdates = {
+                    display_name: document.getElementById('input-display-name')?.value.trim()
+                };
+                
                 const { error: profileError } = await supabaseClient
                     .from('profiles')
                     .update(profileUpdates)
@@ -5989,8 +6160,26 @@
                 
                 if (profileError) throw profileError;
                 
-                // Update socials in socials table
-                const socialPlatforms = ['instagram', 'twitter', 'tiktok', 'linkedin', 'youtube', 'whatsapp', 'website'];
+                // 2. Update view-specific data
+                const viewUpdates = {
+                    bio: document.getElementById('input-bio')?.value.trim(),
+                    spotlight: document.getElementById('input-spotlight')?.value.trim(),
+                    based_in_city: document.getElementById('input-city')?.value.trim(),
+                    based_in_airport: document.getElementById('input-airport')?.value.trim()
+                };
+                
+                const { error: viewError } = await supabaseClient
+                    .from('views')
+                    .update(viewUpdates)
+                    .eq('id', currentView.id);
+                
+                if (viewError) throw viewError;
+                
+                // 3. Update socials in socials table
+                const socialPlatforms = [
+                    'instagram', 'twitter', 'tiktok', 'linkedin', 'youtube', 
+                    'spotify', 'github', 'facebook', 'vk', 'wechat', 'whatsapp', 'website'
+                ];
                 
                 for (let i = 0; i < socialPlatforms.length; i++) {
                     const platform = socialPlatforms[i];
@@ -5998,15 +6187,34 @@
                     const value = el?.value.trim() || '';
                     
                     if (value) {
-                        // Upsert: insert or update
-                        await supabaseClient
+                        // Upsert: insert or update social
+                        const { data: social, error: socialError } = await supabaseClient
                             .from('socials')
                             .upsert({
                                 user_id: currentUser.id,
                                 platform: platform,
                                 username: value,
                                 order: i
-                            }, { onConflict: 'user_id,platform' });
+                            }, { onConflict: 'user_id,platform' })
+                            .select()
+                            .single();
+                        
+                        if (socialError) {
+                            console.warn('Social upsert error:', socialError);
+                        } else if (social) {
+                            // Update visibility for this view
+                            const visibleCheckbox = document.getElementById(`social-visible-${platform}`);
+                            const isVisible = visibleCheckbox ? visibleCheckbox.checked : true;
+                            
+                            await supabaseClient
+                                .from('socials_views')
+                                .upsert({
+                                    social_id: social.id,
+                                    view_id: currentView.id,
+                                    visible: isVisible,
+                                    order: i
+                                }, { onConflict: 'social_id,view_id' });
+                        }
                     } else {
                         // Delete if empty
                         await supabaseClient
@@ -6017,14 +6225,21 @@
                     }
                 }
                 
+                // Update local state
                 currentProfile = { ...currentProfile, ...profileUpdates };
+                currentView = { ...currentView, ...viewUpdates };
+                
                 hasUnsavedChanges = false;
                 document.getElementById('save-btn')?.classList.remove('has-changes');
+                
+                // Update preview
+                updatePreview();
+                
                 oolalaToast('Changes saved');
                 
             } catch (error) {
                 console.error('Error saving:', error);
-                oolalaToast('Error saving changes');
+                oolalaToast('Error saving: ' + error.message);
             }
         }
 
@@ -6136,6 +6351,9 @@
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             if (!iframeDoc) return;
             
+            // Use currentView for view-specific data, currentProfile for base data
+            const view = currentView || {};
+            
             // Update profile info
             const nameEl = iframeDoc.querySelector('.name');
             const handleEl = iframeDoc.querySelector('.handle');
@@ -6143,21 +6361,37 @@
             const flagsEl = iframeDoc.querySelector('.flags');
             const citizenEl = iframeDoc.querySelector('.citizen-badge');
             const sigCitizenEl = iframeDoc.querySelector('.sig-citizen');
+            const avatarEl = iframeDoc.querySelector('.avatar');
+            const viewBadgeEl = iframeDoc.querySelector('.view-badge');
             
             if (nameEl) nameEl.textContent = currentProfile.display_name || 'Your Name';
             if (handleEl) handleEl.textContent = '@' + (currentProfile.handle || 'handle');
-            if (bioEl) bioEl.textContent = currentProfile.bio || 'Your bio will appear here...';
+            if (bioEl) bioEl.textContent = view.bio || 'Your bio will appear here...';
             
-            // Flags
-            const originFlag = currentProfile.origin_flags?.[0] || '🌍';
-            const locationFlag = currentProfile.based_in_flag || '🌍';
+            // View badge
+            if (viewBadgeEl && view.name) {
+                viewBadgeEl.textContent = view.name.charAt(0).toUpperCase() + view.name.slice(1);
+            }
+            
+            // Avatar
+            if (avatarEl && currentProfile.avatar_url) {
+                avatarEl.style.backgroundImage = `url(${currentProfile.avatar_url})`;
+                avatarEl.style.backgroundSize = 'cover';
+                avatarEl.style.backgroundPosition = 'center';
+            }
+            
+            // Flags (from view)
+            const originFlag = view.origin_flags?.[0] || '🌍';
+            const locationFlag = view.based_in_flag || '🌍';
             if (flagsEl) flagsEl.textContent = `${originFlag} → ${locationFlag}`;
             
-            // Citizen ID
-            const citizenId = currentProfile.citizen_id || '';
-            const citizenDisplay = citizenId ? citizenId.replace('#', '').replace('-', ' · ') : '';
-            if (citizenEl) citizenEl.textContent = citizenDisplay || 'Citizen ID';
-            if (sigCitizenEl) sigCitizenEl.textContent = citizenDisplay || '';
+            // Citizen ID with city
+            const citizenId = currentProfile.citizen_id || '000-00000';
+            const cleanId = citizenId.replace(/^#+/, '');
+            const city = view.based_in_city || '';
+            const airport = view.based_in_airport || '';
+            if (citizenEl) citizenEl.textContent = `${airport} • ${cleanId}${city ? ' · ' + city : ''}`;
+            if (sigCitizenEl) sigCitizenEl.textContent = `${airport} • ${cleanId}`;
             
             // Update links
             const linksContainer = iframeDoc.querySelector('.main');
@@ -6183,6 +6417,41 @@
                         linksContainer.insertBefore(linkEl, footerIcons);
                     } else {
                         linksContainer.appendChild(linkEl);
+                    }
+                });
+            }
+            
+            // Update social icons in footer
+            const footerIcons = iframeDoc.querySelector('.footer-icons');
+            if (footerIcons) {
+                footerIcons.innerHTML = '';
+                
+                // Get current social values from form inputs
+                const socialIcons = {
+                    instagram: '📷',
+                    twitter: '𝕏',
+                    tiktok: '🎵',
+                    linkedin: '💼',
+                    youtube: '▶️',
+                    spotify: '🎧',
+                    github: '💻',
+                    facebook: 'f',
+                    whatsapp: '📱',
+                    website: '🌐'
+                };
+                
+                const platforms = Object.keys(socialIcons);
+                platforms.forEach(platform => {
+                    const input = document.getElementById(`social-${platform}`);
+                    if (input && input.value.trim()) {
+                        const iconEl = iframeDoc.createElement('div');
+                        iconEl.className = 'footer-icon';
+                        iconEl.style.display = 'flex';
+                        iconEl.style.alignItems = 'center';
+                        iconEl.style.justifyContent = 'center';
+                        iconEl.style.fontSize = '10px';
+                        iconEl.textContent = socialIcons[platform];
+                        footerIcons.appendChild(iconEl);
                     }
                 });
             }
