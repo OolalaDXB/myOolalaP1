@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
     <title>Cockpit — MyOolala</title>
+
+    <script src="/js/countries.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5569,60 +5571,8 @@
         let selectedFlags = ['MX', 'US']; // Array of selected country codes
         let tempSelectedFlag = null;
 
-        const allCountries = [
-            { code: 'US', name: 'United States', emoji: '🇺🇸' },
-            { code: 'GB', name: 'United Kingdom', emoji: '🇬🇧' },
-            { code: 'FR', name: 'France', emoji: '🇫🇷' },
-            { code: 'DE', name: 'Germany', emoji: '🇩🇪' },
-            { code: 'IT', name: 'Italy', emoji: '🇮🇹' },
-            { code: 'ES', name: 'Spain', emoji: '🇪🇸' },
-            { code: 'PT', name: 'Portugal', emoji: '🇵🇹' },
-            { code: 'NL', name: 'Netherlands', emoji: '🇳🇱' },
-            { code: 'BE', name: 'Belgium', emoji: '🇧🇪' },
-            { code: 'CH', name: 'Switzerland', emoji: '🇨🇭' },
-            { code: 'AT', name: 'Austria', emoji: '🇦🇹' },
-            { code: 'SE', name: 'Sweden', emoji: '🇸🇪' },
-            { code: 'NO', name: 'Norway', emoji: '🇳🇴' },
-            { code: 'DK', name: 'Denmark', emoji: '🇩🇰' },
-            { code: 'FI', name: 'Finland', emoji: '🇫🇮' },
-            { code: 'IE', name: 'Ireland', emoji: '🇮🇪' },
-            { code: 'PL', name: 'Poland', emoji: '🇵🇱' },
-            { code: 'CZ', name: 'Czech Republic', emoji: '🇨🇿' },
-            { code: 'GR', name: 'Greece', emoji: '🇬🇷' },
-            { code: 'TR', name: 'Turkey', emoji: '🇹🇷' },
-            { code: 'RU', name: 'Russia', emoji: '🇷🇺' },
-            { code: 'UA', name: 'Ukraine', emoji: '🇺🇦' },
-            { code: 'AE', name: 'UAE', emoji: '🇦🇪' },
-            { code: 'SA', name: 'Saudi Arabia', emoji: '🇸🇦' },
-            { code: 'IL', name: 'Israel', emoji: '🇮🇱' },
-            { code: 'EG', name: 'Egypt', emoji: '🇪🇬' },
-            { code: 'MA', name: 'Morocco', emoji: '🇲🇦' },
-            { code: 'ZA', name: 'South Africa', emoji: '🇿🇦' },
-            { code: 'NG', name: 'Nigeria', emoji: '🇳🇬' },
-            { code: 'KE', name: 'Kenya', emoji: '🇰🇪' },
-            { code: 'BW', name: 'Botswana', emoji: '🇧🇼' },
-            { code: 'MU', name: 'Mauritius', emoji: '🇲🇺' },
-            { code: 'CN', name: 'China', emoji: '🇨🇳' },
-            { code: 'JP', name: 'Japan', emoji: '🇯🇵' },
-            { code: 'KR', name: 'South Korea', emoji: '🇰🇷' },
-            { code: 'IN', name: 'India', emoji: '🇮🇳' },
-            { code: 'SG', name: 'Singapore', emoji: '🇸🇬' },
-            { code: 'HK', name: 'Hong Kong', emoji: '🇭🇰' },
-            { code: 'TH', name: 'Thailand', emoji: '🇹🇭' },
-            { code: 'VN', name: 'Vietnam', emoji: '🇻🇳' },
-            { code: 'ID', name: 'Indonesia', emoji: '🇮🇩' },
-            { code: 'MY', name: 'Malaysia', emoji: '🇲🇾' },
-            { code: 'PH', name: 'Philippines', emoji: '🇵🇭' },
-            { code: 'AU', name: 'Australia', emoji: '🇦🇺' },
-            { code: 'NZ', name: 'New Zealand', emoji: '🇳🇿' },
-            { code: 'CA', name: 'Canada', emoji: '🇨🇦' },
-            { code: 'MX', name: 'Mexico', emoji: '🇲🇽' },
-            { code: 'BR', name: 'Brazil', emoji: '🇧🇷' },
-            { code: 'AR', name: 'Argentina', emoji: '🇦🇷' },
-            { code: 'CO', name: 'Colombia', emoji: '🇨🇴' },
-            { code: 'CL', name: 'Chile', emoji: '🇨🇱' },
-            { code: 'PE', name: 'Peru', emoji: '🇵🇪' },
-        ];
+        // Provided by /js/countries.js (shared list across pages)
+        const allCountries = COUNTRIES;
 
         function initFlagPicker() {
             renderFlagPickerGrid();
