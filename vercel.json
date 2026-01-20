@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/onboarding", "destination": "/onboarding.html" },
+    { "source": "/product", "destination": "/product.html" },
+    { "source": "/cockpit", "destination": "/cockpit.html" },
+    { "source": "/u/:username", "destination": "/profile.html" }
+  ]
+}

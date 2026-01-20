@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Editor — myOolala</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='serif' font-style='italic' fill='%231A3A3A'>Oo</text></svg>">
+    <meta name="description" content="Build your digital passport in minutes. Edit blocks, switch views, share anywhere.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #F4F3F0;
+            --surface: #ECE8E2;
+            --surface-hover: #E4DFD7;
+            --ink: #1C1C1C;
+            --ink-soft: #6A635D;
+            --signature: #1A3A3A;
+            --accent: #B8A89A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Signature Bar */
+        .signature-bar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 100vh;
+            background: var(--signature);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 0;
+        }
+
+        .signature-pulse {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        .signature-brand {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+        }
+
+        .page { margin-left: 28px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 3rem; }
+
+        /* Header */
+        .header {
+            padding: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand { display: flex; flex-direction: column; }
+
+        .header-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-style: italic;
+            color: var(--signature);
+            text-decoration: none;
+        }
+
+        .header-tagline {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--ink-soft);
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
+
+        .nav-link {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover { color: var(--ink); }
+
+        .nav-cta {
+            background: var(--signature);
+            color: white;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .nav-cta:hover { background: var(--ink); }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 0 3rem;
+            text-align: center;
+        }
+
+        .hero-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--ink-soft);
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: var(--ink-soft);
+            max-width: 500px;
+            margin: 0 auto 3rem;
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            background: var(--surface);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--signature);
+        }
+
+        .feature-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+        }
+
+        /* Cockpit Preview */
+        .cockpit-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.06);
+            margin-bottom: 4rem;
+        }
+
+        .cockpit-mockup {
+            background: var(--bg-main);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--surface);
+        }
+
+        .cockpit-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--surface);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .cockpit-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        .cockpit-dot:nth-child(1) { background: #E57373; }
+        .cockpit-dot:nth-child(2) { background: #FFB74D; }
+        .cockpit-dot:nth-child(3) { background: #81C784; }
+
+        .cockpit-body {
+            display: grid;
+            grid-template-columns: 200px 1fr 240px;
+            min-height: 400px;
+        }
+
+        /* Sidebar */
+        .cockpit-sidebar {
+            background: var(--signature);
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .cockpit-sidebar-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cockpit-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .cockpit-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            transition: all 0.2s;
+        }
+
+        .cockpit-nav-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .cockpit-nav-item.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        /* Main Editor */
+        .cockpit-main {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .cockpit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .cockpit-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+        }
+
+        .cockpit-add-btn {
+            background: var(--signature);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .cockpit-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .cockpit-block {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1rem;
+            background: var(--bg-main);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .cockpit-block:hover {
+            background: var(--surface);
+        }
+
+        .cockpit-drag {
+            color: var(--accent);
+            font-size: 1.1rem;
+            cursor: grab;
+        }
+
+        .cockpit-block-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cockpit-block-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .cockpit-block-info { flex: 1; }
+
+        .cockpit-block-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .cockpit-block-url {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+        }
+
+        .cockpit-block-toggle {
+            width: 36px;
+            height: 20px;
+            background: var(--signature);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .cockpit-block-toggle::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+        }
+
+        /* Preview Panel */
+        .cockpit-preview {
+            background: var(--surface);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cockpit-preview-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ink-soft);
+            margin-bottom: 1rem;
+        }
+
+        .cockpit-phone {
+            width: 180px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .cockpit-phone-notch {
+            width: 80px;
+            height: 24px;
+            background: var(--ink);
+            border-radius: 0 0 16px 16px;
+            margin: 0 auto;
+        }
+
+        .cockpit-phone-content {
+            padding: 1.25rem;
+        }
+
+        .cockpit-phone-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 100%;
+            background: var(--signature);
+        }
+
+        .cockpit-phone-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--surface);
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+        }
+
+        .cockpit-phone-name {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .cockpit-phone-handle {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--ink-soft);
+            margin-bottom: 1rem;
+        }
+
+        .cockpit-phone-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .cockpit-phone-link {
+            height: 28px;
+            background: var(--bg-main);
+            border-radius: 6px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .cta-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-desc {
+            color: var(--ink-soft);
+            margin-bottom: 2rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--signature);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background: var(--ink);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 2rem 0;
+            border-top: 1px solid var(--surface);
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-link {
+            color: var(--ink-soft);
+            text-decoration: none;
+        }
+
+        .footer-link:hover { color: var(--ink); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .cockpit-body {
+                grid-template-columns: 1fr;
+            }
+            .cockpit-sidebar, .cockpit-preview {
+                display: none;
+            }
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .signature-bar {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 36px;
+                flex-direction: row;
+                padding: 0 1.5rem;
+            }
+            .signature-brand {
+                writing-mode: horizontal-tb;
+                transform: none;
+            }
+            .page {
+                margin-left: 0;
+                margin-bottom: 36px;
+            }
+            .container { padding: 0 1.25rem; }
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            .nav-links { gap: 1rem; flex-wrap: wrap; }
+            .hero { padding: 2rem 0; }
+            .hero-title { font-size: 2rem; }
+            .cockpit-section { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="signature-bar">
+        <div class="signature-pulse"></div>
+        <a href="/" class="signature-brand">myOolala</a>
+    </aside>
+
+    <div class="page">
+        <header class="header container">
+            <div class="header-brand">
+                <a href="/" class="header-logo">Oolala</a>
+                <span class="header-tagline">Your digital passport.</span>
+            </div>
+            <nav class="nav-links">
+                <a href="/#examples" class="nav-link">Examples</a>
+                <a href="/#pricing" class="nav-link">Pricing</a>
+                <a href="/login" class="nav-link">Sign in</a>
+                <a href="/onboarding" class="nav-cta">Get started</a>
+            </nav>
+        </header>
+
+        <section class="hero container">
+            <p class="hero-label">The Editor</p>
+            <h1 class="hero-title">Build it in minutes.</h1>
+            <p class="hero-desc">A simple, elegant editor that gets out of your way. Drag blocks, switch views, preview live.</p>
+        </section>
+
+        <div class="container">
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Edit blocks</h3>
+                    <p class="feature-desc">Add links, embeds, images. Drag to reorder. Toggle visibility per view.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Switch views</h3>
+                    <p class="feature-desc">Social. Work. Events. Create contexts. Show what matters to each audience.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Share anywhere</h3>
+                    <p class="feature-desc">One link for each view. Or save to Apple Wallet. Your profile, always ready.</p>
+                </div>
+            </div>
+
+            <div class="cockpit-section">
+                <div class="cockpit-mockup">
+                    <div class="cockpit-toolbar">
+                        <span class="cockpit-dot"></span>
+                        <span class="cockpit-dot"></span>
+                        <span class="cockpit-dot"></span>
+                    </div>
+                    <div class="cockpit-body">
+                        <div class="cockpit-sidebar">
+                            <div class="cockpit-sidebar-brand">myOolala</div>
+                            <nav class="cockpit-nav">
+                                <div class="cockpit-nav-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    Profile
+                                </div>
+                                <div class="cockpit-nav-item active">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                    Blocks
+                                </div>
+                                <div class="cockpit-nav-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Views
+                                </div>
+                                <div class="cockpit-nav-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                    Settings
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="cockpit-main">
+                            <div class="cockpit-header">
+                                <h2 class="cockpit-title">Your Blocks</h2>
+                                <button class="cockpit-add-btn">+ Add block</button>
+                            </div>
+                            <div class="cockpit-blocks">
+                                <div class="cockpit-block">
+                                    <span class="cockpit-drag">⋮⋮</span>
+                                    <div class="cockpit-block-icon">
+                                        <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02z"/></svg>
+                                    </div>
+                                    <div class="cockpit-block-info">
+                                        <div class="cockpit-block-name">Sunday Morning</div>
+                                        <div class="cockpit-block-url">Spotify Playlist</div>
+                                    </div>
+                                    <div class="cockpit-block-toggle"></div>
+                                </div>
+                                <div class="cockpit-block">
+                                    <span class="cockpit-drag">⋮⋮</span>
+                                    <div class="cockpit-block-icon">
+                                        <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/><polygon fill="#fff" points="9.545,15.568 15.818,12 9.545,8.432"/></svg>
+                                    </div>
+                                    <div class="cockpit-block-info">
+                                        <div class="cockpit-block-name">YouTube</div>
+                                        <div class="cockpit-block-url">youtube.com/@sofiarey</div>
+                                    </div>
+                                    <div class="cockpit-block-toggle"></div>
+                                </div>
+                                <div class="cockpit-block">
+                                    <span class="cockpit-drag">⋮⋮</span>
+                                    <div class="cockpit-block-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                    </div>
+                                    <div class="cockpit-block-info">
+                                        <div class="cockpit-block-name">Shop</div>
+                                        <div class="cockpit-block-url">sofiarey.shop</div>
+                                    </div>
+                                    <div class="cockpit-block-toggle"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cockpit-preview">
+                            <span class="cockpit-preview-label">Live Preview</span>
+                            <div class="cockpit-phone">
+                                <div class="cockpit-phone-notch"></div>
+                                <div class="cockpit-phone-content">
+                                    <div class="cockpit-phone-avatar"></div>
+                                    <div class="cockpit-phone-name">Sofia Reyes</div>
+                                    <div class="cockpit-phone-handle">@sofiarey</div>
+                                    <div class="cockpit-phone-links">
+                                        <div class="cockpit-phone-link"></div>
+                                        <div class="cockpit-phone-link"></div>
+                                        <div class="cockpit-phone-link"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="cta-section container">
+            <h2 class="cta-title">Ready to build yours?</h2>
+            <p class="cta-desc">Free forever. Upgrade only when you need more.</p>
+            <a href="/onboarding" class="cta-btn">Get started</a>
+        </section>
+
+        <footer class="footer container">
+            <div class="footer-inner">
+                <span>© 2026 Oolala Next FZ-LLC</span>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Home</a>
+                    <a href="/profile" class="footer-link">Example Profile</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+</body>
+</html>

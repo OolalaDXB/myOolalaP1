@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sofia Reyes — myOolala</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #F4F3F0;
+            --surface: #ECE8E2;
+            --surface-hover: #FFFFFF;
+            --ink: #1C1C1C;
+            --ink-soft: #6A635D;
+            --signature: #1A3A3A;
+            --accent: #B8A89A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* ══════════════════════════════════════
+           SIGNATURE COLUMN — THE MOAT
+           ══════════════════════════════════════ */
+        .signature-bar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 100vh;
+            background: var(--signature);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 0;
+        }
+
+        .signature-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .signature-brand {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .signature-brand:hover { color: rgba(255,255,255,1); }
+
+        .signature-citizen {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.85);
+            white-space: nowrap;
+        }
+
+        .signature-pulse {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        /* ══════════════════════════════════════
+           PAGE LAYOUT
+           ══════════════════════════════════════ */
+        .page {
+            margin-left: 28px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 4rem 1.5rem;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        /* ══════════════════════════════════════
+           HEADER — IDENTITY (VERTICAL)
+           ══════════════════════════════════════ */
+        .profile-header {
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .avatar-wrapper {
+            cursor: pointer;
+            margin-bottom: 1.25rem;
+        }
+
+        .avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background-color: var(--surface);
+            background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');
+            background-size: cover;
+            background-position: center;
+            border: 2px solid white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .avatar-wrapper:hover .avatar {
+            transform: scale(1.05);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.25rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 0.25rem;
+        }
+
+        .handle {
+            font-size: 0.85rem;
+            color: var(--signature);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .profile-flags {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .profile-citizen {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: var(--signature);
+            background: rgba(26,58,58,0.06);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1px solid rgba(26,58,58,0.1);
+            margin-bottom: 0.75rem;
+        }
+
+        .bio {
+            font-size: 0.95rem;
+            color: var(--ink-soft);
+            line-height: 1.6;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lightbox.active { display: flex; }
+
+        .lightbox-img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(0,0,0,0.5);
+        }
+
+        /* ══════════════════════════════════════
+           CONTENT SECTIONS
+           ══════════════════════════════════════ */
+        .content-section {
+            margin-bottom: 2.5rem;
+            animation: slideUp 0.8s ease backwards;
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+
+        .section-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* ══════════════════════════════════════
+           SPOTLIGHT ADVANCED — RICH CARD
+           ══════════════════════════════════════ */
+        .spotlight-card {
+            display: block;
+            background: var(--signature);
+            color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            text-decoration: none;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .spotlight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(26,58,58,0.25);
+        }
+
+        .spotlight-card:hover::before { opacity: 1; }
+
+        .spotlight-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .spotlight-content {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        .spotlight-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .spotlight-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .spotlight-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            background: white;
+            color: var(--signature);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+
+        .spotlight-card:hover .spotlight-cta {
+            transform: translateX(4px);
+        }
+
+        /* ══════════════════════════════════════
+           LINKS STACK
+           ══════════════════════════════════════ */
+        .links-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--surface);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--ink);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid transparent;
+        }
+
+        .link-card:hover {
+            background: var(--surface-hover);
+            transform: translateX(4px);
+            border-color: rgba(0,0,0,0.04);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+
+        .link-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-main);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .link-icon svg {
+            width: 18px;
+            height: 18px;
+            color: var(--signature);
+        }
+
+        .link-icon img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .link-content { flex: 1; min-width: 0; }
+
+        .link-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .link-subtitle {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+            margin-top: 0.15rem;
+        }
+
+        .link-arrow {
+            color: var(--accent);
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: all 0.3s ease;
+        }
+
+        .link-card:hover .link-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ══════════════════════════════════════
+           PRODUCT CARD — SHOP / MONETIZATION
+           ══════════════════════════════════════ */
+        .product-card {
+            display: grid;
+            grid-template-columns: 56px 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--ink);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        .product-thumb {
+            width: 56px;
+            height: 72px;
+            background: var(--surface);
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .price-tag {
+            padding: 0.5rem 1rem;
+            background: var(--signature);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .price-tag {
+            transform: scale(1.05);
+        }
+
+        /* ══════════════════════════════════════
+           LOCKED CONTENT
+           ══════════════════════════════════════ */
+        .locked-card {
+            border: 1px dashed var(--accent);
+            background: transparent;
+        }
+
+        .locked-card:hover {
+            background: white;
+            border-style: solid;
+            border-color: var(--accent);
+        }
+
+        .locked-card .link-icon {
+            background: transparent;
+        }
+
+        /* ══════════════════════════════════════
+           EMBED CARDS — SPOTIFY / DEEZER
+           ══════════════════════════════════════ */
+        .embed-card {
+            background: var(--surface);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .embed-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        .embed-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--bg-main);
+        }
+
+        .embed-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .embed-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .embed-frame {
+            width: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Spotify specific */
+        .embed-spotify .embed-header {
+            background: rgba(30, 215, 96, 0.08);
+        }
+
+        /* Deezer specific */
+        .embed-deezer .embed-header {
+            background: rgba(255, 0, 92, 0.06);
+        }
+
+        /* ══════════════════════════════════════
+           PLAYTOMIC / SPORT CARD
+           ══════════════════════════════════════ */
+        .sport-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .sport-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .sport-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sport-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #4ade80;
+        }
+
+        .sport-content { flex: 1; }
+
+        .sport-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .sport-subtitle {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 0.15rem;
+        }
+
+        .sport-badge {
+            padding: 0.35rem 0.75rem;
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ══════════════════════════════════════
+           SOCIALS ROW
+           ══════════════════════════════════════ */
+        .socials-section {
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface);
+            margin-top: 1rem;
+        }
+
+        .socials-row {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border-radius: 10px;
+            color: var(--ink-soft);
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--signature);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .social-link svg { width: 18px; height: 18px; }
+
+        /* Branded social hover colors */
+        .social-link.email:hover { background: var(--signature); }
+        .social-link.linkedin:hover { background: #0A66C2; }
+        .social-link.x:hover { background: #000000; }
+        .social-link.whatsapp:hover { background: #25D366; }
+        .social-link.telegram:hover { background: #0088cc; }
+        .social-link.spotify:hover { background: #1DB954; }
+        .social-link.deezer:hover { background: #FF0092; }
+
+        /* ══════════════════════════════════════
+           FOOTER
+           ══════════════════════════════════════ */
+        .page-footer {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+        }
+
+        .privacy-signal {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .privacy-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--signature);
+            border-radius: 50%;
+        }
+
+        .share-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            border: 1px solid var(--surface);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .share-btn:hover {
+            background: var(--surface);
+            color: var(--ink);
+        }
+
+        .share-btn svg { width: 12px; height: 12px; }
+
+        /* ══════════════════════════════════════
+           CONNECT MODAL
+           ══════════════════════════════════════ */
+        .connect-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background: var(--signature);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .connect-btn:hover {
+            background: var(--ink);
+            transform: translateY(-1px);
+        }
+
+        .connect-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .connect-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 28, 28, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .connect-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .connect-card {
+            background: var(--bg-main);
+            width: 100%;
+            max-width: 340px;
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .connect-modal.active .connect-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--ink-soft);
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(0,0,0,0.1);
+            color: var(--ink);
+        }
+
+        .connect-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .connect-avatar {
+            width: 72px;
+            height: 72px;
+            background-color: var(--surface);
+            background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            margin: 0 auto 0.75rem;
+            border: 3px solid white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .connect-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.1;
+        }
+
+        .connect-handle {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--signature);
+            letter-spacing: 0.1em;
+            margin-top: 0.35rem;
+            font-weight: 400;
+        }
+
+        .qr-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .qr-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            margin-bottom: 0.75rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--surface);
+            border-radius: 22px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--signature);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        #qr-code canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .qr-hint {
+            font-size: 0.7rem;
+            color: var(--ink-soft);
+            margin-top: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .wallet-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .wallet-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .wallet-btn.apple {
+            background: #000;
+            color: white;
+        }
+
+        .wallet-btn.apple:hover {
+            background: #1a1a1a;
+            transform: translateY(-1px);
+        }
+
+        .wallet-btn.google {
+            background: white;
+            color: var(--ink);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .wallet-btn.google:hover {
+            background: #f8f8f8;
+            transform: translateY(-1px);
+        }
+
+        .share-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.75rem;
+            background: var(--surface);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            background: var(--surface-hover);
+        }
+
+        /* ══════════════════════════════════════
+           ANIMATIONS
+           ══════════════════════════════════════ */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ══════════════════════════════════════
+           MOBILE RESPONSIVE
+           ══════════════════════════════════════ */
+        @media (max-width: 640px) {
+            .signature-bar {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 32px;
+                flex-direction: row;
+                padding: 0 1.5rem;
+            }
+
+            .signature-brand {
+                writing-mode: horizontal-tb;
+                transform: none;
+            }
+
+            .signature-citizen {
+                display: none;
+            }
+
+            .page {
+                margin-left: 0;
+                margin-bottom: 32px;
+                padding: 3rem 1.25rem;
+            }
+
+            .avatar {
+                width: 88px;
+                height: 88px;
+            }
+
+            .name { font-size: 1.875rem; }
+
+            .spotlight-content {
+                padding: 1.25rem 1.5rem 1.5rem;
+            }
+
+            .spotlight-title { font-size: 1.25rem; }
+
+            .spotlight-image { height: 140px; }
+
+            .product-card {
+                grid-template-columns: 48px 1fr auto;
+            }
+
+            .product-thumb {
+                width: 48px;
+                height: 60px;
+            }
+
+            .page-footer {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Signature Column — The Moat -->
+    <aside class="signature-bar">
+        <div class="signature-top">
+            <div class="signature-pulse"></div>
+            <div class="signature-citizen">JFK • 0010-2005</div>
+        </div>
+        <a href="https://myoolala.com" class="signature-brand">myOolala</a>
+    </aside>
+
+    <main class="page">
+        <div class="profile-container">
+            
+            <!-- Header -->
+            <header class="profile-header">
+                <div class="avatar-wrapper" onclick="document.getElementById('lightbox').classList.add('active')">
+                    <div class="avatar"></div>
+                </div>
+                <h1 class="name">Sofia Reyes</h1>
+                <div class="handle">@sofiarey</div>
+                <div class="profile-flags">🇲🇽 → 🇺🇸</div>
+                <div class="profile-citizen">JFK • 0010-2005 · Los Angeles</div>
+                <p class="bio">Design & lifestyle obsessed. Founder of The Sunday Edit.</p>
+            </header>
+
+            <!-- Lightbox -->
+            <div id="lightbox" class="lightbox" onclick="this.classList.remove('active')">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Sofia Reyes" class="lightbox-img">
+            </div>
+
+            <!-- Spotlight Advanced — Rich Card -->
+            <section class="content-section">
+                <a href="#" class="spotlight-card">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Newsletter" class="spotlight-image">
+                    <div class="spotlight-content">
+                        <div class="spotlight-title">The Sunday Edit: Vol. 24</div>
+                        <div class="spotlight-subtitle">My latest newsletter on slow living and modern architecture.</div>
+                        <span class="spotlight-cta">
+                            Read Now
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+            </section>
+
+            <!-- Links -->
+            <section class="content-section">
+                <div class="section-label">Explore</div>
+                <div class="links-stack">
+                    
+                    <a href="#" class="link-card">
+                        <div class="link-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor"/></svg>
+                        </div>
+                        <div class="link-content">
+                            <div class="link-title">Latest Video</div>
+                            <div class="link-subtitle">Kyoto Travel Vlog — 4K</div>
+                        </div>
+                        <svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+
+                    <a href="#" class="link-card">
+                        <div class="link-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                        </div>
+                        <div class="link-content">
+                            <div class="link-title">Instagram</div>
+                            <div class="link-subtitle">@sofiarey</div>
+                        </div>
+                        <svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+
+                </div>
+            </section>
+
+            <!-- Playtomic / Sport -->
+            <section class="content-section">
+                <div class="section-label">Play with me</div>
+                <div class="links-stack">
+                    <a href="https://playtomic.io/user/sofiarey" class="sport-card">
+                        <div class="sport-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        </div>
+                        <div class="sport-content">
+                            <div class="sport-title">Padel on Playtomic</div>
+                            <div class="sport-subtitle">Level 4.2 • Los Angeles</div>
+                        </div>
+                        <span class="sport-badge">Open</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Music / Playlists -->
+            <section class="content-section">
+                <div class="section-label">Listen</div>
+                <div class="links-stack">
+                    
+                    <!-- Spotify Embed -->
+                    <div class="embed-card embed-spotify">
+                        <div class="embed-header">
+                            <svg class="embed-icon" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                            <span class="embed-title">Sunday Morning Playlist</span>
+                        </div>
+                        <iframe class="embed-frame" style="height: 152px;" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6VdMW310YC7?utm_source=generator&theme=0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    </div>
+
+                    <!-- Deezer Embed -->
+                    <div class="embed-card embed-deezer">
+                        <div class="embed-header">
+                            <svg class="embed-icon" viewBox="0 0 24 24" fill="#FF0092"><path d="M18.81 11.33H24v2.22h-5.19v-2.22zm0 3.11H24v2.22h-5.19v-2.22zm0 3.11H24V24h-5.19v-6.45zm-6.27-6.22h5.19v2.22h-5.19v-2.22zm0 3.11h5.19v2.22h-5.19v-2.22zm0 3.11h5.19v2.22h-5.19v-2.22zm0 3.12h5.19V24h-5.19v-3.33zM6.27 8.22h5.19v2.22H6.27V8.22zm0 3.11h5.19v2.22H6.27v-2.22zm0 3.11h5.19v2.22H6.27v-2.22zm0 3.12h5.19v2.22H6.27v-2.22zm0 3.11h5.19V24H6.27v-3.33zM0 14.44h5.19v2.22H0v-2.22zm0 3.12h5.19v2.22H0v-2.22zm0 3.11h5.19V24H0v-3.33z"/></svg>
+                            <span class="embed-title">Chill Vibes Mix</span>
+                        </div>
+                        <iframe class="embed-frame" style="height: 92px;" src="https://widget.deezer.com/widget/dark/playlist/1313621735" allowfullscreen="" allow="encrypted-media; clipboard-write" loading="lazy"></iframe>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Shop -->
+            <section class="content-section">
+                <div class="section-label">Shop</div>
+                <div class="links-stack">
+                    
+                    <a href="#" class="product-card">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Product" class="product-thumb">
+                        <div class="link-content">
+                            <div class="link-title">Minimalist Brand Kit</div>
+                            <div class="link-subtitle">Templates for designers</div>
+                        </div>
+                        <span class="price-tag">$29</span>
+                    </a>
+
+                    <a href="#" class="product-card">
+                        <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="E-book" class="product-thumb">
+                        <div class="link-content">
+                            <div class="link-title">The Art of Slow Living</div>
+                            <div class="link-subtitle">E-book • 142 pages</div>
+                        </div>
+                        <span class="price-tag">$15</span>
+                    </a>
+
+                    <a href="#" class="link-card locked-card">
+                        <div class="link-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div class="link-content">
+                            <div class="link-title">Secret Address Book</div>
+                            <div class="link-subtitle">My favorite spots in LA — $5</div>
+                        </div>
+                        <svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </a>
+
+                </div>
+            </section>
+
+            <!-- Socials -->
+            <section class="content-section socials-section">
+                <div class="socials-row">
+                    <a href="#" class="social-link email">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </a>
+                    <a href="#" class="social-link linkedin">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                    <a href="#" class="social-link x">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="#" class="social-link whatsapp">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </a>
+                    <a href="#" class="social-link telegram">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    </a>
+                    <a href="#" class="social-link spotify">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                    </a>
+                    <a href="#" class="social-link deezer">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.81 11.33H24v2.22h-5.19v-2.22zm0 3.11H24v2.22h-5.19v-2.22zm0 3.11H24V24h-5.19v-6.45zm-6.27-6.22h5.19v2.22h-5.19v-2.22zm0 3.11h5.19v2.22h-5.19v-2.22zm0 3.11h5.19v2.22h-5.19v-2.22zm0 3.12h5.19V24h-5.19v-3.33zM6.27 8.22h5.19v2.22H6.27V8.22zm0 3.11h5.19v2.22H6.27v-2.22zm0 3.11h5.19v2.22H6.27v-2.22zm0 3.12h5.19v2.22H6.27v-2.22zm0 3.11h5.19V24H6.27v-3.33zM0 14.44h5.19v2.22H0v-2.22zm0 3.12h5.19v2.22H0v-2.22zm0 3.11h5.19V24H0v-3.33z"/></svg>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="page-footer">
+                <div class="privacy-signal">
+                    <span class="privacy-dot"></span>
+                    <span>No tracking</span>
+                </div>
+                <button class="connect-btn" onclick="openConnectModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    Connect & Save
+                </button>
+                <span>myoolala.com/sofiarey</span>
+            </footer>
+
+        </div>
+    </main>
+
+    <!-- Connect Modal -->
+    <div id="connect-modal" class="connect-modal">
+        <div class="connect-card">
+            <button class="close-modal" onclick="closeConnectModal()">×</button>
+            
+            <div class="connect-header">
+                <div class="connect-avatar"></div>
+                <div class="connect-info">
+                    <div class="connect-name">Sofia Reyes</div>
+                    <div class="connect-handle">JFK • 0010-2005</div>
+                </div>
+            </div>
+
+            <div class="qr-section">
+                <div class="qr-toggle">
+                    <span>Show QR Code</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="qr-toggle" checked onchange="toggleQR()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="qr-wrapper" id="qr-wrapper">
+                    <div id="qr-code"></div>
+                    <p class="qr-hint">Scan to connect</p>
+                </div>
+            </div>
+
+            <div class="wallet-actions">
+                <a href="#" class="wallet-btn apple">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    Add to Apple Wallet
+                </a>
+                <a href="#" class="wallet-btn google">
+                    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Add to Google Wallet
+                </a>
+            </div>
+
+            <div class="share-actions">
+                <button class="action-btn" onclick="copyLink(this)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy Link
+                </button>
+                <button class="action-btn" onclick="nativeShare()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    Share
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Generate QR Code
+        document.addEventListener('DOMContentLoaded', function() {
+            QRCode.toCanvas(document.createElement('canvas'), window.location.href, {
+                width: 180,
+                margin: 0,
+                color: { dark: '#1A3A3A', light: '#FFFFFF' }
+            }, function(error, canvas) {
+                if (!error) {
+                    canvas.style.borderRadius = '12px';
+                    document.getElementById('qr-code').appendChild(canvas);
+                }
+            });
+
+            // Set QR visibility based on device
+            // Desktop: show QR (user scans with phone)
+            // Mobile: hide QR (user shares via link)
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const qrToggle = document.getElementById('qr-toggle');
+            qrToggle.checked = !isMobile;
+            toggleQR();
+        });
+
+        // Modal Functions
+        function openConnectModal() {
+            document.getElementById('connect-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeConnectModal() {
+            document.getElementById('connect-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close on backdrop click
+        document.getElementById('connect-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeConnectModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeConnectModal();
+        });
+
+        // Toggle QR visibility
+        function toggleQR() {
+            const wrapper = document.getElementById('qr-wrapper');
+            const toggle = document.getElementById('qr-toggle');
+            wrapper.style.display = toggle.checked ? 'block' : 'none';
+        }
+
+        // Copy link
+        async function copyLink(btn) {
+            await navigator.clipboard.writeText(window.location.href);
+            const original = btn.innerHTML;
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+            setTimeout(() => btn.innerHTML = original, 2000);
+        }
+
+        // Native share
+        function nativeShare() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    url: window.location.href
+                });
+            } else {
+                copyLink(event.currentTarget);
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+</body>
+</html>

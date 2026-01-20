@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Page — Oolala</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Config
+        const SUPABASE_URL = 'https://txbteobudstggbhlcsyz.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_3SzpI73jPbwREPVPoO_qVg_rM4Mubd4';
+        let supabaseClient;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✓ Supabase initialized');
+        });
+    </script>
+    <style>
+        :root {
+            --bg-main: #F4F3F0;
+            --surface: #ECE8E2;
+            --surface-hover: #E4DFD7;
+            --ink: #1C1C1C;
+            --ink-soft: #6A635D;
+            --signature: #1A3A3A;
+            --accent: #B8A89A;
+            --accent-deep: #8E7A66;
+            --success: #4A7C59;
+            --white: #FFFFFF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* ══════════════════════════════════════
+           SIGNATURE COLUMN
+           ══════════════════════════════════════ */
+        .signature-bar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 100vh;
+            background: var(--signature);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 0;
+        }
+
+        .signature-brand {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+        }
+
+        .signature-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .signature-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .signature-step.active {
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 12px rgba(255,255,255,0.5);
+        }
+
+        .signature-step.completed {
+            background: var(--success);
+        }
+
+        /* ══════════════════════════════════════
+           MAIN LAYOUT
+           ══════════════════════════════════════ */
+        .page {
+            margin-left: 28px;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* ══════════════════════════════════════
+           FORM PANEL
+           ══════════════════════════════════════ */
+        .form-panel {
+            padding: 1.75rem 3rem 3rem 3rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-header {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-style: italic;
+            color: var(--ink);
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .form-tagline {
+            display: block;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 300;
+            color: var(--ink);
+            opacity: 0.6;
+            margin-top: 0.4rem;
+            letter-spacing: 0.04em;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.4s ease;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .step.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem;
+            font-weight: 500;
+            margin-bottom: 0.35rem;
+        }
+
+        .step-subtitle {
+            color: var(--ink-soft);
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .step-hint {
+            font-size: 0.75rem;
+            color: var(--ink);
+            opacity: 0.45;
+            font-style: italic;
+            margin-bottom: 1.75rem;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        /* ══════════════════════════════════════
+           FORM ELEMENTS
+           ══════════════════════════════════════ */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            color: var(--ink);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .form-input::placeholder {
+            color: var(--ink-soft);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            color: var(--ink);
+            resize: none;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            margin-top: 0.5rem;
+        }
+
+        /* Username */
+        .username-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .username-wrapper:focus-within {
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .username-prefix {
+            padding: 1rem 0 1rem 1.25rem;
+            color: var(--ink-soft);
+            font-size: 0.95rem;
+        }
+
+        .username-input {
+            flex: 1;
+            padding: 1rem 1.25rem 1rem 0;
+            background: transparent;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            color: var(--ink);
+        }
+
+        .username-input:focus { outline: none; }
+
+        .username-status {
+            padding-right: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .username-status.available { color: var(--success); }
+        .username-status.taken { color: #c44; }
+
+        /* ══════════════════════════════════════
+           AVATAR
+           ══════════════════════════════════════ */
+        .avatar-section {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .avatar-preview {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: var(--signature);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .avatar-preview:hover { transform: scale(1.05); }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-input { display: none; }
+
+        .avatar-options { flex: 1; }
+
+        .avatar-hint {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+            margin-bottom: 0.75rem;
+        }
+
+        .avatar-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .avatar-btn {
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-btn:hover { background: var(--surface-hover); }
+        .avatar-btn.primary { background: var(--signature); color: white; }
+
+        /* ══════════════════════════════════════
+           FLAGS / LOCATION
+           ══════════════════════════════════════ */
+        .flags-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .flag-select {
+            flex: 1;
+            position: relative;
+        }
+
+        .flag-select select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--ink);
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .flag-select select:focus {
+            outline: none;
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .flag-select::after {
+            content: '▾';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ink-soft);
+            pointer-events: none;
+        }
+
+        .flag-arrow {
+            color: var(--ink-soft);
+            font-size: 1rem;
+        }
+
+        /* ══════════════════════════════════════
+           MULTI-FLAG SELECTOR
+           ══════════════════════════════════════ */
+        .flag-section {
+            flex: 1;
+        }
+
+        .flag-section-label {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            margin-bottom: 0.5rem;
+        }
+
+        .flag-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+            min-height: 28px;
+        }
+
+        .flag-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.3rem 0.5rem;
+            background: var(--signature);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: default;
+        }
+
+        .flag-tag-remove {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.9rem;
+            line-height: 1;
+            margin-left: 0.1rem;
+        }
+
+        .flag-tag-remove:hover {
+            color: white;
+        }
+
+        .flag-dropdown {
+            position: relative;
+        }
+
+        .flag-dropdown select {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--ink);
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .flag-dropdown select:focus {
+            outline: none;
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .flag-dropdown::after {
+            content: '+';
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ink-soft);
+            pointer-events: none;
+            font-size: 1rem;
+        }
+        
+        .flags-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .flags-row .flag-arrow {
+            padding-top: 2rem;
+            color: var(--ink-soft);
+            font-size: 1rem;
+        }
+
+        /* ══════════════════════════════════════
+           LINKS
+           ══════════════════════════════════════ */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .link-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .link-item input {
+            padding: 0.875rem 1rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--ink);
+            transition: all 0.3s ease;
+        }
+
+        .link-item input:focus {
+            outline: none;
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .link-remove {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink-soft);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .link-remove:hover {
+            background: var(--surface);
+            color: var(--ink);
+        }
+
+        .add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: 1px dashed var(--accent);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--ink-soft);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .add-btn:hover {
+            border-color: var(--signature);
+            color: var(--signature);
+            background: var(--surface);
+        }
+
+        /* ══════════════════════════════════════
+           SPOTLIGHT TOGGLE
+           ══════════════════════════════════════ */
+        .spotlight-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--surface);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.active { background: var(--signature); }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle-switch.active::after { transform: translateX(20px); }
+
+        .toggle-label { flex: 1; }
+        .toggle-title { font-size: 0.9rem; font-weight: 500; }
+        .toggle-desc { font-size: 0.75rem; color: var(--ink-soft); }
+
+        .spotlight-fields {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.25rem;
+            padding: 1.25rem;
+            background: var(--surface);
+            border-radius: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .spotlight-fields.visible { display: flex; }
+
+        .spotlight-fields .form-input,
+        .spotlight-fields .form-textarea {
+            background: var(--bg-main);
+        }
+
+        .spotlight-fields .form-input:focus,
+        .spotlight-fields .form-textarea:focus {
+            background: white;
+        }
+
+        /* ══════════════════════════════════════
+           SOCIALS
+           ══════════════════════════════════════ */
+        .socials-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .social-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .social-item:focus-within {
+            border-color: var(--signature);
+            background: white;
+        }
+
+        .social-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .social-item input {
+            flex: 1;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--ink);
+        }
+
+        .social-item input:focus { outline: none; }
+        .social-item input::placeholder { color: var(--ink-soft); }
+
+        /* ══════════════════════════════════════
+           BUTTONS
+           ══════════════════════════════════════ */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface);
+        }
+
+        .btn {
+            padding: 1rem 1.75rem;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--signature);
+            color: var(--bg-main);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,58,58,0.2);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--ink);
+        }
+
+        .btn-secondary:hover { background: var(--surface-hover); }
+
+        /* ══════════════════════════════════════
+           PREVIEW PANEL
+           ══════════════════════════════════════ */
+        .preview-panel {
+            background: var(--surface);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--ink-soft);
+        }
+
+        .preview-device {
+            width: 100%;
+            max-width: 320px;
+            background: var(--bg-main);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-signature {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 100%;
+            background: var(--signature);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 0.75rem;
+        }
+
+        .preview-signature-brand {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.45rem;
+            font-style: italic;
+            letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .preview-content {
+            padding: 1.5rem 1rem 1rem 1.75rem;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-main {
+            flex: 1;
+        }
+
+        .preview-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--signature);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: white;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .preview-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 0.15rem;
+        }
+
+        .preview-name.empty { color: var(--accent); }
+
+        .preview-flags {
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            display: none;
+        }
+
+        .preview-flags.visible { display: block; }
+
+        .preview-handle {
+            font-size: 0.75rem;
+            color: var(--signature);
+            font-weight: 500;
+            margin-bottom: 0.35rem;
+        }
+
+        .preview-handle.empty { color: var(--accent); }
+
+        .preview-bio {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .preview-bio.empty {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        /* Preview Spotlight */
+        .preview-spotlight {
+            background: var(--signature);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .preview-spotlight.visible { display: block; }
+
+        .preview-spotlight-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .preview-spotlight-desc {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .preview-spotlight-cta {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            background: white;
+            color: var(--signature);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Preview Links */
+        .preview-section {
+            margin-bottom: 0.875rem;
+        }
+
+        .preview-section-label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+        }
+
+        .preview-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .preview-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--surface);
+            border-radius: 8px;
+        }
+
+        .preview-link-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-main);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--signature);
+        }
+
+        .preview-link-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .preview-link.empty { opacity: 0.4; }
+
+        /* Preview Socials */
+        .preview-socials {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-social {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .preview-social.active { opacity: 1; }
+
+        .preview-social svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Preview Contact */
+        .preview-contact {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .preview-contact.visible { display: block; }
+
+        /* Preview Footer */
+        .preview-footer {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            color: var(--ink-soft);
+        }
+
+        .preview-privacy {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .preview-privacy-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--signature);
+            border-radius: 50%;
+        }
+
+        /* ══════════════════════════════════════
+           SUCCESS OVERLAY V2
+           ══════════════════════════════════════ */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            margin-left: 28px;
+            background: var(--bg-main);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .success-overlay.active { display: flex; }
+
+        .success-content-v2 {
+            text-align: center;
+            max-width: 340px;
+            padding: 2rem;
+        }
+
+        .success-title-v2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.75rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            color: var(--ink);
+        }
+
+        .success-qr-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .success-qr-container canvas {
+            display: block;
+            width: 200px;
+            height: 200px;
+        }
+
+        .success-url-v2 {
+            font-size: 0.95rem;
+            color: var(--signature);
+            font-weight: 500;
+            margin-bottom: 2rem;
+            letter-spacing: 0.01em;
+        }
+
+        .success-actions-v2 {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .success-btn-primary {
+            padding: 0.875rem 2rem;
+            background: var(--signature);
+            color: var(--bg-main);
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .success-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26,58,58,0.2);
+        }
+
+        .success-btn-secondary {
+            padding: 0.875rem 2rem;
+            background: var(--surface);
+            color: var(--ink);
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .success-btn-secondary:hover {
+            background: var(--surface-hover);
+        }
+
+        .success-open-link {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            text-decoration: none;
+            margin-bottom: 2.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .success-open-link:hover {
+            color: var(--signature);
+        }
+
+        .success-wallet-teaser {
+            padding: 1rem 1.5rem;
+            background: var(--surface);
+            border-radius: 12px;
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .wallet-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .wallet-hint {
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+        }
+
+        /* QR Modal */
+        .qr-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .qr-modal.active { display: flex; }
+
+        .qr-content {
+            background: var(--bg-main);
+            padding: 2.5rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 320px;
+            position: relative;
+        }
+
+        .qr-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            background: var(--surface);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-soft);
+        }
+
+        .qr-close:hover { background: var(--surface-hover); }
+
+        .qr-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .qr-subtitle {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            margin-bottom: 1.5rem;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .qr-code canvas {
+            display: block;
+        }
+
+        .qr-download {
+            padding: 0.75rem 1.5rem;
+            background: var(--signature);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .qr-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26,58,58,0.2);
+        }
+
+        /* ══════════════════════════════════════
+           MOBILE
+           ══════════════════════════════════════ */
+        .preview-toggle {
+            display: none;
+            position: fixed;
+            bottom: 52px;
+            right: 1rem;
+            padding: 0.6rem 1rem;
+            background: var(--signature);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 400;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(26,58,58,0.2);
+            opacity: 0.85;
+            z-index: 90;
+            transition: opacity 0.2s ease;
+        }
+
+        .preview-toggle:hover {
+            opacity: 1;
+        }
+
+        .preview-mobile {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg-main);
+            z-index: 200;
+            padding: 1rem;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .preview-mobile.active { display: flex; }
+
+        .preview-mobile-close {
+            align-self: flex-end;
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .page { grid-template-columns: 1fr; }
+            .preview-panel { display: none; }
+            .preview-toggle { display: block; }
+        }
+
+        @media (max-width: 640px) {
+            .signature-bar {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 36px;
+                flex-direction: row;
+                padding: 0 1.5rem;
+            }
+
+            .signature-brand {
+                writing-mode: horizontal-tb;
+                transform: none;
+            }
+
+            .signature-steps { flex-direction: row; }
+
+            .page {
+                margin-left: 0;
+                margin-bottom: 36px;
+            }
+
+            .form-panel { padding: 2rem 1.25rem; }
+
+            .avatar-section {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .flags-row { flex-direction: column; gap: 1rem; }
+            .flags-row .flag-arrow { display: none; }
+
+            .link-item { grid-template-columns: 1fr; gap: 0.5rem; }
+            .link-remove { width: 100%; }
+
+            .socials-grid { grid-template-columns: 1fr; }
+
+            .form-actions { flex-direction: column; }
+
+            .success-overlay { margin-left: 0; margin-bottom: 36px; }
+            
+            .success-content-v2 { padding: 1.5rem; }
+            
+            .success-qr-container { padding: 1.25rem; }
+            
+            .success-qr-container canvas {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .success-actions-v2 {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .success-btn-primary,
+            .success-btn-secondary {
+                width: 100%;
+            }
+
+            .preview-toggle { bottom: 52px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Signature Column -->
+    <aside class="signature-bar">
+        <span class="signature-brand" style="opacity: 0;">.</span>
+        <div class="signature-steps">
+            <div class="signature-step active" onclick="goToStep(0)"></div>
+            <div class="signature-step" onclick="goToStep(1)"></div>
+            <div class="signature-step" onclick="goToStep(2)"></div>
+            <div class="signature-step" onclick="goToStep(3)"></div>
+        </div>
+        <a href="/" class="signature-brand">myOolala</a>
+    </aside>
+
+    <!-- Mobile Preview -->
+    <button class="preview-toggle" onclick="openMobilePreview()">Preview</button>
+    <div class="preview-mobile" id="mobilePreview">
+        <button class="preview-mobile-close" onclick="closeMobilePreview()">Close</button>
+        <div class="preview-device" id="mobilePreviewDevice"></div>
+    </div>
+
+    <div class="page">
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="form-header">
+                <a href="/" class="form-logo">Oolala</a>
+                <span class="form-tagline">One page. All of you.</span>
+            </div>
+
+            <!-- Step 1: Identity -->
+            <div class="step active" data-step="0">
+                <h1 class="step-title">Who are you?</h1>
+                <p class="step-subtitle">Set up your identity.</p>
+                <p class="step-hint">This takes less than a minute.</p>
+                
+                <div class="step-content">
+                    <!-- Account Creation -->
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+                        <p class="form-hint">We'll use this to create your account.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="password" placeholder="Min. 8 characters" minlength="8" required>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--surface); margin: 1.5rem 0; padding-top: 1.5rem;">
+                        <p style="font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 1rem;">Now let's set up your profile:</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Photo</label>
+                        <div class="avatar-section">
+                            <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">
+                                <span id="avatarInitials">?</span>
+                            </div>
+                            <input type="file" id="avatarInput" class="avatar-input" accept="image/*" onchange="handleAvatar(event)">
+                            <div class="avatar-options">
+                                <p class="avatar-hint">Click to upload or use your initials.</p>
+                                <div class="avatar-actions">
+                                    <button class="avatar-btn primary" onclick="document.getElementById('avatarInput').click()">Upload</button>
+                                    <button class="avatar-btn" onclick="removeAvatar()">Use initials</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-input" id="displayName" placeholder="Your name" maxlength="50" oninput="updatePreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <div class="username-wrapper">
+                            <span class="username-prefix">myoolala.com/</span>
+                            <input type="text" class="username-input" id="username" placeholder="yourname" maxlength="20" oninput="checkUsername()">
+                            <span class="username-status" id="usernameStatus"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        <textarea class="form-textarea" id="bio" placeholder="What you do, in a sentence." maxlength="120" rows="2" oninput="updatePreview()"></textarea>
+                        <p class="form-hint"><span id="bioCount">0</span>/120</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Where are you from? <span style="color: var(--ink-soft); font-weight: 400;">(optional)</span></label>
+                        
+                        <div class="flags-row">
+                            <div class="flag-section">
+                                <div class="flag-section-label">Origin</div>
+                                <div class="flag-tags" id="originTags"></div>
+                                <div class="flag-dropdown">
+                                    <select id="flagOriginSelect" onchange="addFlag('origin', this)">
+                                        <option value="">Add country...</option>
+                                        <option value="🇫🇷">🇫🇷 France</option>
+                                        <option value="🇺🇸">🇺🇸 United States</option>
+                                        <option value="🇬🇧">🇬🇧 United Kingdom</option>
+                                        <option value="🇩🇪">🇩🇪 Germany</option>
+                                        <option value="🇪🇸">🇪🇸 Spain</option>
+                                        <option value="🇮🇹">🇮🇹 Italy</option>
+                                        <option value="🇵🇹">🇵🇹 Portugal</option>
+                                        <option value="🇳🇱">🇳🇱 Netherlands</option>
+                                        <option value="🇧🇪">🇧🇪 Belgium</option>
+                                        <option value="🇨🇭">🇨🇭 Switzerland</option>
+                                        <option value="🇦🇹">🇦🇹 Austria</option>
+                                        <option value="🇸🇪">🇸🇪 Sweden</option>
+                                        <option value="🇳🇴">🇳🇴 Norway</option>
+                                        <option value="🇩🇰">🇩🇰 Denmark</option>
+                                        <option value="🇫🇮">🇫🇮 Finland</option>
+                                        <option value="🇮🇪">🇮🇪 Ireland</option>
+                                        <option value="🇵🇱">🇵🇱 Poland</option>
+                                        <option value="🇨🇿">🇨🇿 Czech Republic</option>
+                                        <option value="🇬🇷">🇬🇷 Greece</option>
+                                        <option value="🇷🇺">🇷🇺 Russia</option>
+                                        <option value="🇺🇦">🇺🇦 Ukraine</option>
+                                        <option value="🇹🇷">🇹🇷 Turkey</option>
+                                        <option value="🇮🇱">🇮🇱 Israel</option>
+                                        <option value="🇦🇪">🇦🇪 UAE</option>
+                                        <option value="🇸🇦">🇸🇦 Saudi Arabia</option>
+                                        <option value="🇶🇦">🇶🇦 Qatar</option>
+                                        <option value="🇰🇼">🇰🇼 Kuwait</option>
+                                        <option value="🇧🇭">🇧🇭 Bahrain</option>
+                                        <option value="🇴🇲">🇴🇲 Oman</option>
+                                        <option value="🇪🇬">🇪🇬 Egypt</option>
+                                        <option value="🇲🇦">🇲🇦 Morocco</option>
+                                        <option value="🇹🇳">🇹🇳 Tunisia</option>
+                                        <option value="🇿🇦">🇿🇦 South Africa</option>
+                                        <option value="🇳🇬">🇳🇬 Nigeria</option>
+                                        <option value="🇰🇪">🇰🇪 Kenya</option>
+                                        <option value="🇬🇭">🇬🇭 Ghana</option>
+                                        <option value="🇧🇼">🇧🇼 Botswana</option>
+                                        <option value="🇲🇺">🇲🇺 Mauritius</option>
+                                        <option value="🇨🇳">🇨🇳 China</option>
+                                        <option value="🇯🇵">🇯🇵 Japan</option>
+                                        <option value="🇰🇷">🇰🇷 South Korea</option>
+                                        <option value="🇮🇳">🇮🇳 India</option>
+                                        <option value="🇸🇬">🇸🇬 Singapore</option>
+                                        <option value="🇭🇰">🇭🇰 Hong Kong</option>
+                                        <option value="🇹🇭">🇹🇭 Thailand</option>
+                                        <option value="🇻🇳">🇻🇳 Vietnam</option>
+                                        <option value="🇮🇩">🇮🇩 Indonesia</option>
+                                        <option value="🇲🇾">🇲🇾 Malaysia</option>
+                                        <option value="🇵🇭">🇵🇭 Philippines</option>
+                                        <option value="🇦🇺">🇦🇺 Australia</option>
+                                        <option value="🇳🇿">🇳🇿 New Zealand</option>
+                                        <option value="🇨🇦">🇨🇦 Canada</option>
+                                        <option value="🇲🇽">🇲🇽 Mexico</option>
+                                        <option value="🇧🇷">🇧🇷 Brazil</option>
+                                        <option value="🇦🇷">🇦🇷 Argentina</option>
+                                        <option value="🇨🇴">🇨🇴 Colombia</option>
+                                        <option value="🇨🇱">🇨🇱 Chile</option>
+                                        <option value="🇵🇪">🇵🇪 Peru</option>
+                                        <option value="🇬🇪">🇬🇪 Georgia</option>
+                                        <option value="🇦🇲">🇦🇲 Armenia</option>
+                                        <option value="🇦🇿">🇦🇿 Azerbaijan</option>
+                                        <option value="🇰🇿">🇰🇿 Kazakhstan</option>
+                                        <option value="🇺🇿">🇺🇿 Uzbekistan</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <span class="flag-arrow">→</span>
+
+                            <div class="flag-section">
+                                <div class="flag-section-label">Location</div>
+                                <div class="flag-tags" id="locationTags"></div>
+                                <div class="flag-dropdown">
+                                    <select id="flagLocationSelect" onchange="addFlag('location', this)">
+                                        <option value="">Add country...</option>
+                                        <option value="🇫🇷">🇫🇷 France</option>
+                                        <option value="🇺🇸">🇺🇸 United States</option>
+                                        <option value="🇬🇧">🇬🇧 United Kingdom</option>
+                                        <option value="🇩🇪">🇩🇪 Germany</option>
+                                        <option value="🇪🇸">🇪🇸 Spain</option>
+                                        <option value="🇮🇹">🇮🇹 Italy</option>
+                                        <option value="🇵🇹">🇵🇹 Portugal</option>
+                                        <option value="🇳🇱">🇳🇱 Netherlands</option>
+                                        <option value="🇧🇪">🇧🇪 Belgium</option>
+                                        <option value="🇨🇭">🇨🇭 Switzerland</option>
+                                        <option value="🇦🇹">🇦🇹 Austria</option>
+                                        <option value="🇸🇪">🇸🇪 Sweden</option>
+                                        <option value="🇳🇴">🇳🇴 Norway</option>
+                                        <option value="🇩🇰">🇩🇰 Denmark</option>
+                                        <option value="🇫🇮">🇫🇮 Finland</option>
+                                        <option value="🇮🇪">🇮🇪 Ireland</option>
+                                        <option value="🇵🇱">🇵🇱 Poland</option>
+                                        <option value="🇨🇿">🇨🇿 Czech Republic</option>
+                                        <option value="🇬🇷">🇬🇷 Greece</option>
+                                        <option value="🇷🇺">🇷🇺 Russia</option>
+                                        <option value="🇺🇦">🇺🇦 Ukraine</option>
+                                        <option value="🇹🇷">🇹🇷 Turkey</option>
+                                        <option value="🇮🇱">🇮🇱 Israel</option>
+                                        <option value="🇦🇪">🇦🇪 UAE</option>
+                                        <option value="🇸🇦">🇸🇦 Saudi Arabia</option>
+                                        <option value="🇶🇦">🇶🇦 Qatar</option>
+                                        <option value="🇰🇼">🇰🇼 Kuwait</option>
+                                        <option value="🇧🇭">🇧🇭 Bahrain</option>
+                                        <option value="🇴🇲">🇴🇲 Oman</option>
+                                        <option value="🇪🇬">🇪🇬 Egypt</option>
+                                        <option value="🇲🇦">🇲🇦 Morocco</option>
+                                        <option value="🇹🇳">🇹🇳 Tunisia</option>
+                                        <option value="🇿🇦">🇿🇦 South Africa</option>
+                                        <option value="🇳🇬">🇳🇬 Nigeria</option>
+                                        <option value="🇰🇪">🇰🇪 Kenya</option>
+                                        <option value="🇬🇭">🇬🇭 Ghana</option>
+                                        <option value="🇧🇼">🇧🇼 Botswana</option>
+                                        <option value="🇲🇺">🇲🇺 Mauritius</option>
+                                        <option value="🇨🇳">🇨🇳 China</option>
+                                        <option value="🇯🇵">🇯🇵 Japan</option>
+                                        <option value="🇰🇷">🇰🇷 South Korea</option>
+                                        <option value="🇮🇳">🇮🇳 India</option>
+                                        <option value="🇸🇬">🇸🇬 Singapore</option>
+                                        <option value="🇭🇰">🇭🇰 Hong Kong</option>
+                                        <option value="🇹🇭">🇹🇭 Thailand</option>
+                                        <option value="🇻🇳">🇻🇳 Vietnam</option>
+                                        <option value="🇮🇩">🇮🇩 Indonesia</option>
+                                        <option value="🇲🇾">🇲🇾 Malaysia</option>
+                                        <option value="🇵🇭">🇵🇭 Philippines</option>
+                                        <option value="🇦🇺">🇦🇺 Australia</option>
+                                        <option value="🇳🇿">🇳🇿 New Zealand</option>
+                                        <option value="🇨🇦">🇨🇦 Canada</option>
+                                        <option value="🇲🇽">🇲🇽 Mexico</option>
+                                        <option value="🇧🇷">🇧🇷 Brazil</option>
+                                        <option value="🇦🇷">🇦🇷 Argentina</option>
+                                        <option value="🇨🇴">🇨🇴 Colombia</option>
+                                        <option value="🇨🇱">🇨🇱 Chile</option>
+                                        <option value="🇵🇪">🇵🇪 Peru</option>
+                                        <option value="🇬🇪">🇬🇪 Georgia</option>
+                                        <option value="🇦🇲">🇦🇲 Armenia</option>
+                                        <option value="🇦🇿">🇦🇿 Azerbaijan</option>
+                                        <option value="🇰🇿">🇰🇿 Kazakhstan</option>
+                                        <option value="🇺🇿">🇺🇿 Uzbekistan</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Links -->
+            <div class="step" data-step="1">
+                <h1 class="step-title">Your links</h1>
+                <p class="step-subtitle">What can people access?</p>
+                <p class="step-hint">Start simple. You can refine it later.</p>
+                
+                <div class="step-content">
+                    <div class="links-list" id="linksList">
+                        <div class="link-item">
+                            <input type="text" placeholder="Label" class="link-title" oninput="updatePreview()">
+                            <input type="url" placeholder="https://..." class="link-url" oninput="updatePreview()">
+                            <button class="link-remove" onclick="removeLink(this)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="add-btn" onclick="addLink()">+ Add another</button>
+
+                    <!-- Spotlight Toggle -->
+                    <div class="spotlight-section">
+                        <div class="toggle-row">
+                            <div class="toggle-switch" id="spotlightToggle" onclick="toggleSpotlight()"></div>
+                            <div class="toggle-label">
+                                <div class="toggle-title">Highlight something?</div>
+                                <div class="toggle-desc">Feature one thing at the top of your page</div>
+                            </div>
+                        </div>
+                        <div class="spotlight-fields" id="spotlightFields">
+                            <input type="text" class="form-input" id="spotlightTitle" placeholder="Title" oninput="updatePreview()">
+                            <textarea class="form-textarea" id="spotlightDesc" placeholder="Short description" maxlength="100" rows="2" oninput="updatePreview()"></textarea>
+                            <input type="text" class="form-input" id="spotlightCta" placeholder="Button text" value="Learn more" oninput="updatePreview()">
+                            <input type="url" class="form-input" id="spotlightUrl" placeholder="https://..." oninput="updatePreview()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Contact -->
+            <div class="step" data-step="2">
+                <h1 class="step-title">How to reach you</h1>
+                <p class="step-subtitle">Optional. Add what you want visible.</p>
+                <p class="step-hint">You can add more later in your cockpit.</p>
+                
+                <div class="step-content">
+                    <div class="form-group">
+                        <label class="form-label">Social profiles</label>
+                        <div class="socials-grid">
+                            <div class="social-item">
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                                <input type="text" data-social="instagram" placeholder="Instagram username" oninput="updatePreview()">
+                            </div>
+                            <div class="social-item">
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                                <input type="text" data-social="tiktok" placeholder="TikTok username" oninput="updatePreview()">
+                            </div>
+                            <div class="social-item">
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="#000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                <input type="text" data-social="twitter" placeholder="X username" oninput="updatePreview()">
+                            </div>
+                            <div class="social-item">
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                <input type="text" data-social="linkedin" placeholder="LinkedIn URL" oninput="updatePreview()">
+                            </div>
+                            <div class="social-item">
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                <input type="text" data-social="youtube" placeholder="YouTube channel" oninput="updatePreview()">
+                            </div>
+                            <div class="social-item">
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                <input type="text" data-social="website" placeholder="Website URL" oninput="updatePreview()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Contact email <span style="color: var(--ink-soft); font-weight: 400;">(visible on page)</span></label>
+                        <input type="email" class="form-input" id="contactEmail" placeholder="public@email.com" oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button class="btn btn-primary" onclick="finish()">Go live</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Done -->
+            <div class="step" data-step="3">
+                <!-- Handled by success overlay -->
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <span class="preview-label">Oolala — your digital passport</span>
+            <div class="preview-device">
+                <div class="preview-signature">
+                    <span class="preview-signature-brand">myOolala</span>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-main">
+                        <div class="preview-avatar" id="previewAvatar">
+                            <span id="previewInitials">?</span>
+                        </div>
+                        <div class="preview-name empty" id="previewName">Your Name</div>
+                        <div class="preview-flags" id="previewFlags"></div>
+                        <div class="preview-handle empty" id="previewHandle">@username</div>
+                        <div class="preview-bio empty" id="previewBio">Your bio here...</div>
+                        
+                        <div class="preview-spotlight" id="previewSpotlight">
+                            <div class="preview-spotlight-title" id="previewSpotlightTitle"></div>
+                            <div class="preview-spotlight-desc" id="previewSpotlightDesc"></div>
+                            <span class="preview-spotlight-cta" id="previewSpotlightCta">Learn more</span>
+                        </div>
+
+                        <div class="preview-section">
+                            <div class="preview-section-label">Links</div>
+                            <div class="preview-links" id="previewLinks">
+                                <div class="preview-link empty">
+                                    <div class="preview-link-icon">+</div>
+                                    <div class="preview-link-title">Add your first link</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-socials" id="previewSocials">
+                            <div class="preview-social" data-social="instagram">
+                                <svg viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                            </div>
+                            <div class="preview-social" data-social="tiktok">
+                                <svg viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                            </div>
+                            <div class="preview-social" data-social="twitter">
+                                <svg viewBox="0 0 24 24" fill="#1DA1F2"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </div>
+                            <div class="preview-social" data-social="linkedin">
+                                <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            </div>
+                            <div class="preview-social" data-social="youtube">
+                                <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            </div>
+                            <div class="preview-social" data-social="website">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+                            </div>
+                            <div class="preview-social" data-social="email">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+                            </div>
+                        </div>
+
+                        <div class="preview-contact" id="previewContact"></div>
+                    </div>
+
+                    <div class="preview-footer">
+                        <div class="preview-privacy">
+                            <span class="preview-privacy-dot"></span>
+                            <span>No tracking</span>
+                        </div>
+                        <span id="previewUrl">myoolala.com/you</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content-v2">
+            <h2 class="success-title-v2">Voilà!</h2>
+            
+            <div class="success-qr-container">
+                <canvas id="successQrCanvas"></canvas>
+            </div>
+            
+            <div class="success-url-v2" id="successUrl">myoolala.com/you</div>
+            
+            <div class="success-actions-v2">
+                <button class="success-btn-primary" onclick="sharePage()">
+                    Share
+                </button>
+                <button class="success-btn-secondary" onclick="copyUrl()">
+                    Copy
+                </button>
+            </div>
+            
+            <a href="#" class="success-open-link" id="viewPageBtn">Open your page →</a>
+            
+            <a href="cockpit.html" class="success-open-link" style="margin-bottom: 1rem;">Manage your page →</a>
+            
+            <div class="success-wallet-teaser">
+                <span class="wallet-label">Wallet</span>
+                <span class="wallet-hint">Keep your page in your pocket</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div class="qr-modal" id="qrModal">
+        <div class="qr-content">
+            <button class="qr-close" onclick="closeQRModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <h3 class="qr-title">Your QR Code</h3>
+            <p class="qr-subtitle">Scan to visit your page</p>
+            <div class="qr-code">
+                <canvas id="qrCanvas"></canvas>
+            </div>
+            <button class="qr-download" onclick="downloadQR()">Download PNG</button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentStep = 0;
+        let avatarImage = null;
+        let spotlightEnabled = false;
+        let originFlags = [];
+        let locationFlags = [];
+
+        // Flag management
+        function addFlag(type, selectEl) {
+            const value = selectEl.value;
+            if (!value) return;
+            
+            const flags = type === 'origin' ? originFlags : locationFlags;
+            
+            // Don't add duplicates
+            if (flags.includes(value)) {
+                selectEl.value = '';
+                return;
+            }
+            
+            flags.push(value);
+            selectEl.value = '';
+            renderFlags(type);
+            updatePreview();
+        }
+
+        function removeFlag(type, flag) {
+            if (type === 'origin') {
+                originFlags = originFlags.filter(f => f !== flag);
+            } else {
+                locationFlags = locationFlags.filter(f => f !== flag);
+            }
+            renderFlags(type);
+            updatePreview();
+        }
+
+        function renderFlags(type) {
+            const flags = type === 'origin' ? originFlags : locationFlags;
+            const container = document.getElementById(type + 'Tags');
+            
+            container.innerHTML = flags.map(flag => `
+                <span class="flag-tag">
+                    ${flag}
+                    <button class="flag-tag-remove" onclick="removeFlag('${type}', '${flag}')">&times;</button>
+                </span>
+            `).join('');
+        }
+
+        // Navigation
+        function goToStep(step) {
+            if (step <= currentStep) {
+                currentStep = step;
+                updateSteps();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < 3) {
+                currentStep++;
+                updateSteps();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateSteps();
+            }
+        }
+
+        function updateSteps() {
+            document.querySelectorAll('.step').forEach((s, i) => {
+                s.classList.toggle('active', i === currentStep);
+            });
+            document.querySelectorAll('.signature-step').forEach((s, i) => {
+                s.classList.remove('active', 'completed');
+                if (i < currentStep) s.classList.add('completed');
+                if (i === currentStep) s.classList.add('active');
+            });
+            updatePreview();
+        }
+
+        // Avatar
+        function handleAvatar(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    avatarImage = ev.target.result;
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeAvatar() {
+            avatarImage = null;
+            document.getElementById('avatarInput').value = '';
+            updatePreview();
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            const words = name.trim().split(/\s+/);
+            if (words.length === 1) return words[0].substring(0, 3).toUpperCase();
+            return words.slice(0, 3).map(w => w[0]).join('').toUpperCase();
+        }
+
+        // Username - check availability with Supabase
+        let usernameCheckTimeout;
+        async function checkUsername() {
+            const val = document.getElementById('username').value.trim().toLowerCase();
+            const status = document.getElementById('usernameStatus');
+            
+            // Clear previous timeout
+            clearTimeout(usernameCheckTimeout);
+            
+            if (val.length < 3) {
+                status.textContent = '';
+                status.className = 'username-status';
+                updatePreview();
+                return;
+            }
+            
+            // Reserved usernames
+            const reserved = ['admin', 'support', 'myoolala', 'test', 'api', 'app', 'help', 'info', 'contact', 'www'];
+            if (reserved.includes(val)) {
+                status.textContent = '✗ Reserved';
+                status.className = 'username-status taken';
+                updatePreview();
+                return;
+            }
+            
+            // Show checking state
+            status.textContent = '...';
+            status.className = 'username-status';
+            
+            // Debounce the API call
+            usernameCheckTimeout = setTimeout(async () => {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('profiles')
+                        .select('id')
+                        .eq('username', val)
+                        .maybeSingle();
+                    
+                    if (error) throw error;
+                    
+                    const taken = data !== null;
+                    status.textContent = taken ? '✗ Taken' : '✓';
+                    status.className = 'username-status ' + (taken ? 'taken' : 'available');
+                } catch (err) {
+                    console.warn('Username check failed:', err);
+                    status.textContent = '?';
+                    status.className = 'username-status';
+                }
+            }, 300);
+            
+            updatePreview();
+        }
+
+        // Links
+        function addLink() {
+            const list = document.getElementById('linksList');
+            const item = document.createElement('div');
+            item.className = 'link-item';
+            item.innerHTML = `
+                <input type="text" placeholder="Label" class="link-title" oninput="updatePreview()">
+                <input type="url" placeholder="https://..." class="link-url" oninput="updatePreview()">
+                <button class="link-remove" onclick="removeLink(this)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            `;
+            list.appendChild(item);
+            item.querySelector('.link-title').focus();
+            updatePreview();
+        }
+
+        function removeLink(btn) {
+            const list = document.getElementById('linksList');
+            if (list.children.length > 1) {
+                btn.parentElement.remove();
+                updatePreview();
+            }
+        }
+
+        // Spotlight
+        function toggleSpotlight() {
+            spotlightEnabled = !spotlightEnabled;
+            document.getElementById('spotlightToggle').classList.toggle('active', spotlightEnabled);
+            document.getElementById('spotlightFields').classList.toggle('visible', spotlightEnabled);
+            updatePreview();
+        }
+
+        // Preview
+        function updatePreview() {
+            const name = document.getElementById('displayName')?.value.trim() || '';
+            const username = document.getElementById('username')?.value.trim() || '';
+            const bio = document.getElementById('bio')?.value.trim() || '';
+            const initials = getInitials(name);
+
+            // Avatar
+            const avatarEl = document.getElementById('previewAvatar');
+            const formAvatarEl = document.getElementById('avatarPreview');
+            if (avatarImage) {
+                avatarEl.innerHTML = `<img src="${avatarImage}" alt="">`;
+                formAvatarEl.innerHTML = `<img src="${avatarImage}" alt="">`;
+            } else {
+                avatarEl.innerHTML = `<span>${initials}</span>`;
+                formAvatarEl.innerHTML = `<span>${initials}</span>`;
+            }
+
+            // Name
+            const nameEl = document.getElementById('previewName');
+            nameEl.textContent = name || 'Your Name';
+            nameEl.classList.toggle('empty', !name);
+
+            // Flags (multi-select)
+            const flagsEl = document.getElementById('previewFlags');
+            const hasOrigin = originFlags.length > 0;
+            const hasLocation = locationFlags.length > 0;
+            
+            if (hasOrigin || hasLocation) {
+                let flagsText = '';
+                const originStr = originFlags.join('');
+                const locationStr = locationFlags.join('');
+                
+                if (hasOrigin && hasLocation) {
+                    flagsText = `${originStr} → ${locationStr}`;
+                } else if (hasOrigin) {
+                    flagsText = originStr;
+                } else {
+                    flagsText = locationStr;
+                }
+                flagsEl.textContent = flagsText;
+                flagsEl.classList.add('visible');
+            } else {
+                flagsEl.classList.remove('visible');
+            }
+
+            // Handle
+            const handleEl = document.getElementById('previewHandle');
+            handleEl.textContent = username ? `@${username}` : '@username';
+            handleEl.classList.toggle('empty', !username);
+
+            // URL
+            document.getElementById('previewUrl').textContent = username ? `myoolala.com/${username}` : 'myoolala.com/you';
+
+            // Bio
+            const bioEl = document.getElementById('previewBio');
+            bioEl.textContent = bio || 'Your bio here...';
+            bioEl.classList.toggle('empty', !bio);
+            document.getElementById('bioCount').textContent = bio.length;
+
+            // Spotlight
+            const spotlightEl = document.getElementById('previewSpotlight');
+            if (spotlightEnabled) {
+                const title = document.getElementById('spotlightTitle')?.value.trim() || '';
+                const desc = document.getElementById('spotlightDesc')?.value.trim() || '';
+                const cta = document.getElementById('spotlightCta')?.value.trim() || 'Learn more';
+                if (title || desc) {
+                    spotlightEl.classList.add('visible');
+                    document.getElementById('previewSpotlightTitle').textContent = title;
+                    document.getElementById('previewSpotlightDesc').textContent = desc;
+                    document.getElementById('previewSpotlightCta').textContent = cta;
+                } else {
+                    spotlightEl.classList.remove('visible');
+                }
+            } else {
+                spotlightEl.classList.remove('visible');
+            }
+
+            // Links
+            const linksContainer = document.getElementById('previewLinks');
+            const linkItems = document.querySelectorAll('#linksList .link-item');
+            let linksHtml = '';
+            linkItems.forEach(item => {
+                const title = item.querySelector('.link-title')?.value.trim();
+                if (title) {
+                    linksHtml += `<div class="preview-link"><div class="preview-link-icon">${title[0].toUpperCase()}</div><div class="preview-link-title">${title}</div></div>`;
+                }
+            });
+            linksContainer.innerHTML = linksHtml || `<div class="preview-link empty"><div class="preview-link-icon">+</div><div class="preview-link-title">Add your first link</div></div>`;
+
+            // Socials
+            document.querySelectorAll('.social-item input').forEach(input => {
+                const social = input.dataset.social;
+                const previewSocial = document.querySelector(`.preview-social[data-social="${social}"]`);
+                if (previewSocial) {
+                    previewSocial.classList.toggle('active', input.value.trim() !== '');
+                }
+            });
+
+            // Email
+            const email = document.getElementById('contactEmail')?.value.trim() || '';
+            const emailSocial = document.querySelector('.preview-social[data-social="email"]');
+            const contactEl = document.getElementById('previewContact');
+            if (email) {
+                emailSocial?.classList.add('active');
+                contactEl.textContent = email;
+                contactEl.classList.add('visible');
+            } else {
+                emailSocial?.classList.remove('active');
+                contactEl.classList.remove('visible');
+            }
+        }
+
+        // Mobile preview
+        function openMobilePreview() {
+            const overlay = document.getElementById('mobilePreview');
+            const device = document.getElementById('mobilePreviewDevice');
+            device.innerHTML = document.querySelector('.preview-device').innerHTML;
+            overlay.classList.add('active');
+        }
+
+        function closeMobilePreview() {
+            document.getElementById('mobilePreview').classList.remove('active');
+        }
+
+        // Finish - Save to Supabase
+        async function finish() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const displayName = document.getElementById('displayName').value.trim();
+            const bio = document.getElementById('bio').value.trim();
+            
+            // Validation
+            if (!email || !password) {
+                oolalaToast('Please enter your email and password', 'error');
+                return;
+            }
+            if (password.length < 8) {
+                oolalaToast('Password must be at least 8 characters', 'error');
+                return;
+            }
+            if (!username) {
+                oolalaToast('Please enter a username', 'error');
+                return;
+            }
+            if (!displayName) {
+                oolalaToast('Please enter your name', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const finishBtn = document.querySelector('.btn-primary[onclick="finish()"]');
+            const originalText = finishBtn.textContent;
+            finishBtn.textContent = 'Creating your page...';
+            finishBtn.disabled = true;
+            
+            try {
+                // 1. Check username availability
+                const { data: existingUser } = await supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('username', username)
+                    .maybeSingle();
+                
+                if (existingUser) {
+                    throw new Error('Username is already taken');
+                }
+                
+                // 2. Create account
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+                
+                if (authError) throw authError;
+                if (!authData.user) throw new Error('Failed to create account');
+                
+                const userId = authData.user.id;
+                
+                // 3. Prepare country codes
+                const countryOrigin = originFlags.length > 0 ? extractFlagCode(originFlags[0]) : null;
+                const countryLocation = locationFlags.length > 0 ? extractFlagCode(locationFlags[0]) : null;
+                
+                // 4. Create profile
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .insert([{
+                        id: userId,
+                        username: username,
+                        display_name: displayName,
+                        bio: bio,
+                        country_origin: countryOrigin,
+                        country_location: countryLocation,
+                        avatar_url: avatarImage || null
+                    }])
+                    .select()
+                    .single();
+                
+                if (profileError) throw profileError;
+                
+                // 5. Create blocks
+                const blocks = [];
+                let position = 100;
+                
+                // Spotlight block
+                if (spotlightEnabled) {
+                    const spotlightTitle = document.getElementById('spotlightTitle')?.value.trim();
+                    const spotlightDesc = document.getElementById('spotlightDesc')?.value.trim();
+                    const spotlightCta = document.getElementById('spotlightCta')?.value.trim() || 'Learn more';
+                    const spotlightUrl = document.getElementById('spotlightUrl')?.value.trim();
+                    
+                    if (spotlightTitle || spotlightDesc) {
+                        blocks.push({
+                            profile_id: userId,
+                            type: 'spotlight',
+                            title: spotlightTitle,
+                            position: position,
+                            visibility_mask: 1, // Public
+                            payload: {
+                                description: spotlightDesc,
+                                cta: spotlightCta,
+                                url: spotlightUrl
+                            }
+                        });
+                        position += 100;
+                    }
+                }
+                
+                // Link blocks
+                document.querySelectorAll('#linksList .link-item').forEach(item => {
+                    const title = item.querySelector('.link-title')?.value.trim();
+                    const url = item.querySelector('.link-url')?.value.trim();
+                    if (title && url) {
+                        blocks.push({
+                            profile_id: userId,
+                            type: 'link',
+                            title: title,
+                            position: position,
+                            visibility_mask: 1, // Public
+                            payload: { url: url }
+                        });
+                        position += 100;
+                    }
+                });
+                
+                // Social block (if any socials filled)
+                const socials = {};
+                document.querySelectorAll('.social-item input').forEach(input => {
+                    const social = input.dataset.social;
+                    const value = input.value.trim();
+                    if (value) {
+                        socials[social] = value;
+                    }
+                });
+                
+                if (Object.keys(socials).length > 0) {
+                    blocks.push({
+                        profile_id: userId,
+                        type: 'socials',
+                        title: 'Social Links',
+                        position: position,
+                        visibility_mask: 1, // Public
+                        payload: socials
+                    });
+                    position += 100;
+                }
+                
+                // Contact block (email)
+                const contactEmail = document.getElementById('contactEmail')?.value.trim();
+                if (contactEmail) {
+                    blocks.push({
+                        profile_id: userId,
+                        type: 'contact',
+                        title: 'Contact',
+                        position: position,
+                        visibility_mask: 1, // Public
+                        payload: {
+                            email: contactEmail
+                        }
+                    });
+                }
+                
+                // Insert blocks
+                if (blocks.length > 0) {
+                    const { error: blocksError } = await supabaseClient
+                        .from('blocks')
+                        .insert(blocks);
+                    
+                    if (blocksError) console.warn('Failed to create some blocks:', blocksError);
+                }
+                
+                // 6. Show success
+                const url = 'https://myoolala.com/' + username;
+                document.getElementById('successUrl').textContent = 'myoolala.com/' + username;
+                document.getElementById('viewPageBtn').href = url;
+                document.getElementById('successOverlay').classList.add('active');
+                
+                // Generate QR code
+                setTimeout(() => {
+                    const canvas = document.getElementById('successQrCanvas');
+                    if (canvas && typeof QRCode !== 'undefined') {
+                        QRCode.toCanvas(canvas, url, {
+                            width: 200,
+                            margin: 0,
+                            color: { dark: '#1A3A3A', light: '#FFFFFF' }
+                        });
+                    }
+                }, 100);
+                
+                oolalaToast('Voilà!');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                oolalaToast(error.message || 'Something went wrong', 'error');
+                finishBtn.textContent = originalText;
+                finishBtn.disabled = false;
+            }
+        }
+        
+        // Helper function to extract ISO code from flag emoji
+        function extractFlagCode(flag) {
+            if (!flag || flag.length < 2) return null;
+            const codePoints = [...flag].map(c => c.codePointAt(0));
+            if (codePoints.length < 2) return null;
+            const code = String.fromCharCode(codePoints[0] - 127397) + 
+                         String.fromCharCode(codePoints[1] - 127397);
+            return code.toUpperCase();
+        }
+        
+        // Toast notification
+        function oolalaToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'error' ? '#C45C5C' : '#1A3A3A'};
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-size: 0.875rem;
+                z-index: 10000;
+                animation: toastIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Share function with Web Share API
+        async function sharePage() {
+            const username = document.getElementById('username').value.trim();
+            const url = 'https://myoolala.com/' + username;
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: username,
+                        url: url
+                    });
+                } catch (err) {
+                    // User cancelled or error - fallback to copy
+                    copyUrl();
+                }
+            } else {
+                // Fallback for desktop
+                copyUrl();
+            }
+        }
+
+        function copyUrl() {
+            const url = document.getElementById('successUrl').textContent;
+            navigator.clipboard.writeText('https://' + url);
+            
+            // Brief visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 1500);
+        }
+
+        // QR Code functions
+        function openQRModal() {
+            const username = document.getElementById('username').value.trim();
+            const url = 'https://myoolala.com/' + username;
+            
+            // Generate QR code
+            QRCode.toCanvas(document.getElementById('qrCanvas'), url, {
+                width: 200,
+                margin: 0,
+                color: {
+                    dark: '#1A3A3A',
+                    light: '#FFFFFF'
+                }
+            });
+            
+            document.getElementById('qrModal').classList.add('active');
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').classList.remove('active');
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrCanvas');
+            const username = document.getElementById('username').value.trim();
+            const link = document.createElement('a');
+            link.download = 'oolala-' + username + '-qr.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Close modal on background click
+        document.getElementById('qrModal').addEventListener('click', function(e) {
+            if (e.target === this) closeQRModal();
+        });
+
+        // Init
+        updatePreview();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+</body>
+</html>

@@ -1,0 +1,3295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myOolala — Your digital passport.</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='serif' font-style='italic' fill='%231A3A3A'>Oo</text></svg>">
+    <meta name="description" content="The link-in-bio for creators who care about design. Sell, share, stand out. Beautiful. Private. Yours.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #F4F3F0;
+            --surface: #ECE8E2;
+            --surface-hover: #E4DFD7;
+            --ink: #1C1C1C;
+            --ink-soft: #6A635D;
+            --signature: #1A3A3A;
+            --accent: #B8A89A;
+            --accent-deep: #8E7A66;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            background: var(--bg-main);
+            color: var(--ink);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ══════════════════════════════════════
+           SIGNATURE COLUMN
+           ══════════════════════════════════════ */
+        .signature-bar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 100vh;
+            background: var(--signature);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 0;
+        }
+
+        .signature-pulse {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        .signature-brand {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+        }
+
+        /* ══════════════════════════════════════
+           LAYOUT
+           ══════════════════════════════════════ */
+        .page {
+            margin-left: 28px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 3rem 0 4.5rem;
+        }
+
+        /* ══════════════════════════════════════
+           HEADER
+           ══════════════════════════════════════ */
+        .header {
+            padding: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            font-style: italic;
+            color: var(--ink);
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .header-tagline {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 300;
+            color: var(--ink);
+            opacity: 0.6;
+            margin-top: 0.4rem;
+            letter-spacing: 0.04em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--ink);
+        }
+
+        .nav-cta {
+            padding: 0.625rem 1.25rem;
+            background: var(--signature);
+            color: var(--bg-main);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26,58,58,0.2);
+        }
+
+        /* ══════════════════════════════════════
+           HERO
+           ══════════════════════════════════════ */
+        .hero {
+            padding: 4rem 0 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content {
+            max-width: 480px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--signature);
+            background: rgba(26,58,58,0.08);
+            padding: 0.5rem 0.875rem;
+            border-radius: 50px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title span {
+            font-style: italic;
+            color: var(--signature);
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: var(--ink-soft);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            max-width: 400px;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.75rem;
+            background: var(--signature);
+            color: var(--bg-main);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,58,58,0.25);
+        }
+
+        .hero-cta-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .hero-cta:hover .hero-cta-arrow {
+            transform: translateX(4px);
+        }
+
+        .hero-note {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+        }
+
+        /* Claim your name */
+        .claim-container {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .claim-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--surface);
+            border-radius: 12px;
+            padding: 0.25rem 1rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .claim-input-wrapper:focus-within {
+            border-color: var(--signature);
+            box-shadow: 0 0 0 4px rgba(26, 58, 58, 0.1);
+        }
+
+        .claim-prefix {
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+            font-weight: 500;
+        }
+
+        .claim-input {
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink);
+            background: transparent;
+            padding: 0.75rem 0.25rem;
+            width: 120px;
+            font-family: inherit;
+        }
+
+        .claim-input::placeholder {
+            color: var(--ink-soft);
+            font-weight: 400;
+        }
+
+        .claim-status {
+            font-size: 0.75rem;
+            margin-left: auto;
+            padding-left: 0.5rem;
+        }
+
+        .claim-status.available {
+            color: #2E7D5A;
+        }
+
+        .claim-status.taken {
+            color: #C45C5C;
+        }
+
+        .claim-btn {
+            background: var(--signature);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .claim-btn:hover {
+            background: var(--ink);
+            transform: translateY(-2px);
+        }
+
+        .claim-btn:disabled {
+            background: var(--surface);
+            color: var(--ink-soft);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Hero visual */
+        .hero-visual {
+            position: relative;
+            width: 380px;
+        }
+
+        .phone-frame {
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 
+                0 24px 80px rgba(0,0,0,0.15),
+                inset 0 0 0 2px #333;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 24px;
+            background: #1a1a1a;
+            border-radius: 0 0 14px 14px;
+            z-index: 10;
+        }
+
+        .phone-notch::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .mockup {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            width: 100%;
+            min-height: 620px;
+        }
+
+        /* Sidebar gauche style exact du profil */
+        .mockup-sidebar {
+            width: 28px;
+            background: var(--signature);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 0;
+            flex-shrink: 0;
+        }
+
+        .mockup-sidebar-citizen {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.55rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.05em;
+        }
+
+        .mockup-sidebar-brand {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        .mockup-content {
+            padding: 1.25rem 1.25rem 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mockup-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--surface);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--signature);
+            overflow: hidden;
+        }
+
+        .mockup-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mockup-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.1rem;
+        }
+
+        .mockup-handle {
+            font-size: 0.85rem;
+            color: var(--signature);
+            margin-bottom: 0.5rem;
+        }
+
+        .mockup-flags {
+            font-size: 0.95rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Citizen badge gris */
+        .mockup-citizen-badge {
+            display: inline-block;
+            align-self: flex-start;
+            padding: 0.4rem 0.75rem;
+            background: #E8E4DE;
+            color: var(--ink);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.03em;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+        }
+
+        .mockup-bio {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .mockup-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .mockup-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            background: var(--bg-main);
+            border-radius: 8px;
+        }
+
+        .mockup-link-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--signature);
+        }
+
+        .mockup-link-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .mockup-link-info {
+            flex: 1;
+        }
+
+        .mockup-link-title {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .mockup-link-subtitle {
+            font-size: 0.65rem;
+            color: var(--ink-soft);
+        }
+
+        /* Spotify Embed */
+        .mockup-embed {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #282828;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .mockup-embed-icon {
+            width: 40px;
+            height: 40px;
+            background: #1DB954;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .mockup-embed-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .mockup-embed-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mockup-embed-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .mockup-embed-subtitle {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .mockup-embed-play {
+            width: 32px;
+            height: 32px;
+            background: #1DB954;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .mockup-link-icon.youtube {
+            background: #FEE2E2;
+        }
+
+        .mockup-link-icon.shop {
+            background: #E8F5E9;
+            color: var(--signature);
+        }
+
+        .mockup-socials {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            padding: 0.75rem 0;
+            border-top: 1px solid var(--surface);
+            margin-bottom: 0.5rem;
+        }
+
+        .mockup-social-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-soft);
+            cursor: pointer;
+        }
+
+        .mockup-social-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Footer avec Connect & Save */
+        .mockup-cta-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mockup-connect-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            background: var(--signature);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .float-badge {
+            position: absolute;
+            background: white;
+            padding: 0.6rem 0.85rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .float-badge.analytics {
+            top: 16%;
+            right: -50px;
+        }
+
+        .float-badge.privacy {
+            bottom: 28%;
+            right: -40px;
+        }
+
+        /* ══════════════════════════════════════
+           COMPARISON
+           ══════════════════════════════════════ */
+        .comparison {
+            padding: 3rem 0;
+        }
+
+        .section-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--accent-deep);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.25rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-top: -2rem;
+            margin-bottom: 3rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .comparison-card {
+            padding: 2rem;
+            background: var(--surface);
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            background: var(--surface-hover);
+            transform: translateY(-4px);
+        }
+
+        .comparison-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .comparison-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .comparison-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-desc {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            line-height: 1.6;
+        }
+
+        .no-app-badge {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--ink);
+            letter-spacing: 0.02em;
+        }
+
+        .embeds-badge {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            color: var(--ink-soft);
+            letter-spacing: 0.01em;
+        }
+
+        /* ══════════════════════════════════════
+           EXAMPLES
+           ══════════════════════════════════════ */
+        .examples {
+            padding: 3rem 0;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .example-card {
+            background: var(--bg-main);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+        }
+
+        .example-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.1);
+        }
+
+        .example-card.is-active {
+            box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+        }
+
+        .example-sidebar {
+            width: 28px;
+            background: var(--signature);
+            position: relative;
+        }
+
+        .example-sidebar-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.05em;
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            writing-mode: vertical-rl;
+            transform: translateX(-50%) rotate(180deg);
+        }
+
+        .example-main {
+            flex: 1;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .example-header {
+            margin-bottom: 0.85rem;
+        }
+
+        .example-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid white;
+            margin: 0 auto 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .example-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .example-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            font-size: 1.25rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .example-handle {
+            font-size: 0.8rem;
+            color: var(--signature);
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .example-flags {
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.3rem;
+        }
+
+        .example-citizen {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--ink-soft);
+            letter-spacing: 0.03em;
+        }
+
+        .example-bio {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .example-featured {
+            background: var(--signature);
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+            margin-bottom: 0.85rem;
+            color: white;
+            text-align: left;
+        }
+
+        .example-featured-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .example-featured-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .example-featured-cta {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .example-section-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--ink-soft);
+            background: rgba(26,58,58,0.08);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            transition: all 0.4s ease;
+        }
+
+        .example-card:hover .example-section-label,
+        .example-card.is-active .example-section-label {
+            color: var(--bg-main);
+            background: var(--signature);
+            box-shadow: 0 0 0 2px var(--signature);
+            transform: scale(1.05);
+        }
+
+        .examples-grid:hover .example-card:not(:hover) .example-section-label {
+            color: var(--ink-soft);
+            background: var(--surface);
+            box-shadow: none;
+            transform: scale(1);
+        }
+
+        .example-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .example-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .example-link-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .example-link-icon svg {
+            width: 16px;
+            height: 16px;
+            color: var(--ink-soft);
+        }
+
+        .example-link-content {
+            flex: 1;
+        }
+
+        .example-link-title {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .example-link-subtitle {
+            font-size: 0.65rem;
+            color: var(--ink-soft);
+        }
+
+        .example-socials {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface);
+        }
+
+        .example-social {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .example-social svg {
+            width: 14px;
+            height: 14px;
+            color: var(--ink-soft);
+        }
+
+        /* ══════════════════════════════════════
+           MONETIZATION
+           ══════════════════════════════════════ */
+        .monetization {
+            padding: 3rem 0;
+            background: var(--surface);
+        }
+
+        .monetization-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+
+        .monetization-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .monetization-content {
+            max-width: 440px;
+        }
+
+        .monetization-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .monetization-feature {
+            padding: 1.5rem;
+            background: var(--bg-main);
+            border-radius: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .monetization-feature:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        .monetization-feature-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--signature);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .monetization-feature-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .monetization-feature-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .monetization-feature-desc {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+        }
+
+        .monetization-note {
+            margin-top: 2rem;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-main);
+            border-left: 3px solid var(--signature);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .monetization-note-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .monetization-note-text {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+        }
+
+        .monetization-note-text strong {
+            color: var(--signature);
+        }
+
+        /* ══════════════════════════════════════
+           VIEW TOGGLE
+           ══════════════════════════════════════ */
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .view-toggle-btn {
+            padding: 0.5rem 1.25rem;
+            border: none;
+            background: var(--surface);
+            color: var(--ink-soft);
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .view-toggle-btn:hover {
+            background: var(--surface-hover);
+            color: var(--ink);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--signature);
+            color: white;
+        }
+
+        .toggle-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        /* ══════════════════════════════════════
+           MULTI-VIEWS DEMO
+           ══════════════════════════════════════ */
+        .demo-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .demo-phone {
+            width: 340px;
+            background: #1C1C1C;
+            border-radius: 52px;
+            padding: 14px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.25);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .demo-phone:hover {
+            transform: scale(1.02);
+            box-shadow: 0 50px 120px rgba(0,0,0,0.3);
+        }
+
+        .demo-phone-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .demo-screen {
+            background: var(--bg-main);
+            border-radius: 42px;
+            overflow: hidden;
+            display: flex;
+            min-height: 640px;
+        }
+
+        /* Sidebar */
+        .demo-sidebar {
+            width: 28px;
+            background: var(--signature);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 0;
+            flex-shrink: 0;
+        }
+
+        .demo-sidebar-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-sidebar-pulse {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .demo-sidebar-citizen {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.5rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .demo-sidebar-brand {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 0.05em;
+        }
+
+        /* Main content */
+        .demo-main {
+            flex: 1;
+            padding: 1.25rem 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* View Label (en haut) */
+        .demo-view-label-wrap {
+            height: 1.4rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .demo-view-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            background: rgba(26,58,58,0.08);
+            color: var(--signature);
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .demo-view-label.active {
+            opacity: 1;
+        }
+
+        /* Header - PHOTO ON TOP */
+        .demo-header {
+            margin-bottom: 0.6rem;
+        }
+
+        .demo-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face') center/cover;
+            border: 3px solid white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.45rem;
+            font-weight: 500;
+            line-height: 1.1;
+            margin-bottom: 0.1rem;
+        }
+
+        .demo-handle {
+            font-size: 0.8rem;
+            color: var(--signature);
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .demo-flags {
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.35rem;
+        }
+
+        .demo-citizen {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.5rem;
+            color: var(--ink-soft);
+            background: rgba(26,58,58,0.06);
+            padding: 0.28rem 0.5rem;
+            border-radius: 3px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            border: 1px solid rgba(26,58,58,0.1);
+        }
+
+        /* States Container */
+        .demo-states {
+            position: relative;
+            flex: 1;
+            min-height: 360px;
+        }
+
+        .demo-state {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .demo-state.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Bio */
+        .demo-bio {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        /* Featured Card */
+        .demo-featured {
+            background: var(--signature);
+            color: white;
+            padding: 0.9rem 1rem;
+            border-radius: 14px;
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-featured-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .demo-featured-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-featured-cta {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Link Cards */
+        .demo-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+
+        .demo-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.9rem;
+            background: var(--surface);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-link:hover {
+            background: var(--surface-hover);
+            transform: translateX(2px);
+        }
+
+        .demo-link-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-main);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .demo-link-icon svg {
+            width: 15px;
+            height: 15px;
+            color: var(--signature);
+            stroke: var(--signature);
+        }
+
+        .demo-link-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .demo-link-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .demo-link-sub {
+            font-size: 0.7rem;
+            color: var(--ink-soft);
+        }
+
+        /* Footer Icons */
+        .demo-footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(26,58,58,0.08);
+        }
+
+        .demo-footer-icons svg {
+            width: 16px;
+            height: 16px;
+            color: var(--ink-soft);
+            stroke: var(--ink-soft);
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .demo-footer-icons svg:hover {
+            opacity: 1;
+        }
+
+        /* Footer Bar with Connect */
+        .demo-footer-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.6rem;
+            padding-top: 0.5rem;
+        }
+
+        .demo-footer-connect {
+            background: var(--signature);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.55rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Click hint */
+        .demo-click-hint {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--signature);
+            margin-top: 1.25rem;
+            font-weight: 500;
+        }
+
+        .demo-click-hint svg {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+            stroke: var(--signature);
+        }
+
+        /* Context storytelling */
+        .demo-context-wrap {
+            position: relative;
+            height: 2rem;
+            margin: 1.5rem auto 0;
+            max-width: 400px;
+        }
+
+        .demo-context {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 1.05rem;
+            color: var(--ink-soft);
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .demo-context.active {
+            opacity: 1;
+        }
+
+        .demo-context strong {
+            color: var(--signature);
+            font-weight: 600;
+        }
+
+        .demo-caption {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+            margin-top: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* ══════════════════════════════════════
+           PRICING
+           ══════════════════════════════════════ */
+        .pricing {
+            padding: 3rem 0 1rem;
+        }
+
+        .pricing-note {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--ink-soft);
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            padding: 2.5rem;
+            background: var(--surface);
+            border-radius: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            background: var(--surface-hover);
+        }
+
+        .pricing-card.featured {
+            background: var(--signature);
+            color: var(--bg-main);
+        }
+
+        .pricing-card.featured .pricing-label,
+        .pricing-card.featured .pricing-features li {
+            color: rgba(244,243,240,0.7);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            right: 24px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.4rem 0.75rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 50px;
+        }
+
+        .pricing-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+
+        .pricing-label {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--signature);
+        }
+
+        .pricing-card.featured .pricing-features li::before {
+            color: var(--accent);
+        }
+
+        .pricing-cta {
+            display: block;
+            text-align: center;
+            padding: 1rem;
+            background: var(--signature);
+            color: var(--bg-main);
+            border-radius: 10px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,58,58,0.2);
+        }
+
+        .pricing-card.featured .pricing-cta {
+            background: var(--bg-main);
+            color: var(--signature);
+        }
+
+        /* ══════════════════════════════════════
+           WALLET SECTION
+           ══════════════════════════════════════ */
+        .wallet-section {
+            margin-top: 3rem;
+            padding-top: 3rem;
+            text-align: center;
+            border-top: 1px solid var(--surface);
+        }
+
+        .wallet-section-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--accent-deep);
+            margin-bottom: 1rem;
+        }
+
+        .wallet-section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.25rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-section-desc {
+            font-size: 0.95rem;
+            color: var(--ink-soft);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .wallet-section-tagline {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .wallet-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--ink);
+            color: white;
+            padding: 0.4rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .wallet-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .wallet-badge.apple {
+            background: #000;
+        }
+
+        .wallet-badge.google {
+            background: #fff;
+            color: var(--ink);
+            border: 1px solid var(--surface);
+        }
+
+        .wallet-stack {
+            display: flex;
+            justify-content: center;
+            perspective: 1000px;
+            padding: 0 0 3rem;
+        }
+
+        .wallet-stack-inner {
+            position: relative;
+            width: 340px;
+            height: 215px;
+            cursor: pointer;
+        }
+
+        .wallet-card {
+            width: 340px;
+            height: 215px;
+            border-radius: 16px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(26, 58, 58, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        /* Stack positions - default */
+        .wallet-card.minimal {
+            transform: translateX(35px) translateY(12px) rotateY(-5deg);
+            z-index: 1;
+        }
+        .wallet-card.cream {
+            transform: translateX(18px) translateY(6px) rotateY(-3deg);
+            z-index: 2;
+        }
+        .wallet-card.signature {
+            transform: translateX(0) translateY(0) rotateY(0);
+            z-index: 3;
+        }
+
+        /* Fan out on hover */
+        .wallet-stack-inner:hover .wallet-card.minimal {
+            transform: translateX(100px) translateY(25px) rotateY(-15deg);
+        }
+        .wallet-stack-inner:hover .wallet-card.cream {
+            transform: translateX(50px) translateY(12px) rotateY(-8deg);
+        }
+        .wallet-stack-inner:hover .wallet-card.signature {
+            transform: translateX(-25px) translateY(0) rotateY(0);
+            box-shadow: 0 28px 60px rgba(26, 58, 58, 0.25);
+        }
+
+        /* Signature Dark */
+        .wallet-card.signature {
+            background: linear-gradient(145deg, var(--signature) 0%, #0D1F1F 100%);
+        }
+        .wallet-card.signature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .wallet-card.signature .wc-content { color: white; }
+        .wallet-card.signature .wc-logo { color: rgba(255,255,255,0.9); }
+        .wallet-card.signature .wc-pro { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
+        .wallet-card.signature .wc-avatar { border-color: rgba(255,255,255,0.3); }
+        .wallet-card.signature .wc-qr { background: white; color: var(--signature); }
+        .wallet-card.signature .wc-footer { border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+        .wallet-card.signature .wc-handle { color: rgba(255,255,255,0.6); }
+
+        /* Cream Light */
+        .wallet-card.cream {
+            background: linear-gradient(145deg, #FDFCFA 0%, var(--surface) 100%);
+        }
+        .wallet-card.cream::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 100%;
+            background: var(--signature);
+        }
+        .wallet-card.cream .wc-content { color: var(--ink); }
+        .wallet-card.cream .wc-logo { color: var(--signature); }
+        .wallet-card.cream .wc-pro { background: var(--signature); color: white; }
+        .wallet-card.cream .wc-avatar { border-color: var(--signature); }
+        .wallet-card.cream .wc-qr { background: var(--signature); color: white; }
+        .wallet-card.cream .wc-footer { border-color: rgba(26,58,58,0.1); color: var(--ink-soft); }
+        .wallet-card.cream .wc-handle { color: var(--ink-soft); }
+
+        /* Minimal White */
+        .wallet-card.minimal {
+            background: white;
+            border: 1px solid var(--surface);
+        }
+        .wallet-card.minimal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 100%;
+            background: var(--ink);
+        }
+        .wallet-card.minimal .wc-content { color: var(--ink); }
+        .wallet-card.minimal .wc-logo { color: var(--signature); }
+        .wallet-card.minimal .wc-pro { background: var(--surface); color: var(--signature); }
+        .wallet-card.minimal .wc-avatar { border-color: var(--surface); }
+        .wallet-card.minimal .wc-qr { background: var(--ink); color: white; }
+        .wallet-card.minimal .wc-footer { border-color: var(--surface); color: var(--ink-soft); }
+        .wallet-card.minimal .wc-handle { color: var(--ink-soft); }
+
+        .wallet-hint {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--ink-soft);
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+            opacity: 0.7;
+        }
+
+        /* Card Content */
+        .wc-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            padding: 1.25rem 1.25rem 1.25rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .wc-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.15rem;
+        }
+
+        .wc-pro {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .wc-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+        }
+
+        .wc-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid;
+            overflow: hidden;
+        }
+
+        .wc-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .wc-info {
+            flex: 1;
+        }
+
+        .wc-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .wc-handle {
+            font-size: 0.75rem;
+        }
+
+        .wc-qr {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            padding: 6px;
+        }
+
+        .wc-qr svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.6rem;
+            border-top: 1px solid;
+            font-size: 0.55rem;
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 900px) {
+            .wallet-stack-inner {
+                width: 300px;
+                height: 190px;
+            }
+            .wallet-card {
+                width: 300px;
+                height: 190px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .wallet-stack-inner {
+                width: 280px;
+                height: 175px;
+                animation: walletFan 4s ease-in-out infinite;
+            }
+            .wallet-card {
+                width: 280px;
+                height: 175px;
+            }
+            @keyframes walletFan {
+                0%, 100% {
+                    transform: perspective(600px);
+                }
+                50% {
+                    transform: perspective(600px);
+                }
+            }
+            .wallet-stack-inner .wallet-card.minimal {
+                animation: walletMinimal 4s ease-in-out infinite;
+            }
+            .wallet-stack-inner .wallet-card.cream {
+                animation: walletCream 4s ease-in-out infinite;
+            }
+            @keyframes walletMinimal {
+                0%, 100% { transform: translateX(0) translateY(0) rotateY(0); }
+                50% { transform: translateX(40px) translateY(10px) rotateY(-10deg); }
+            }
+            @keyframes walletCream {
+                0%, 100% { transform: translateX(0) translateY(0) rotateY(0); }
+                50% { transform: translateX(20px) translateY(5px) rotateY(-5deg); }
+            }
+        }
+
+        /* ══════════════════════════════════════
+           FINAL CTA
+           ══════════════════════════════════════ */
+        .final-cta {
+            padding: 5rem 0 6rem;
+            text-align: center;
+            background: linear-gradient(180deg, var(--bg-main) 0%, #E8E4DE 100%);
+        }
+
+        .final-cta-inner {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .final-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(26,58,58,0.08);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--signature);
+            margin-bottom: 1.5rem;
+        }
+
+        .final-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .final-title span {
+            color: var(--signature);
+        }
+
+        .final-desc {
+            font-size: 1.15rem;
+            color: var(--ink-soft);
+            margin-bottom: 2.5rem;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .final-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .final-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.125rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: var(--signature);
+            color: var(--bg-main);
+        }
+
+        .final-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(26,58,58,0.3);
+        }
+
+        .final-or {
+            color: var(--ink-soft);
+            font-size: 0.9rem;
+        }
+
+        .final-link {
+            color: var(--signature);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .final-link:hover {
+            text-decoration: underline;
+        }
+
+        .final-reassurance {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+            margin-top: 1.5rem;
+        }
+
+        .final-button.primary {
+            background: var(--signature);
+            color: var(--bg-main);
+        }
+
+        .final-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(26,58,58,0.3);
+        }
+
+        .final-button.primary svg {
+            transition: transform 0.3s ease;
+        }
+
+        .final-button.primary:hover svg {
+            transform: translateX(4px);
+        }
+
+        .final-button.secondary {
+            background: transparent;
+            color: var(--signature);
+            border: 1px solid var(--signature);
+        }
+
+        .final-button.secondary:hover {
+            background: var(--signature);
+            color: var(--bg-main);
+        }
+
+        .final-trust {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .final-trust-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+        }
+
+        .final-trust-item svg {
+            color: var(--success);
+        }
+
+        /* ══════════════════════════════════════
+           FOOTER
+           ══════════════════════════════════════ */
+        .footer {
+            padding: 3rem 0;
+            border-top: 1px solid var(--surface);
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-tagline {
+            color: var(--ink-soft);
+            font-size: 0.8rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+        }
+
+        .footer-link {
+            color: var(--ink-soft);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .footer-link:hover {
+            color: var(--ink);
+        }
+
+        .footer-privacy {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .footer-privacy-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--signature);
+            border-radius: 50%;
+        }
+
+        .footer-legal {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--ink-soft);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface);
+            opacity: 0.7;
+        }
+
+        /* ══════════════════════════════════════
+           MOBILE
+           ══════════════════════════════════════ */
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                padding: 4rem 0 3rem;
+            }
+
+            .hero-visual {
+                order: -1;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .float-badge {
+                display: none;
+            }
+
+            .mockup-spotlight {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .mockup-spotlight-text {
+                font-size: 0.85rem;
+            }
+
+            .mockup-footer {
+                padding: 0.6rem 1rem 0.6rem 2.5rem;
+            }
+
+            .mockup-share-btn {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+                gap: 1.5rem;
+            }
+
+            .examples-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+                gap: 0;
+            }
+
+            .example-card {
+                display: none;
+            }
+
+            .example-card.is-active {
+                display: flex;
+            }
+
+            .example-sidebar {
+                width: 24px;
+            }
+
+            .example-main {
+                padding: 1.5rem;
+            }
+
+            .monetization-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .monetization-inner {
+                padding: 0 1.5rem;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .wallet-stack {
+                transform: scale(0.85);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .signature-bar {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 36px;
+                flex-direction: row;
+                padding: 0 1.5rem;
+            }
+
+            .signature-brand {
+                writing-mode: horizontal-tb;
+                transform: none;
+            }
+
+            .signature-pulse {
+                order: -1;
+            }
+
+            .page {
+                margin-left: 0;
+                margin-bottom: 36px;
+            }
+
+            .container {
+                padding: 0 1.25rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+                padding-top: 1.5rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .hero {
+                padding: 2.5rem 0;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+
+            .hero-desc {
+                font-size: 1rem;
+                line-height: 1.7;
+            }
+
+            .claim-container {
+                flex-direction: column;
+            }
+
+            .claim-input-wrapper {
+                min-width: 100%;
+            }
+
+            .claim-btn {
+                width: 100%;
+            }
+
+            .section-label {
+                margin-bottom: 0.75rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+                margin-bottom: 2rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.95rem;
+                margin-bottom: 2rem;
+            }
+
+            .comparison {
+                padding: 2.5rem 0;
+            }
+
+            .comparison-card {
+                padding: 1.5rem;
+            }
+
+            .examples {
+                padding: 2.5rem 0;
+            }
+
+            .example-card {
+                border-radius: 16px;
+            }
+
+            .example-main {
+                padding: 1.25rem;
+            }
+
+            .example-bio {
+                font-size: 0.85rem;
+                margin-bottom: 1rem;
+            }
+
+            .example-featured {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .monetization {
+                padding: 2.5rem 0;
+            }
+
+            .monetization-features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .monetization-feature {
+                padding: 1.25rem;
+            }
+
+            .pricing {
+                padding: 2.5rem 0 1rem;
+            }
+
+            .pricing-card {
+                padding: 2rem;
+            }
+
+            .wallet-section {
+                margin-top: 2rem;
+                padding-top: 2rem;
+            }
+
+            .wallet-section-title {
+                font-size: 1.6rem;
+            }
+
+            .wallet-section-desc {
+                font-size: 0.85rem;
+            }
+
+            .wallet-stack {
+                transform: scale(0.75);
+                margin: -1rem 0;
+            }
+
+            .final-cta {
+                padding: 3rem 0 4rem;
+            }
+
+            .final-title {
+                font-size: 2rem;
+            }
+
+            .final-desc {
+                font-size: 1rem;
+            }
+
+            .final-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .final-trust {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .footer {
+                padding: 2rem 0;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .footer-left {
+                justify-content: center;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .footer-legal {
+                font-size: 0.65rem;
+                margin-top: 1.5rem;
+                padding-top: 1rem;
+            }
+
+            .no-app-badge {
+                margin-top: 1.5rem;
+                font-size: 0.8rem;
+            }
+
+            .demo-phone {
+                width: 300px;
+                border-radius: 40px;
+                padding: 10px;
+            }
+
+            .demo-screen {
+                border-radius: 32px;
+                min-height: 560px;
+            }
+
+            .demo-sidebar {
+                width: 24px;
+            }
+
+            .demo-main {
+                padding: 1rem 1rem 1.25rem;
+            }
+
+            .demo-avatar {
+                width: 60px;
+                height: 60px;
+            }
+
+            .demo-name {
+                font-size: 1.4rem;
+            }
+
+            .demo-view-label {
+                font-size: 0.55rem;
+            }
+
+            .demo-bio {
+                font-size: 0.8rem;
+            }
+
+            .demo-states {
+                min-height: 380px;
+            }
+
+            .demo-featured {
+                padding: 0.75rem 0.85rem;
+            }
+
+            .demo-featured-title {
+                font-size: 0.95rem;
+            }
+
+            .demo-link {
+                padding: 0.6rem 0.75rem;
+            }
+
+            .demo-link-title {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Signature Column -->
+    <aside class="signature-bar">
+        <div class="signature-pulse"></div>
+        <span class="signature-brand">myOolala</span>
+    </aside>
+
+    <div class="page">
+        <!-- Header -->
+        <header class="header container">
+            <div class="header-brand">
+                <a href="/" class="header-logo">Oolala</a>
+                <span class="header-tagline">Your digital passport.</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#examples" class="nav-link">Examples</a>
+                <a href="/product" class="nav-link">Product</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="/login" class="nav-link">Sign in</a>
+                <a href="/onboarding" class="nav-cta">Get started</a>
+            </nav>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero container">
+            <div class="hero-content">
+                <span class="hero-badge">Your digital passport.</span>
+                <h1 class="hero-title">Where interesting people share their world.</h1>
+                <p class="hero-desc">For people who care how they show up. One page that says everything — Share your links. Sell your ideas. Stay in their minds.</p>
+                
+                <div class="claim-container">
+                    <div class="claim-input-wrapper">
+                        <span class="claim-prefix">myoolala.com/</span>
+                        <input type="text" class="claim-input" id="claim-input" placeholder="yourname" maxlength="20" autocomplete="off">
+                        <span class="claim-status" id="claim-status"></span>
+                    </div>
+                    <button class="claim-btn" id="claim-btn">Claim it</button>
+                </div>
+                <p class="hero-note">Free forever. Your name won't wait.</p>
+            </div>
+            <div class="hero-visual">
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="mockup">
+                    <!-- Sidebar gauche avec Citizen ID en haut et myOolala en bas -->
+                    <div class="mockup-sidebar">
+                        <span class="mockup-sidebar-citizen">JFK • 0010-2005</span>
+                        <span class="mockup-sidebar-brand">myOolala</span>
+                    </div>
+                    <div class="mockup-content">
+                        <!-- Avatar -->
+                        <div class="mockup-avatar"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face" alt="Sofia"></div>
+                        
+                        <!-- Name & Handle -->
+                        <div class="mockup-name">Sofia Reyes</div>
+                        <div class="mockup-handle">@sofiarey</div>
+                        
+                        <!-- Flags (sous le handle) -->
+                        <div class="mockup-flags">🇮🇹 → 🇺🇸</div>
+                        
+                        <!-- Citizen badge -->
+                        <div class="mockup-citizen-badge">JFK • 0010-2005 · LOS ANGELES</div>
+                        
+                        <!-- Bio -->
+                        <div class="mockup-bio">Design & lifestyle obsessed. Founder of The Sunday Edit.</div>
+                        
+                        <!-- Spotify Embed (dark) -->
+                        <div class="mockup-embed">
+                            <div class="mockup-embed-icon">
+                                <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                            </div>
+                            <div class="mockup-embed-info">
+                                <div class="mockup-embed-title">Sunday Morning</div>
+                                <div class="mockup-embed-subtitle">Playlist • 24 songs</div>
+                            </div>
+                            <div class="mockup-embed-play">▶</div>
+                        </div>
+                        
+                        <!-- Links -->
+                        <div class="mockup-links">
+                            <div class="mockup-link">
+                                <div class="mockup-link-icon youtube">
+                                    <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                </div>
+                                <div class="mockup-link-title">YouTube</div>
+                            </div>
+                            <div class="mockup-link">
+                                <div class="mockup-link-icon shop">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                </div>
+                                <div class="mockup-link-title">Shop</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Icons Row -->
+                        <div class="mockup-socials">
+                            <a class="mockup-social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                            <a class="mockup-social-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                            <a class="mockup-social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+                            <a class="mockup-social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+                            <a class="mockup-social-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>
+                        </div>
+                        
+                        <!-- Footer with Connect & Save -->
+                        <div class="mockup-cta-footer">
+                            <button class="mockup-connect-btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                Connect & Save
+                            </button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="float-badge analytics">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>
+                    <span>847 clicks this week</span>
+                </div>
+                <div class="float-badge privacy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                    <span>No tracking</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why different -->
+        <section class="comparison container">
+            <p class="section-label">Why Oolala</p>
+            <h2 class="section-title">Not another link page.</h2>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <div class="comparison-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="1.5">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                    </div>
+                    <h3 class="comparison-title">Design that stands out</h3>
+                    <p class="comparison-desc">Your page looks considered, not improvised. Clean layouts, calm typography, zero noise.</p>
+                </div>
+                <div class="comparison-card">
+                    <div class="comparison-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="1.5">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                        </svg>
+                    </div>
+                    <h3 class="comparison-title">Share on your terms</h3>
+                    <p class="comparison-desc">Public or private. You decide what gets shared — and when.</p>
+                </div>
+                <div class="comparison-card">
+                    <div class="comparison-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="1.5">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                    </div>
+                    <h3 class="comparison-title">Get paid directly</h3>
+                    <p class="comparison-desc">Sell, collect, or receive support — straight to your Stripe. 5% flat. No hidden fees. Ever.</p>
+                </div>
+            </div>
+            <p class="no-app-badge">No app. Works everywhere. Even offline.</p>
+            <p class="embeds-badge">Embed Spotify, YouTube, Deezer, Apple Music, and more.</p>
+        </section>
+
+        <!-- Examples -->
+        <section class="examples container" id="examples">
+            <p class="section-label">Made with Oolala</p>
+            <h2 class="section-title">One profile. Different contexts.</h2>
+            <p class="section-subtitle">Social. Work. Events. You decide what people see.</p>
+            <p class="toggle-note">Watch how one profile transforms.</p>
+
+            <!-- Animated Demo -->
+            <div class="demo-wrapper">
+                <a href="profile.html" target="_blank" class="demo-phone-link">
+                    <div class="demo-phone">
+                        <div class="demo-screen">
+                            <!-- Sidebar with CITIZEN -->
+                            <div class="demo-sidebar">
+                                <div class="demo-sidebar-top">
+                                    <div class="demo-sidebar-pulse"></div>
+                                    <span class="demo-sidebar-citizen">JFK • 0010-2005</span>
+                                </div>
+                                <span class="demo-sidebar-brand">myOolala</span>
+                            </div>
+                            
+                            <!-- Main Content -->
+                            <div class="demo-main">
+                                <!-- View Label (animated) - en haut -->
+                                <div class="demo-view-label-wrap">
+                                    <span class="demo-view-label active">Social</span>
+                                    <span class="demo-view-label">Work</span>
+                                    <span class="demo-view-label">Events</span>
+                                </div>
+
+                                <!-- Fixed Header - Photo on top -->
+                                <div class="demo-header">
+                                    <div class="demo-avatar"></div>
+                                    <div class="demo-name">Sofia Reyes</div>
+                                    <div class="demo-handle">@sofiarey</div>
+                                    <div class="demo-flags">🇮🇹 → 🇺🇸</div>
+                                    <div class="demo-citizen">JFK • 0010-2005 · Los Angeles</div>
+                                </div>
+
+                                <!-- Content States (auto-rotating) -->
+                                <div class="demo-states">
+                                    <!-- State 1: SOCIAL -->
+                                    <div class="demo-state active">
+                                        <p class="demo-bio">Design & lifestyle obsessed. Founder of The Sunday Edit.</p>
+                                        <div class="demo-featured">
+                                            <div class="demo-featured-title">The Sunday Edit: Vol. 24</div>
+                                            <div class="demo-featured-desc">Slow living and modern architecture</div>
+                                            <div class="demo-featured-cta">Read Now →</div>
+                                        </div>
+                                        <div class="demo-links">
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">YouTube</div>
+                                                    <div class="demo-link-sub">847K subscribers</div>
+                                                </div>
+                                            </div>
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">Facebook</div>
+                                                    <div class="demo-link-sub">The Sunday Edit</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="demo-footer-icons">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l11.5 16h4.5l-11.5-16zM4 20l6.5-8M20 4l-6.5 8"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                        </div>
+                                        <div class="demo-footer-bar">
+                                            <button class="demo-footer-connect">⊞ Connect & Save</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- State 2: WORK -->
+                                    <div class="demo-state">
+                                        <p class="demo-bio">Creative Director & Brand Strategist. 10+ years in luxury & lifestyle.</p>
+                                        <div class="demo-featured">
+                                            <div class="demo-featured-title">Available for Projects</div>
+                                            <div class="demo-featured-desc">Brand strategy, Art direction, Consulting</div>
+                                            <div class="demo-featured-cta">Get in touch →</div>
+                                        </div>
+                                        <div class="demo-links">
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">Portfolio</div>
+                                                    <div class="demo-link-sub">Selected works 2020–2025</div>
+                                                </div>
+                                            </div>
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">LinkedIn</div>
+                                                    <div class="demo-link-sub">Connect professionally</div>
+                                                </div>
+                                            </div>
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">Resume</div>
+                                                    <div class="demo-link-sub">Download PDF</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="demo-footer-icons">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- State 3: EVENTS -->
+                                    <div class="demo-state">
+                                        <p class="demo-bio">Speaker on design, creativity & building a life you love.</p>
+                                        <div class="demo-featured">
+                                            <div class="demo-featured-title">Speaking at Config 2026</div>
+                                            <div class="demo-featured-desc">San Francisco · June 12–14</div>
+                                            <div class="demo-featured-cta">See details →</div>
+                                        </div>
+                                        <div class="demo-links">
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">Book a Call</div>
+                                                    <div class="demo-link-sub">30 min intro · Free</div>
+                                                </div>
+                                            </div>
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">WhatsApp</div>
+                                                    <div class="demo-link-sub">Message directly</div>
+                                                </div>
+                                            </div>
+                                            <div class="demo-link">
+                                                <div class="demo-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></div>
+                                                <div class="demo-link-text">
+                                                    <div class="demo-link-title">Email</div>
+                                                    <div class="demo-link-sub"><span class="__cf_email__" data-cfemail="2a424f4646456a59454c434b584f5304494547">[email&#160;protected]</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="demo-footer-icons">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <p class="demo-click-hint">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+                    Click to see full profile
+                </p>
+            </div>
+
+            <!-- Context storytelling -->
+            <div class="demo-context-wrap">
+                <p class="demo-context active">Sofia shares her <strong>Social</strong> view with friends</p>
+                <p class="demo-context">Sofia shares her <strong>Work</strong> view with recruiters</p>
+                <p class="demo-context">Sofia shares her <strong>Events</strong> view at conferences</p>
+            </div>
+            
+            <p class="demo-caption">Same profile. Different views. You control what they see.</p>
+        </section>
+
+        <!-- Monetization -->
+        <section class="monetization">
+            <div class="monetization-inner">
+                <p class="section-label" style="text-align: center;">Built-in payments</p>
+                <h2 class="section-title">Sell directly from your page.</h2>
+                <div class="monetization-grid">
+                    <div class="monetization-content">
+                        <p style="font-size: 1.05rem; color: var(--ink-soft); line-height: 1.7; margin-bottom: 1.5rem;">
+                            Sell products, accept support, or share paid content — all from one page. No external checkout. No friction.
+                        </p>
+                        <div class="monetization-note">
+                            <div class="monetization-note-title">Simple, transparent pricing</div>
+                            <div class="monetization-note-text">
+                                <strong>5% per transaction. That's it.</strong><br>
+                                Powered by Stripe. Paid directly to your account.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="monetization-features">
+                        <div class="monetization-feature">
+                            <div class="monetization-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg-main)" stroke-width="2"><path d="M21 4H3a2 2 0 00-2 2v12a2 2 0 002 2h18a2 2 0 002-2V6a2 2 0 00-2-2z"/><path d="M1 10h22"/></svg>
+                            </div>
+                            <div class="monetization-feature-title">Payment Links</div>
+                            <div class="monetization-feature-desc">Sell products, ebooks, presets, anything</div>
+                        </div>
+                        <div class="monetization-feature">
+                            <div class="monetization-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg-main)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                            </div>
+                            <div class="monetization-feature-title">Tips & Donations</div>
+                            <div class="monetization-feature-desc">"Support my work" with any amount</div>
+                        </div>
+                        <div class="monetization-feature">
+                            <div class="monetization-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg-main)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            </div>
+                            <div class="monetization-feature-title">Exclusive Content</div>
+                            <div class="monetization-feature-desc">Unlock links behind a paywall</div>
+                        </div>
+                        <div class="monetization-feature">
+                            <div class="monetization-feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg-main)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                            </div>
+                            <div class="monetization-feature-title">Bookings</div>
+                            <div class="monetization-feature-desc">Paid calls & consultations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing -->
+        <section class="pricing container" id="pricing">
+            <p class="section-label">Pricing</p>
+            <h2 class="section-title">Simple pricing. No surprises.</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3 class="pricing-name">Free</h3>
+                    <div class="pricing-price">$0</div>
+                    <p class="pricing-label">Forever free</p>
+                    <ul class="pricing-features">
+                        <li>Unlimited links</li>
+                        <li>Premium design</li>
+                        <li>Origin flags 🇫🇷 → 🇦🇪</li>
+                        <li>Basic analytics</li>
+                        <li>Payments (5% fee)</li>
+                        <li>myOolala branding</li>
+                    </ul>
+                    <a href="/onboarding" class="pricing-cta">Claim your Oolala</a>
+                </div>
+                <div class="pricing-card featured">
+                    <span class="pricing-badge">Popular</span>
+                    <h3 class="pricing-name">Pro</h3>
+                    <div class="pricing-price">$3 <span>/mo</span></div>
+                    <p class="pricing-label">or $30/year (save 17%)</p>
+                    <ul class="pricing-features">
+                        <li>Everything in Free</li>
+                        <li>Multi-Views</li>
+                        <li>Wallet Pass (Apple/Google)</li>
+                        <li>Custom domain</li>
+                        <li>Advanced analytics</li>
+                        <li>Remove branding</li>
+                    </ul>
+                    <a href="/onboarding" class="pricing-cta">Claim your Oolala</a>
+                </div>
+            </div>
+            
+            <!-- Wallet Preview -->
+            <div class="wallet-section">
+                <p class="wallet-section-label">Pro Feature</p>
+                <h3 class="wallet-section-title">Your Oolala, always in your pocket.</h3>
+                <p class="wallet-section-desc">
+                    Save it to 
+                    <span class="wallet-badge apple">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                        Apple Wallet
+                    </span>
+                    or
+                    <span class="wallet-badge google">
+                        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Google Wallet
+                    </span>
+                </p>
+                <p class="wallet-section-tagline">Share it anywhere.</p>
+                
+                <div class="wallet-stack">
+                    <div class="wallet-stack-inner">
+                        <!-- Minimal White (bottom) -->
+                        <div class="wallet-card minimal">
+                            <div class="wc-content">
+                                <div class="wc-header">
+                                    <span class="wc-logo">myOolala</span>
+                                    <span class="wc-pro">Pro</span>
+                                </div>
+                                <div class="wc-body">
+                                    <div class="wc-avatar">
+                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face" alt="">
+                                    </div>
+                                    <div class="wc-info">
+                                        <div class="wc-name">Sofia Reyes</div>
+                                        <div class="wc-handle">@sofiarey</div>
+                                    </div>
+                                    <div class="wc-qr">
+                                        <svg viewBox="0 0 50 50" fill="currentColor">
+                                            <rect x="5" y="5" width="10" height="10"/>
+                                            <rect x="20" y="5" width="5" height="5"/>
+                                            <rect x="35" y="5" width="10" height="10"/>
+                                            <rect x="5" y="20" width="5" height="5"/>
+                                            <rect x="15" y="20" width="5" height="5"/>
+                                            <rect x="25" y="20" width="10" height="5"/>
+                                            <rect x="40" y="20" width="5" height="5"/>
+                                            <rect x="5" y="35" width="10" height="10"/>
+                                            <rect x="20" y="35" width="5" height="5"/>
+                                            <rect x="30" y="35" width="5" height="5"/>
+                                            <rect x="40" y="35" width="5" height="10"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="wc-footer">
+                                    <span>myoolala.com/sofiarey</span>
+                                    <span>Scan to connect</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cream Light (middle) -->
+                        <div class="wallet-card cream">
+                            <div class="wc-content">
+                                <div class="wc-header">
+                                    <span class="wc-logo">myOolala</span>
+                                    <span class="wc-pro">Pro</span>
+                                </div>
+                                <div class="wc-body">
+                                    <div class="wc-avatar">
+                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face" alt="">
+                                    </div>
+                                    <div class="wc-info">
+                                        <div class="wc-name">Sofia Reyes</div>
+                                        <div class="wc-handle">@sofiarey</div>
+                                    </div>
+                                    <div class="wc-qr">
+                                        <svg viewBox="0 0 50 50" fill="currentColor">
+                                            <rect x="5" y="5" width="10" height="10"/>
+                                            <rect x="20" y="5" width="5" height="5"/>
+                                            <rect x="35" y="5" width="10" height="10"/>
+                                            <rect x="5" y="20" width="5" height="5"/>
+                                            <rect x="15" y="20" width="5" height="5"/>
+                                            <rect x="25" y="20" width="10" height="5"/>
+                                            <rect x="40" y="20" width="5" height="5"/>
+                                            <rect x="5" y="35" width="10" height="10"/>
+                                            <rect x="20" y="35" width="5" height="5"/>
+                                            <rect x="30" y="35" width="5" height="5"/>
+                                            <rect x="40" y="35" width="5" height="10"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="wc-footer">
+                                    <span>myoolala.com/sofiarey</span>
+                                    <span>Scan to connect</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Signature Dark (top/front) -->
+                        <div class="wallet-card signature">
+                            <div class="wc-content">
+                                <div class="wc-header">
+                                    <span class="wc-logo">myOolala</span>
+                                    <span class="wc-pro">Pro</span>
+                                </div>
+                                <div class="wc-body">
+                                    <div class="wc-avatar">
+                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face" alt="">
+                                    </div>
+                                    <div class="wc-info">
+                                        <div class="wc-name">Sofia Reyes</div>
+                                        <div class="wc-handle">@sofiarey</div>
+                                    </div>
+                                    <div class="wc-qr">
+                                        <svg viewBox="0 0 50 50" fill="currentColor">
+                                            <rect x="5" y="5" width="10" height="10"/>
+                                            <rect x="20" y="5" width="5" height="5"/>
+                                            <rect x="35" y="5" width="10" height="10"/>
+                                            <rect x="5" y="20" width="5" height="5"/>
+                                            <rect x="15" y="20" width="5" height="5"/>
+                                            <rect x="25" y="20" width="10" height="5"/>
+                                            <rect x="40" y="20" width="5" height="5"/>
+                                            <rect x="5" y="35" width="10" height="10"/>
+                                            <rect x="20" y="35" width="5" height="5"/>
+                                            <rect x="30" y="35" width="5" height="5"/>
+                                            <rect x="40" y="35" width="5" height="10"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="wc-footer">
+                                    <span>myoolala.com/sofiarey</span>
+                                    <span>Scan to connect</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="wallet-hint">Hover to see all themes</p>
+            </div>
+        </section>
+        <section class="final-cta container">
+            <div class="final-cta-inner">
+                <h2 class="final-title">Claim your name.<br><span>Before someone else does.</span></h2>
+                <p class="final-desc">The best usernames disappear fast. Secure yours in 2 minutes — free forever.</p>
+                <div class="final-actions">
+                    <a href="/onboarding" class="final-button primary">
+                        <span>Create your profile</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </a>
+                    <a href="/profile" class="final-button secondary">See example</a>
+                </div>
+                <div class="final-trust">
+                    <div class="final-trust-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span>No credit card</span>
+                    </div>
+                    <div class="final-trust-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span>Free forever</span>
+                    </div>
+                    <div class="final-trust-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span>Cancel anytime</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer container">
+            <div class="footer-inner">
+                <div class="footer-left">
+                    <span class="footer-tagline">Your digital passport.</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="/product" class="footer-link">Product</a>
+                    <a href="/profile" class="footer-link">Example</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Contact</a>
+                </div>
+                <div class="footer-privacy">
+                    <span class="footer-privacy-dot"></span>
+                    No tracking. No ads. Ever.
+                </div>
+            </div>
+            <div class="footer-legal">
+                © 2026 Operated by Oolala Next FZ-LLC · Licence 47017963 RAK (U.A.E.) · PO BOX 644762 The Sustainable City, Dubai (U.A.E.)
+            </div>
+        </footer>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Demo auto-rotation with labels and context
+    document.addEventListener('DOMContentLoaded', function() {
+        const states = document.querySelectorAll('.demo-state');
+        const labels = document.querySelectorAll('.demo-view-label');
+        const contexts = document.querySelectorAll('.demo-context');
+        
+        if (!states.length) return;
+
+        let currentIndex = 0;
+
+        function setActive(idx) {
+            currentIndex = idx;
+            states.forEach(function(s, j) {
+                if (j === idx) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+            labels.forEach(function(l, j) {
+                if (j === idx) {
+                    l.classList.add('active');
+                } else {
+                    l.classList.remove('active');
+                }
+            });
+            contexts.forEach(function(c, j) {
+                if (j === idx) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+        }
+
+        // Auto-rotation every 3 seconds
+        setInterval(function() {
+            currentIndex = (currentIndex + 1) % states.length;
+            setActive(currentIndex);
+        }, 3000);
+    });
+    </script>
+
+    <script>
+    // Claim your name functionality
+    (() => {
+        const input = document.getElementById('claim-input');
+        const status = document.getElementById('claim-status');
+        const btn = document.getElementById('claim-btn');
+        if (!input || !status || !btn) return;
+
+        // Simulated taken names (for demo)
+        const takenNames = ['sofia', 'john', 'admin', 'test', 'demo', 'help', 'support'];
+
+        let debounceTimer;
+
+        input.addEventListener('input', () => {
+            const value = input.value.toLowerCase().trim();
+            
+            clearTimeout(debounceTimer);
+            
+            if (value.length === 0) {
+                status.textContent = '';
+                status.className = 'claim-status';
+                btn.disabled = true;
+                return;
+            }
+
+            if (value.length < 3) {
+                status.textContent = 'Min 3 chars';
+                status.className = 'claim-status taken';
+                btn.disabled = true;
+                return;
+            }
+
+            // Simulate check with debounce
+            status.textContent = '...';
+            status.className = 'claim-status';
+            btn.disabled = true;
+
+            debounceTimer = setTimeout(() => {
+                const isTaken = takenNames.includes(value);
+                
+                if (isTaken) {
+                    status.textContent = '✗ Taken';
+                    status.className = 'claim-status taken';
+                    btn.disabled = true;
+                } else {
+                    status.textContent = '✓ Available';
+                    status.className = 'claim-status available';
+                    btn.disabled = false;
+                }
+            }, 400);
+        });
+
+        btn.addEventListener('click', () => {
+            const value = input.value.toLowerCase().trim();
+            if (value.length >= 3) {
+                window.location.href = '/onboarding?name=' + encodeURIComponent(value);
+            }
+        });
+
+        // Enter key
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !btn.disabled) {
+                btn.click();
+            }
+        });
+    })();
+
+    // Demo Animation - smooth auto-cycle
+    (function() {
+        const states = document.querySelectorAll('.demo-state');
+        if (!states.length) return;
+        
+        let currentIndex = 0;
+        function setActive(index) {
+            states.forEach((s, i) => {
+                s.classList.toggle('active', i === index);
+            });
+        }
+        
+        // Auto-rotate every 3 seconds
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % states.length;
+            setActive(currentIndex);
+        }, 3000);
+    })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+</body>
+</html>
