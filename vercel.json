@@ -4,6 +4,7 @@
     { "source": "/onboarding", "destination": "/onboarding.html" },
     { "source": "/product", "destination": "/product.html" },
     { "source": "/cockpit", "destination": "/cockpit.html" },
+    { "source": "/login", "destination": "/onboarding.html" },
     { "source": "/u/:username", "destination": "/profile.html" }
   ]
 }
