@@ -433,14 +433,22 @@
             document.getElementById('profileBio').textContent = bio;
             document.getElementById('modalName').textContent = profile.display_name;
 
-            // Citizen ID - clean display
+            // Citizen ID - clean display with airport and city
             const cid = profile.citizen_id || '';
             const cleanCid = cid.replace(/^#+/, '');
-            const cidDisplay = cleanCid ? cleanCid.replace('-', ' · ') : '';
-            document.getElementById('sidebarCitizen').textContent = cidDisplay;
-            document.getElementById('profileCitizen').textContent = cidDisplay;
-            document.getElementById('modalHandle').textContent = cidDisplay;
-            if (!cid) document.getElementById('profileCitizen').style.display = 'none';
+            const airport = view?.based_in_airport || profile.based_in_airport || '';
+            const city = view?.based_in_city || profile.based_in_city || '';
+            
+            // Sidebar: Airport • CitizenID
+            const sidebarText = airport ? `${airport} • ${cleanCid}` : cleanCid;
+            document.getElementById('sidebarCitizen').textContent = sidebarText;
+            
+            // Header badge: Airport • CitizenID · City
+            let badgeText = airport ? `${airport} • ${cleanCid}` : cleanCid;
+            if (city) badgeText += ` · ${city}`;
+            document.getElementById('profileCitizen').textContent = badgeText;
+            document.getElementById('modalHandle').textContent = sidebarText;
+            if (!cid && !airport) document.getElementById('profileCitizen').style.display = 'none';
 
             // Use view-specific flags if available, fallback to profile
             const flagsEl = document.getElementById('profileFlags');

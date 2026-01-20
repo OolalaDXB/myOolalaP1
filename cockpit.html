@@ -6385,13 +6385,23 @@
             const locationFlag = view.based_in_flag || '🌍';
             if (flagsEl) flagsEl.textContent = `${originFlag} → ${locationFlag}`;
             
-            // Citizen ID with city
+            // City, Airport, Citizen ID
             const citizenId = currentProfile.citizen_id || '000-00000';
             const cleanId = citizenId.replace(/^#+/, '');
-            const city = view.based_in_city || '';
-            const airport = view.based_in_airport || '';
-            if (citizenEl) citizenEl.textContent = `${airport} • ${cleanId}${city ? ' · ' + city : ''}`;
-            if (sigCitizenEl) sigCitizenEl.textContent = `${airport} • ${cleanId}`;
+            const city = view.based_in_city || document.getElementById('input-city')?.value || '';
+            const airport = view.based_in_airport || document.getElementById('input-airport')?.value || 'DXB';
+            
+            // Sidebar: Airport • CitizenID
+            if (sigCitizenEl) {
+                sigCitizenEl.textContent = `${airport} • ${cleanId}`;
+            }
+            
+            // Header badge: Airport • CitizenID · City
+            if (citizenEl) {
+                let badgeText = `${airport} • ${cleanId}`;
+                if (city) badgeText += ` · ${city}`;
+                citizenEl.textContent = badgeText;
+            }
             
             // Update links
             const linksContainer = iframeDoc.querySelector('.main');
