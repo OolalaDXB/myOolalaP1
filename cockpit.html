@@ -5214,7 +5214,8 @@
                         currentUser = session.user;
                         await loadUserData();
                     } else {
-                        loadDemoData();
+                        window.location.href = '/auth';
+                        return;
                     }
                 } else {
                     console.warn('Supabase not loaded, using demo data');

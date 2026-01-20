@@ -14,14 +14,24 @@
     <script src="/js/countries.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Supabase Config
         const SUPABASE_URL = 'https://txbteobudstggbhlcsyz.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_3SzpI73jPbwREPVPoO_qVg_rM4Mubd4';
         let supabaseClient;
+        let currentUser = null;
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('✓ Supabase initialized');
+
+            // Check if user is authenticated
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = '/auth?tab=signup';
+                return;
+            }
+            
+            currentUser = session.user;
+            console.log('✓ User authenticated:', currentUser.email);
 
             populateCountrySelect('flagOriginSelect');
             populateCountrySelect('flagLocationSelect');
@@ -51,9 +61,6 @@
             line-height: 1.6;
         }
 
-        /* ══════════════════════════════════════
-           SIGNATURE COLUMN
-           ══════════════════════════════════════ */
         .signature-bar {
             position: fixed;
             left: 0;
@@ -101,13 +108,8 @@
             box-shadow: 0 0 12px rgba(255,255,255,0.5);
         }
 
-        .signature-step.completed {
-            background: var(--success);
-        }
+        .signature-step.completed { background: var(--success); }
 
-        /* ══════════════════════════════════════
-           MAIN LAYOUT
-           ══════════════════════════════════════ */
         .page {
             margin-left: 28px;
             min-height: 100vh;
@@ -115,9 +117,6 @@
             grid-template-columns: 1fr 1fr;
         }
 
-        /* ══════════════════════════════════════
-           FORM PANEL
-           ══════════════════════════════════════ */
         .form-panel {
             padding: 1.75rem 3rem 3rem 3rem;
             overflow-y: auto;
@@ -125,9 +124,7 @@
             flex-direction: column;
         }
 
-        .form-header {
-            margin-bottom: 1.75rem;
-        }
+        .form-header { margin-bottom: 1.75rem; }
 
         .form-logo {
             font-family: 'Cormorant Garamond', serif;
@@ -156,9 +153,7 @@
             flex-direction: column;
         }
 
-        .step.active {
-            display: flex;
-        }
+        .step.active { display: flex; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -186,16 +181,9 @@
             margin-bottom: 1.75rem;
         }
 
-        .step-content {
-            flex: 1;
-        }
+        .step-content { flex: 1; }
 
-        /* ══════════════════════════════════════
-           FORM ELEMENTS
-           ══════════════════════════════════════ */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+        .form-group { margin-bottom: 1.5rem; }
 
         .form-label {
             display: block;
@@ -223,9 +211,7 @@
             background: white;
         }
 
-        .form-input::placeholder {
-            color: var(--ink-soft);
-        }
+        .form-input::placeholder { color: var(--ink-soft); }
 
         .form-textarea {
             width: 100%;
@@ -253,7 +239,6 @@
             margin-top: 0.5rem;
         }
 
-        /* Username */
         .username-wrapper {
             display: flex;
             align-items: center;
@@ -294,9 +279,6 @@
         .username-status.available { color: var(--success); }
         .username-status.taken { color: #c44; }
 
-        /* ══════════════════════════════════════
-           AVATAR
-           ══════════════════════════════════════ */
         .avatar-section {
             display: flex;
             gap: 1.5rem;
@@ -324,15 +306,8 @@
         }
 
         .avatar-preview:hover { transform: scale(1.05); }
-
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-input { display: none; }
-
         .avatar-options { flex: 1; }
 
         .avatar-hint {
@@ -341,10 +316,7 @@
             margin-bottom: 0.75rem;
         }
 
-        .avatar-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .avatar-actions { display: flex; gap: 0.5rem; }
 
         .avatar-btn {
             padding: 0.5rem 1rem;
@@ -360,61 +332,19 @@
         .avatar-btn:hover { background: var(--surface-hover); }
         .avatar-btn.primary { background: var(--signature); color: white; }
 
-        /* ══════════════════════════════════════
-           FLAGS / LOCATION
-           ══════════════════════════════════════ */
         .flags-row {
             display: flex;
             gap: 1rem;
-            align-items: center;
+            align-items: flex-start;
         }
 
-        .flag-select {
-            flex: 1;
-            position: relative;
-        }
-
-        .flag-select select {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            background: var(--surface);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            color: var(--ink);
-            cursor: pointer;
-            appearance: none;
-            transition: all 0.3s ease;
-        }
-
-        .flag-select select:focus {
-            outline: none;
-            border-color: var(--signature);
-            background: white;
-        }
-
-        .flag-select::after {
-            content: '▾';
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--ink-soft);
-            pointer-events: none;
-        }
-
-        .flag-arrow {
+        .flags-row .flag-arrow {
+            padding-top: 2rem;
             color: var(--ink-soft);
             font-size: 1rem;
         }
 
-        /* ══════════════════════════════════════
-           MULTI-FLAG SELECTOR
-           ══════════════════════════════════════ */
-        .flag-section {
-            flex: 1;
-        }
+        .flag-section { flex: 1; }
 
         .flag-section-label {
             font-size: 0.75rem;
@@ -453,13 +383,9 @@
             margin-left: 0.1rem;
         }
 
-        .flag-tag-remove:hover {
-            color: white;
-        }
+        .flag-tag-remove:hover { color: white; }
 
-        .flag-dropdown {
-            position: relative;
-        }
+        .flag-dropdown { position: relative; }
 
         .flag-dropdown select {
             width: 100%;
@@ -491,22 +417,7 @@
             pointer-events: none;
             font-size: 1rem;
         }
-        
-        .flags-row {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-        
-        .flags-row .flag-arrow {
-            padding-top: 2rem;
-            color: var(--ink-soft);
-            font-size: 1rem;
-        }
 
-        /* ══════════════════════════════════════
-           LINKS
-           ══════════════════════════════════════ */
         .links-list {
             display: flex;
             flex-direction: column;
@@ -580,9 +491,6 @@
             background: var(--surface);
         }
 
-        /* ══════════════════════════════════════
-           SPOTLIGHT TOGGLE
-           ══════════════════════════════════════ */
         .spotlight-section {
             margin-top: 2rem;
             padding-top: 1.5rem;
@@ -639,20 +547,11 @@
         }
 
         .spotlight-fields.visible { display: flex; }
-
         .spotlight-fields .form-input,
-        .spotlight-fields .form-textarea {
-            background: var(--bg-main);
-        }
-
+        .spotlight-fields .form-textarea { background: var(--bg-main); }
         .spotlight-fields .form-input:focus,
-        .spotlight-fields .form-textarea:focus {
-            background: white;
-        }
+        .spotlight-fields .form-textarea:focus { background: white; }
 
-        /* ══════════════════════════════════════
-           SOCIALS
-           ══════════════════════════════════════ */
         .socials-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -675,11 +574,7 @@
             background: white;
         }
 
-        .social-icon {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-        }
+        .social-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
         .social-item input {
             flex: 1;
@@ -693,9 +588,6 @@
         .social-item input:focus { outline: none; }
         .social-item input::placeholder { color: var(--ink-soft); }
 
-        /* ══════════════════════════════════════
-           BUTTONS
-           ══════════════════════════════════════ */
         .form-actions {
             display: flex;
             gap: 1rem;
@@ -735,9 +627,6 @@
 
         .btn-secondary:hover { background: var(--surface-hover); }
 
-        /* ══════════════════════════════════════
-           PREVIEW PANEL
-           ══════════════════════════════════════ */
         .preview-panel {
             background: var(--surface);
             padding: 2rem;
@@ -753,9 +642,7 @@
             height: 667px;
             background: var(--bg-main);
             border-radius: 40px;
-            box-shadow: 
-                0 0 0 12px #1C1C1C,
-                0 25px 50px -12px rgba(0,0,0,0.25);
+            box-shadow: 0 0 0 12px #1C1C1C, 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden;
             position: relative;
         }
@@ -806,9 +693,7 @@
             overflow-y: auto;
         }
 
-        .preview-main {
-            flex: 1;
-        }
+        .preview-main { flex: 1; }
 
         .preview-avatar {
             width: 64px;
@@ -828,11 +713,7 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.12);
         }
 
-        .preview-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .preview-name {
             font-family: 'Cormorant Garamond', serif;
@@ -873,24 +754,6 @@
             font-style: italic;
         }
 
-        @media (max-height: 800px) {
-            .preview-device {
-                width: 320px;
-                height: 568px;
-                border-radius: 36px;
-                box-shadow: 
-                    0 0 0 10px #1C1C1C,
-                    0 20px 40px -12px rgba(0,0,0,0.2);
-            }
-            
-            .preview-device::before {
-                width: 100px;
-                height: 24px;
-                top: 10px;
-            }
-        }
-
-        /* Preview Spotlight */
         .preview-spotlight {
             background: var(--signature);
             color: white;
@@ -926,10 +789,7 @@
             font-weight: 500;
         }
 
-        /* Preview Links */
-        .preview-section {
-            margin-bottom: 0.875rem;
-        }
+        .preview-section { margin-bottom: 0.875rem; }
 
         .preview-section-label {
             font-size: 0.5rem;
@@ -968,14 +828,9 @@
             color: var(--signature);
         }
 
-        .preview-link-title {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
+        .preview-link-title { font-size: 0.75rem; font-weight: 500; }
         .preview-link.empty { opacity: 0.4; }
 
-        /* Preview Socials */
         .preview-socials {
             display: flex;
             gap: 0.5rem;
@@ -996,13 +851,8 @@
         }
 
         .preview-social.active { opacity: 1; }
+        .preview-social svg { width: 14px; height: 14px; }
 
-        .preview-social svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        /* Preview Contact */
         .preview-contact {
             font-size: 0.75rem;
             color: var(--ink-soft);
@@ -1012,7 +862,6 @@
 
         .preview-contact.visible { display: block; }
 
-        /* Preview Footer */
         .preview-footer {
             margin-top: auto;
             padding-top: 0.75rem;
@@ -1037,9 +886,6 @@
             border-radius: 50%;
         }
 
-        /* ══════════════════════════════════════
-           SUCCESS OVERLAY V2
-           ══════════════════════════════════════ */
         .success-overlay {
             position: fixed;
             inset: 0;
@@ -1077,11 +923,7 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.06);
         }
 
-        .success-qr-container canvas {
-            display: block;
-            width: 200px;
-            height: 200px;
-        }
+        .success-qr-container canvas { display: block; width: 200px; height: 200px; }
 
         .success-url-v2 {
             font-size: 0.95rem;
@@ -1129,9 +971,7 @@
             transition: all 0.3s ease;
         }
 
-        .success-btn-secondary:hover {
-            background: var(--surface-hover);
-        }
+        .success-btn-secondary:hover { background: var(--surface-hover); }
 
         .success-open-link {
             display: inline-block;
@@ -1142,9 +982,7 @@
             transition: color 0.2s ease;
         }
 
-        .success-open-link:hover {
-            color: var(--signature);
-        }
+        .success-open-link:hover { color: var(--signature); }
 
         .success-wallet-teaser {
             padding: 1rem 1.5rem;
@@ -1162,98 +1000,8 @@
             margin-bottom: 0.25rem;
         }
 
-        .wallet-hint {
-            font-size: 0.75rem;
-            color: var(--ink-soft);
-        }
+        .wallet-hint { font-size: 0.75rem; color: var(--ink-soft); }
 
-        /* QR Modal */
-        .qr-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 300;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .qr-modal.active { display: flex; }
-
-        .qr-content {
-            background: var(--bg-main);
-            padding: 2.5rem;
-            border-radius: 16px;
-            text-align: center;
-            max-width: 320px;
-            position: relative;
-        }
-
-        .qr-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 32px;
-            height: 32px;
-            background: var(--surface);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ink-soft);
-        }
-
-        .qr-close:hover { background: var(--surface-hover); }
-
-        .qr-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .qr-subtitle {
-            font-size: 0.85rem;
-            color: var(--ink-soft);
-            margin-bottom: 1.5rem;
-        }
-
-        .qr-code {
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            display: inline-block;
-            margin-bottom: 1.5rem;
-        }
-
-        .qr-code canvas {
-            display: block;
-        }
-
-        .qr-download {
-            padding: 0.75rem 1.5rem;
-            background: var(--signature);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .qr-download:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26,58,58,0.2);
-        }
-
-        /* ══════════════════════════════════════
-           MOBILE
-           ══════════════════════════════════════ */
         .preview-toggle {
             display: none;
             position: fixed;
@@ -1274,9 +1022,7 @@
             transition: opacity 0.2s ease;
         }
 
-        .preview-toggle:hover {
-            opacity: 1;
-        }
+        .preview-toggle:hover { opacity: 1; }
 
         .preview-mobile {
             display: none;
@@ -1343,85 +1089,25 @@
 
             .flags-row { flex-direction: column; gap: 1rem; }
             .flags-row .flag-arrow { display: none; }
-
             .link-item { grid-template-columns: 1fr; gap: 0.5rem; }
             .link-remove { width: 100%; }
-
             .socials-grid { grid-template-columns: 1fr; }
-
             .form-actions { flex-direction: column; }
-
             .success-overlay { margin-left: 0; margin-bottom: 36px; }
-            
-            .success-content-v2 { padding: 1.5rem; }
-            
-            .success-qr-container { padding: 1.25rem; }
-            
-            .success-qr-container canvas {
-                width: 180px;
-                height: 180px;
-            }
-            
-            .success-actions-v2 {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .success-btn-primary,
-            .success-btn-secondary {
-                width: 100%;
-            }
-
-            .preview-toggle { bottom: 52px; }
-
-            .preview-device {
-                width: 280px;
-                height: 500px;
-                border-radius: 32px;
-                box-shadow: 
-                    0 0 0 8px #1C1C1C,
-                    0 15px 30px -10px rgba(0,0,0,0.2);
-            }
-            
-            .preview-device::before {
-                width: 80px;
-                height: 20px;
-                top: 8px;
-            }
-            
-            .preview-content {
-                padding: 3rem 1rem 1rem 2rem;
-            }
-            
-            .preview-signature {
-                width: 20px;
-            }
-            
-            .preview-avatar {
-                width: 48px;
-                height: 48px;
-            }
-            
-            .preview-name {
-                font-size: 1.25rem;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Signature Column -->
     <aside class="signature-bar">
         <span class="signature-brand" style="opacity: 0;">.</span>
         <div class="signature-steps">
             <div class="signature-step active" onclick="goToStep(0)"></div>
             <div class="signature-step" onclick="goToStep(1)"></div>
             <div class="signature-step" onclick="goToStep(2)"></div>
-            <div class="signature-step" onclick="goToStep(3)"></div>
         </div>
         <a href="/" class="signature-brand">myOolala</a>
     </aside>
 
-    <!-- Mobile Preview -->
     <button class="preview-toggle" onclick="openMobilePreview()">Preview</button>
     <div class="preview-mobile" id="mobilePreview">
         <button class="preview-mobile-close" onclick="closeMobilePreview()">Close</button>
@@ -1429,7 +1115,6 @@
     </div>
 
     <div class="page">
-        <!-- Form Panel -->
         <div class="form-panel">
             <div class="form-header">
                 <a href="/" class="form-logo">Oolala</a>
@@ -1439,26 +1124,10 @@
             <!-- Step 1: Identity -->
             <div class="step active" data-step="0">
                 <h1 class="step-title">Who are you?</h1>
-                <p class="step-subtitle">Set up your identity.</p>
+                <p class="step-subtitle">Set up your profile.</p>
                 <p class="step-hint">This takes less than a minute.</p>
                 
                 <div class="step-content">
-                    <!-- Account Creation -->
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
-                        <p class="form-hint">We'll use this to create your account.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" id="password" placeholder="Min. 8 characters" minlength="8" required>
-                    </div>
-
-                    <div style="border-top: 1px solid var(--surface); margin: 1.5rem 0; padding-top: 1.5rem;">
-                        <p style="font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 1rem;">Now let's set up your profile:</p>
-                    </div>
-
                     <div class="form-group">
                         <label class="form-label">Photo</label>
                         <div class="avatar-section">
@@ -1498,7 +1167,6 @@
 
                     <div class="form-group">
                         <label class="form-label">Where are you from? <span style="color: var(--ink-soft); font-weight: 400;">(optional)</span></label>
-                        
                         <div class="flags-row">
                             <div class="flag-section">
                                 <div class="flag-section-label">Origin</div>
@@ -1509,9 +1177,7 @@
                                     </select>
                                 </div>
                             </div>
-
                             <span class="flag-arrow">→</span>
-
                             <div class="flag-section">
                                 <div class="flag-section-label">Location</div>
                                 <div class="flag-tags" id="locationTags"></div>
@@ -1548,7 +1214,6 @@
                     </div>
                     <button class="add-btn" onclick="addLink()">+ Add another</button>
 
-                    <!-- Spotlight Toggle -->
                     <div class="spotlight-section">
                         <div class="toggle-row">
                             <div class="toggle-switch" id="spotlightToggle" onclick="toggleSpotlight()"></div>
@@ -1603,7 +1268,7 @@
                                 <input type="text" data-social="youtube" placeholder="YouTube channel" oninput="updatePreview()">
                             </div>
                             <div class="social-item">
-                                <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="#1A3A3A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                                 <input type="text" data-social="website" placeholder="Website URL" oninput="updatePreview()">
                             </div>
                         </div>
@@ -1620,11 +1285,6 @@
                     <button class="btn btn-primary" onclick="finish()">Go live</button>
                 </div>
             </div>
-
-            <!-- Step 4: Done -->
-            <div class="step" data-step="3">
-                <!-- Handled by success overlay -->
-            </div>
         </div>
 
         <!-- Preview Panel -->
@@ -1635,9 +1295,7 @@
                 </div>
                 <div class="preview-content">
                     <div class="preview-main">
-                        <div class="preview-avatar" id="previewAvatar">
-                            <span id="previewInitials">?</span>
-                        </div>
+                        <div class="preview-avatar" id="previewAvatar"><span id="previewInitials">?</span></div>
                         <div class="preview-name empty" id="previewName">Your Name</div>
                         <div class="preview-flags" id="previewFlags"></div>
                         <div class="preview-handle empty" id="previewHandle">@username</div>
@@ -1660,27 +1318,13 @@
                         </div>
 
                         <div class="preview-socials" id="previewSocials">
-                            <div class="preview-social" data-social="instagram">
-                                <svg viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
-                            </div>
-                            <div class="preview-social" data-social="tiktok">
-                                <svg viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
-                            </div>
-                            <div class="preview-social" data-social="twitter">
-                                <svg viewBox="0 0 24 24" fill="#1DA1F2"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                            </div>
-                            <div class="preview-social" data-social="linkedin">
-                                <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                            </div>
-                            <div class="preview-social" data-social="youtube">
-                                <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                            </div>
-                            <div class="preview-social" data-social="website">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
-                            </div>
-                            <div class="preview-social" data-social="email">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--signature)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
-                            </div>
+                            <div class="preview-social" data-social="instagram"><svg viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></div>
+                            <div class="preview-social" data-social="tiktok"><svg viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg></div>
+                            <div class="preview-social" data-social="twitter"><svg viewBox="0 0 24 24" fill="#000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+                            <div class="preview-social" data-social="linkedin"><svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div>
+                            <div class="preview-social" data-social="youtube"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+                            <div class="preview-social" data-social="website"><svg viewBox="0 0 24 24" fill="none" stroke="#1A3A3A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg></div>
+                            <div class="preview-social" data-social="email"><svg viewBox="0 0 24 24" fill="none" stroke="#1A3A3A" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></div>
                         </div>
 
                         <div class="preview-contact" id="previewContact"></div>
@@ -1702,26 +1346,16 @@
     <div class="success-overlay" id="successOverlay">
         <div class="success-content-v2">
             <h2 class="success-title-v2">Voilà!</h2>
-            
             <div class="success-qr-container">
                 <canvas id="successQrCanvas"></canvas>
             </div>
-            
             <div class="success-url-v2" id="successUrl">myoolala.com/you</div>
-            
             <div class="success-actions-v2">
-                <button class="success-btn-primary" onclick="sharePage()">
-                    Share
-                </button>
-                <button class="success-btn-secondary" onclick="copyUrl()">
-                    Copy
-                </button>
+                <button class="success-btn-primary" onclick="sharePage()">Share</button>
+                <button class="success-btn-secondary" onclick="copyUrl()">Copy</button>
             </div>
-            
             <a href="#" class="success-open-link" id="viewPageBtn">Open your page →</a>
-            
-            <a href="cockpit.html" class="success-open-link" style="margin-bottom: 1rem;">Manage your page →</a>
-            
+            <a href="/cockpit" class="success-open-link" style="margin-bottom: 1rem;">Manage your page →</a>
             <div class="success-wallet-teaser">
                 <span class="wallet-label">Wallet</span>
                 <span class="wallet-hint">Keep your page in your pocket</span>
@@ -1729,42 +1363,18 @@
         </div>
     </div>
 
-    <!-- QR Modal -->
-    <div class="qr-modal" id="qrModal">
-        <div class="qr-content">
-            <button class="qr-close" onclick="closeQRModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-            <h3 class="qr-title">Your QR Code</h3>
-            <p class="qr-subtitle">Scan to visit your page</p>
-            <div class="qr-code">
-                <canvas id="qrCanvas"></canvas>
-            </div>
-            <button class="qr-download" onclick="downloadQR()">Download PNG</button>
-        </div>
-    </div>
-
     <script>
-        // State
         let currentStep = 0;
         let avatarImage = null;
         let spotlightEnabled = false;
         let originFlags = [];
         let locationFlags = [];
 
-        // Flag management
         function addFlag(type, selectEl) {
             const value = selectEl.value;
             if (!value) return;
-            
             const flags = type === 'origin' ? originFlags : locationFlags;
-            
-            // Don't add duplicates
-            if (flags.includes(value)) {
-                selectEl.value = '';
-                return;
-            }
-            
+            if (flags.includes(value)) { selectEl.value = ''; return; }
             flags.push(value);
             selectEl.value = '';
             renderFlags(type);
@@ -1772,11 +1382,8 @@
         }
 
         function removeFlag(type, flag) {
-            if (type === 'origin') {
-                originFlags = originFlags.filter(f => f !== flag);
-            } else {
-                locationFlags = locationFlags.filter(f => f !== flag);
-            }
+            if (type === 'origin') originFlags = originFlags.filter(f => f !== flag);
+            else locationFlags = locationFlags.filter(f => f !== flag);
             renderFlags(type);
             updatePreview();
         }
@@ -1784,41 +1391,15 @@
         function renderFlags(type) {
             const flags = type === 'origin' ? originFlags : locationFlags;
             const container = document.getElementById(type + 'Tags');
-            
-            container.innerHTML = flags.map(flag => `
-                <span class="flag-tag">
-                    ${flag}
-                    <button class="flag-tag-remove" onclick="removeFlag('${type}', '${flag}')">&times;</button>
-                </span>
-            `).join('');
+            container.innerHTML = flags.map(flag => `<span class="flag-tag">${flag}<button class="flag-tag-remove" onclick="removeFlag('${type}', '${flag}')">&times;</button></span>`).join('');
         }
 
-        // Navigation
-        function goToStep(step) {
-            if (step <= currentStep) {
-                currentStep = step;
-                updateSteps();
-            }
-        }
-
-        function nextStep() {
-            if (currentStep < 3) {
-                currentStep++;
-                updateSteps();
-            }
-        }
-
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                updateSteps();
-            }
-        }
+        function goToStep(step) { if (step <= currentStep) { currentStep = step; updateSteps(); } }
+        function nextStep() { if (currentStep < 2) { currentStep++; updateSteps(); } }
+        function prevStep() { if (currentStep > 0) { currentStep--; updateSteps(); } }
 
         function updateSteps() {
-            document.querySelectorAll('.step').forEach((s, i) => {
-                s.classList.toggle('active', i === currentStep);
-            });
+            document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === currentStep));
             document.querySelectorAll('.signature-step').forEach((s, i) => {
                 s.classList.remove('active', 'completed');
                 if (i < currentStep) s.classList.add('completed');
@@ -1827,15 +1408,11 @@
             updatePreview();
         }
 
-        // Avatar
         function handleAvatar(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => {
-                    avatarImage = ev.target.result;
-                    updatePreview();
-                };
+                reader.onload = (ev) => { avatarImage = ev.target.result; updatePreview(); };
                 reader.readAsDataURL(file);
             }
         }
@@ -1853,71 +1430,32 @@
             return words.slice(0, 3).map(w => w[0]).join('').toUpperCase();
         }
 
-        // Username - check availability with Supabase
         let usernameCheckTimeout;
         async function checkUsername() {
             const val = document.getElementById('username').value.trim().toLowerCase();
             const status = document.getElementById('usernameStatus');
-            
-            // Clear previous timeout
             clearTimeout(usernameCheckTimeout);
-            
-            if (val.length < 3) {
-                status.textContent = '';
-                status.className = 'username-status';
-                updatePreview();
-                return;
-            }
-            
-            // Reserved usernames
+            if (val.length < 3) { status.textContent = ''; status.className = 'username-status'; updatePreview(); return; }
             const reserved = ['admin', 'support', 'myoolala', 'test', 'api', 'app', 'help', 'info', 'contact', 'www'];
-            if (reserved.includes(val)) {
-                status.textContent = '✗ Reserved';
-                status.className = 'username-status taken';
-                updatePreview();
-                return;
-            }
-            
-            // Show checking state
-            status.textContent = '...';
-            status.className = 'username-status';
-            
-            // Debounce the API call
+            if (reserved.includes(val)) { status.textContent = '✗ Reserved'; status.className = 'username-status taken'; updatePreview(); return; }
+            status.textContent = '...'; status.className = 'username-status';
             usernameCheckTimeout = setTimeout(async () => {
                 try {
-                    const { data, error } = await supabaseClient
-                        .from('profiles')
-                        .select('id')
-                        .eq('username', val)
-                        .maybeSingle();
-                    
+                    const { data, error } = await supabaseClient.from('profiles').select('id').eq('username', val).maybeSingle();
                     if (error) throw error;
-                    
                     const taken = data !== null;
                     status.textContent = taken ? '✗ Taken' : '✓';
                     status.className = 'username-status ' + (taken ? 'taken' : 'available');
-                } catch (err) {
-                    console.warn('Username check failed:', err);
-                    status.textContent = '?';
-                    status.className = 'username-status';
-                }
+                } catch (err) { status.textContent = '?'; status.className = 'username-status'; }
             }, 300);
-            
             updatePreview();
         }
 
-        // Links
         function addLink() {
             const list = document.getElementById('linksList');
             const item = document.createElement('div');
             item.className = 'link-item';
-            item.innerHTML = `
-                <input type="text" placeholder="Label" class="link-title" oninput="updatePreview()">
-                <input type="url" placeholder="https://..." class="link-url" oninput="updatePreview()">
-                <button class="link-remove" onclick="removeLink(this)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-            `;
+            item.innerHTML = `<input type="text" placeholder="Label" class="link-title" oninput="updatePreview()"><input type="url" placeholder="https://..." class="link-url" oninput="updatePreview()"><button class="link-remove" onclick="removeLink(this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`;
             list.appendChild(item);
             item.querySelector('.link-title').focus();
             updatePreview();
@@ -1925,13 +1463,9 @@
 
         function removeLink(btn) {
             const list = document.getElementById('linksList');
-            if (list.children.length > 1) {
-                btn.parentElement.remove();
-                updatePreview();
-            }
+            if (list.children.length > 1) { btn.parentElement.remove(); updatePreview(); }
         }
 
-        // Spotlight
         function toggleSpotlight() {
             spotlightEnabled = !spotlightEnabled;
             document.getElementById('spotlightToggle').classList.toggle('active', spotlightEnabled);
@@ -1939,14 +1473,12 @@
             updatePreview();
         }
 
-        // Preview
         function updatePreview() {
             const name = document.getElementById('displayName')?.value.trim() || '';
             const username = document.getElementById('username')?.value.trim() || '';
             const bio = document.getElementById('bio')?.value.trim() || '';
             const initials = getInitials(name);
 
-            // Avatar
             const avatarEl = document.getElementById('previewAvatar');
             const formAvatarEl = document.getElementById('avatarPreview');
             if (avatarImage) {
@@ -1957,49 +1489,30 @@
                 formAvatarEl.innerHTML = `<span>${initials}</span>`;
             }
 
-            // Name
             const nameEl = document.getElementById('previewName');
             nameEl.textContent = name || 'Your Name';
             nameEl.classList.toggle('empty', !name);
 
-            // Flags (multi-select)
             const flagsEl = document.getElementById('previewFlags');
-            const hasOrigin = originFlags.length > 0;
-            const hasLocation = locationFlags.length > 0;
-            
-            if (hasOrigin || hasLocation) {
+            if (originFlags.length > 0 || locationFlags.length > 0) {
                 let flagsText = '';
-                const originStr = originFlags.join('');
-                const locationStr = locationFlags.join('');
-                
-                if (hasOrigin && hasLocation) {
-                    flagsText = `${originStr} → ${locationStr}`;
-                } else if (hasOrigin) {
-                    flagsText = originStr;
-                } else {
-                    flagsText = locationStr;
-                }
+                if (originFlags.length > 0 && locationFlags.length > 0) flagsText = `${originFlags.join('')} → ${locationFlags.join('')}`;
+                else if (originFlags.length > 0) flagsText = originFlags.join('');
+                else flagsText = locationFlags.join('');
                 flagsEl.textContent = flagsText;
                 flagsEl.classList.add('visible');
-            } else {
-                flagsEl.classList.remove('visible');
-            }
+            } else flagsEl.classList.remove('visible');
 
-            // Handle
             const handleEl = document.getElementById('previewHandle');
             handleEl.textContent = username ? `@${username}` : '@username';
             handleEl.classList.toggle('empty', !username);
-
-            // URL
             document.getElementById('previewUrl').textContent = username ? `myoolala.com/${username}` : 'myoolala.com/you';
 
-            // Bio
             const bioEl = document.getElementById('previewBio');
             bioEl.textContent = bio || 'Your bio here...';
             bioEl.classList.toggle('empty', !bio);
             document.getElementById('bioCount').textContent = bio.length;
 
-            // Spotlight
             const spotlightEl = document.getElementById('previewSpotlight');
             if (spotlightEnabled) {
                 const title = document.getElementById('spotlightTitle')?.value.trim() || '';
@@ -2010,35 +1523,23 @@
                     document.getElementById('previewSpotlightTitle').textContent = title;
                     document.getElementById('previewSpotlightDesc').textContent = desc;
                     document.getElementById('previewSpotlightCta').textContent = cta;
-                } else {
-                    spotlightEl.classList.remove('visible');
-                }
-            } else {
-                spotlightEl.classList.remove('visible');
-            }
+                } else spotlightEl.classList.remove('visible');
+            } else spotlightEl.classList.remove('visible');
 
-            // Links
             const linksContainer = document.getElementById('previewLinks');
-            const linkItems = document.querySelectorAll('#linksList .link-item');
             let linksHtml = '';
-            linkItems.forEach(item => {
+            document.querySelectorAll('#linksList .link-item').forEach(item => {
                 const title = item.querySelector('.link-title')?.value.trim();
-                if (title) {
-                    linksHtml += `<div class="preview-link"><div class="preview-link-icon">${title[0].toUpperCase()}</div><div class="preview-link-title">${title}</div></div>`;
-                }
+                if (title) linksHtml += `<div class="preview-link"><div class="preview-link-icon">${title[0].toUpperCase()}</div><div class="preview-link-title">${title}</div></div>`;
             });
             linksContainer.innerHTML = linksHtml || `<div class="preview-link empty"><div class="preview-link-icon">+</div><div class="preview-link-title">Add your first link</div></div>`;
 
-            // Socials
             document.querySelectorAll('.social-item input').forEach(input => {
                 const social = input.dataset.social;
                 const previewSocial = document.querySelector(`.preview-social[data-social="${social}"]`);
-                if (previewSocial) {
-                    previewSocial.classList.toggle('active', input.value.trim() !== '');
-                }
+                if (previewSocial) previewSocial.classList.toggle('active', input.value.trim() !== '');
             });
 
-            // Email
             const email = document.getElementById('contactEmail')?.value.trim() || '';
             const emailSocial = document.querySelector('.preview-social[data-social="email"]');
             const contactEl = document.getElementById('previewContact');
@@ -2052,7 +1553,6 @@
             }
         }
 
-        // Mobile preview
         function openMobilePreview() {
             const overlay = document.getElementById('mobilePreview');
             const device = document.getElementById('mobilePreviewDevice');
@@ -2060,313 +1560,119 @@
             overlay.classList.add('active');
         }
 
-        function closeMobilePreview() {
-            document.getElementById('mobilePreview').classList.remove('active');
-        }
+        function closeMobilePreview() { document.getElementById('mobilePreview').classList.remove('active'); }
 
-        // Finish - Save to Supabase
         async function finish() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
             const username = document.getElementById('username').value.trim().toLowerCase();
             const displayName = document.getElementById('displayName').value.trim();
             const bio = document.getElementById('bio').value.trim();
             
-            // Validation
-            if (!email || !password) {
-                oolalaToast('Please enter your email and password', 'error');
-                return;
-            }
-            if (password.length < 8) {
-                oolalaToast('Password must be at least 8 characters', 'error');
-                return;
-            }
-            if (!username) {
-                oolalaToast('Please enter a username', 'error');
-                return;
-            }
-            if (!displayName) {
-                oolalaToast('Please enter your name', 'error');
-                return;
-            }
+            if (!username) { oolalaToast('Please enter a username', 'error'); return; }
+            if (!displayName) { oolalaToast('Please enter your name', 'error'); return; }
             
-            // Show loading state
             const finishBtn = document.querySelector('.btn-primary[onclick="finish()"]');
             const originalText = finishBtn.textContent;
             finishBtn.textContent = 'Creating your page...';
             finishBtn.disabled = true;
             
             try {
-                // 1. Check username availability
-                const { data: existingUser } = await supabaseClient
-                    .from('profiles')
-                    .select('id')
-                    .eq('username', username)
-                    .maybeSingle();
+                const { data: existingUser } = await supabaseClient.from('profiles').select('id').eq('username', username).maybeSingle();
+                if (existingUser) throw new Error('Username is already taken');
                 
-                if (existingUser) {
-                    throw new Error('Username is already taken');
-                }
-                
-                // 2. Create account
-                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-                    email,
-                    password
-                });
-                
-                if (authError) throw authError;
-                if (!authData.user) throw new Error('Failed to create account');
-                
-                const userId = authData.user.id;
-                
-                // 3. Prepare country codes
+                const userId = currentUser.id;
                 const countryOrigin = originFlags.length > 0 ? extractFlagCode(originFlags[0]) : null;
                 const countryLocation = locationFlags.length > 0 ? extractFlagCode(locationFlags[0]) : null;
                 
-                // 4. Create profile
-                const { data: profile, error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .insert([{
-                        id: userId,
-                        username: username,
-                        display_name: displayName,
-                        bio: bio,
-                        country_origin: countryOrigin,
-                        country_location: countryLocation,
-                        avatar_url: avatarImage || null
-                    }])
-                    .select()
-                    .single();
+                const { error: profileError } = await supabaseClient.from('profiles').insert([{
+                    id: userId, username, display_name: displayName, bio,
+                    country_origin: countryOrigin, country_location: countryLocation,
+                    avatar_url: avatarImage || null
+                }]).select().single();
                 
                 if (profileError) throw profileError;
                 
-                // 5. Create blocks
                 const blocks = [];
                 let position = 100;
                 
-                // Spotlight block
                 if (spotlightEnabled) {
                     const spotlightTitle = document.getElementById('spotlightTitle')?.value.trim();
                     const spotlightDesc = document.getElementById('spotlightDesc')?.value.trim();
                     const spotlightCta = document.getElementById('spotlightCta')?.value.trim() || 'Learn more';
                     const spotlightUrl = document.getElementById('spotlightUrl')?.value.trim();
-                    
                     if (spotlightTitle || spotlightDesc) {
-                        blocks.push({
-                            profile_id: userId,
-                            type: 'spotlight',
-                            title: spotlightTitle,
-                            position: position,
-                            visibility_mask: 1, // Public
-                            payload: {
-                                description: spotlightDesc,
-                                cta: spotlightCta,
-                                url: spotlightUrl
-                            }
-                        });
+                        blocks.push({ profile_id: userId, type: 'spotlight', title: spotlightTitle, position, visibility_mask: 1, payload: { description: spotlightDesc, cta: spotlightCta, url: spotlightUrl } });
                         position += 100;
                     }
                 }
                 
-                // Link blocks
                 document.querySelectorAll('#linksList .link-item').forEach(item => {
                     const title = item.querySelector('.link-title')?.value.trim();
                     const url = item.querySelector('.link-url')?.value.trim();
-                    if (title && url) {
-                        blocks.push({
-                            profile_id: userId,
-                            type: 'link',
-                            title: title,
-                            position: position,
-                            visibility_mask: 1, // Public
-                            payload: { url: url }
-                        });
-                        position += 100;
-                    }
+                    if (title && url) { blocks.push({ profile_id: userId, type: 'link', title, position, visibility_mask: 1, payload: { url } }); position += 100; }
                 });
                 
-                // Social block (if any socials filled)
                 const socials = {};
                 document.querySelectorAll('.social-item input').forEach(input => {
-                    const social = input.dataset.social;
                     const value = input.value.trim();
-                    if (value) {
-                        socials[social] = value;
-                    }
+                    if (value) socials[input.dataset.social] = value;
                 });
+                if (Object.keys(socials).length > 0) { blocks.push({ profile_id: userId, type: 'socials', title: 'Social Links', position, visibility_mask: 1, payload: socials }); position += 100; }
                 
-                if (Object.keys(socials).length > 0) {
-                    blocks.push({
-                        profile_id: userId,
-                        type: 'socials',
-                        title: 'Social Links',
-                        position: position,
-                        visibility_mask: 1, // Public
-                        payload: socials
-                    });
-                    position += 100;
-                }
-                
-                // Contact block (email)
                 const contactEmail = document.getElementById('contactEmail')?.value.trim();
-                if (contactEmail) {
-                    blocks.push({
-                        profile_id: userId,
-                        type: 'contact',
-                        title: 'Contact',
-                        position: position,
-                        visibility_mask: 1, // Public
-                        payload: {
-                            email: contactEmail
-                        }
-                    });
-                }
+                if (contactEmail) blocks.push({ profile_id: userId, type: 'contact', title: 'Contact', position, visibility_mask: 1, payload: { email: contactEmail } });
                 
-                // Insert blocks
-                if (blocks.length > 0) {
-                    const { error: blocksError } = await supabaseClient
-                        .from('blocks')
-                        .insert(blocks);
-                    
-                    if (blocksError) console.warn('Failed to create some blocks:', blocksError);
-                }
+                if (blocks.length > 0) await supabaseClient.from('blocks').insert(blocks);
                 
-                // 6. Show success
                 const url = 'https://myoolala.com/' + username;
                 document.getElementById('successUrl').textContent = 'myoolala.com/' + username;
                 document.getElementById('viewPageBtn').href = url;
                 document.getElementById('successOverlay').classList.add('active');
                 
-                // Generate QR code
                 setTimeout(() => {
                     const canvas = document.getElementById('successQrCanvas');
-                    if (canvas && typeof QRCode !== 'undefined') {
-                        QRCode.toCanvas(canvas, url, {
-                            width: 200,
-                            margin: 0,
-                            color: { dark: '#1A3A3A', light: '#FFFFFF' }
-                        });
-                    }
+                    if (canvas && typeof QRCode !== 'undefined') QRCode.toCanvas(canvas, url, { width: 200, margin: 0, color: { dark: '#1A3A3A', light: '#FFFFFF' } });
                 }, 100);
                 
                 oolalaToast('Voilà!');
-                
             } catch (error) {
-                console.error('Error:', error);
                 oolalaToast(error.message || 'Something went wrong', 'error');
                 finishBtn.textContent = originalText;
                 finishBtn.disabled = false;
             }
         }
         
-        // Helper function to extract ISO code from flag emoji
         function extractFlagCode(flag) {
             if (!flag || flag.length < 2) return null;
             const codePoints = [...flag].map(c => c.codePointAt(0));
             if (codePoints.length < 2) return null;
-            const code = String.fromCharCode(codePoints[0] - 127397) + 
-                         String.fromCharCode(codePoints[1] - 127397);
-            return code.toUpperCase();
+            return String.fromCharCode(codePoints[0] - 127397) + String.fromCharCode(codePoints[1] - 127397);
         }
         
-        // Toast notification
         function oolalaToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 2rem;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'error' ? '#C45C5C' : '#1A3A3A'};
-                color: white;
-                padding: 0.75rem 1.5rem;
-                border-radius: 8px;
-                font-size: 0.875rem;
-                z-index: 10000;
-                animation: toastIn 0.3s ease;
-            `;
+            toast.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:${type === 'error' ? '#C45C5C' : '#1A3A3A'};color:white;padding:0.75rem 1.5rem;border-radius:8px;font-size:0.875rem;z-index:10000;`;
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // Share function with Web Share API
         async function sharePage() {
             const username = document.getElementById('username').value.trim();
             const url = 'https://myoolala.com/' + username;
-            
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: username,
-                        url: url
-                    });
-                } catch (err) {
-                    // User cancelled or error - fallback to copy
-                    copyUrl();
-                }
-            } else {
-                // Fallback for desktop
-                copyUrl();
-            }
+            if (navigator.share) { try { await navigator.share({ title: username, url }); } catch { copyUrl(); } }
+            else copyUrl();
         }
 
         function copyUrl() {
             const url = document.getElementById('successUrl').textContent;
             navigator.clipboard.writeText('https://' + url);
-            
-            // Brief visual feedback
             const btn = event.target;
             const originalText = btn.textContent;
             btn.textContent = 'Copied';
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 1500);
+            setTimeout(() => btn.textContent = originalText, 1500);
         }
 
-        // QR Code functions
-        function openQRModal() {
-            const username = document.getElementById('username').value.trim();
-            const url = 'https://myoolala.com/' + username;
-            
-            // Generate QR code
-            QRCode.toCanvas(document.getElementById('qrCanvas'), url, {
-                width: 200,
-                margin: 0,
-                color: {
-                    dark: '#1A3A3A',
-                    light: '#FFFFFF'
-                }
-            });
-            
-            document.getElementById('qrModal').classList.add('active');
-        }
-
-        function closeQRModal() {
-            document.getElementById('qrModal').classList.remove('active');
-        }
-
-        function downloadQR() {
-            const canvas = document.getElementById('qrCanvas');
-            const username = document.getElementById('username').value.trim();
-            const link = document.createElement('a');
-            link.download = 'oolala-' + username + '-qr.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        // Close modal on background click
-        document.getElementById('qrModal').addEventListener('click', function(e) {
-            if (e.target === this) closeQRModal();
-        });
-
-        // Init
         updatePreview();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/js/supabase-config.js"></script>
 </body>
 </html>

@@ -1,10 +1,13 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
+    { "source": "/auth", "destination": "/auth.html" },
+    { "source": "/login", "destination": "/auth.html" },
+    { "source": "/signin", "destination": "/auth.html" },
+    { "source": "/signup", "destination": "/auth.html?tab=signup" },
     { "source": "/onboarding", "destination": "/onboarding.html" },
-    { "source": "/product", "destination": "/product.html" },
     { "source": "/cockpit", "destination": "/cockpit.html" },
-    { "source": "/login", "destination": "/onboarding.html" },
+    { "source": "/product", "destination": "/product.html" },
     { "source": "/u/:username", "destination": "/profile.html" }
   ]
 }
