@@ -4,38 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <title>Loading... — myOolala</title>
-    
+    <title>myOolala</title>
     <meta property="og:type" content="profile">
+    <meta property="og:title" content="myOolala">
     <meta property="og:site_name" content="myOolala">
-    <meta name="twitter:card" content="summary">
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='serif' font-style='italic' fill='%231A3A3A'>Oo</text></svg>">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    
     <style>
         :root {
             --bg-main: #F4F3F0;
             --surface: #ECE8E2;
-            --surface-hover: #E4DFD7;
+            --surface-hover: #FFFFFF;
             --ink: #1C1C1C;
             --ink-soft: #6A635D;
             --signature: #1A3A3A;
             --accent: #B8A89A;
-            --accent-deep: #8E7A66;
-            --success: #4A7C59;
-            --error: #C45C5C;
-            --white: #FFFFFF;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         html, body {
             min-height: 100vh;
             font-family: 'DM Sans', sans-serif;
@@ -44,1104 +32,489 @@
             line-height: 1.6;
         }
 
-        /* ══════════════════════════════════════
-           SIGNATURE BAR
-           ══════════════════════════════════════ */
         .signature-bar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 28px;
-            height: 100vh;
-            background: var(--signature);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 2rem 0;
+            position: fixed; left: 0; top: 0; width: 28px; height: 100vh;
+            background: var(--signature); z-index: 100;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: space-between; padding: 2rem 0;
         }
-
-        .signature-top {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
+        .signature-top { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .signature-brand {
+            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+            font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic;
+            letter-spacing: 0.08em; color: rgba(255,255,255,0.85); text-decoration: none;
         }
-
+        .signature-citizen {
+            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+            font-family: 'Space Mono', monospace; font-size: 0.85rem;
+            color: rgba(255,255,255,0.85); white-space: nowrap;
+        }
         .signature-pulse {
-            width: 6px;
-            height: 6px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 50%;
-            animation: pulse 3s ease-in-out infinite;
+            width: 6px; height: 6px; background: rgba(255,255,255,0.3);
+            border-radius: 50%; animation: pulse 3s ease-in-out infinite;
         }
-
         @keyframes pulse {
             0%, 100% { opacity: 0.3; transform: scale(1); }
             50% { opacity: 0.8; transform: scale(1.2); }
         }
 
-        .signature-citizen {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.55rem;
-            color: rgba(255,255,255,0.6);
-            letter-spacing: 0.05em;
+        .page { margin-left: 28px; min-height: 100vh; display: flex; justify-content: center; padding: 4rem 1.5rem; }
+        .profile-container { width: 100%; max-width: 520px; }
+
+        .loading-state, .error-state {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 60vh; text-align: center;
+        }
+        .loading-state.hidden, .error-state.hidden { display: none; }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid var(--surface);
+            border-top-color: var(--signature); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+        .error-state h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 0.5rem; }
+        .error-state p { color: var(--ink-soft); margin-bottom: 1.5rem; }
+        .claim-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.5rem; background: var(--signature); color: white;
+            text-decoration: none; border-radius: 8px; font-weight: 500;
         }
 
-        .signature-brand {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
-            font-style: italic;
-            letter-spacing: 0.08em;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
+        .profile-content { display: none; }
+        .profile-content.active { display: block; animation: fadeIn 0.8s ease; }
+        .profile-header { margin-bottom: 2.5rem; }
+        .avatar-wrapper { cursor: pointer; margin-bottom: 1.25rem; }
+        .avatar {
+            width: 96px; height: 96px; border-radius: 50%; background-color: var(--signature);
+            background-size: cover; background-position: center; border: 2px solid white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex;
+            align-items: center; justify-content: center; color: white;
+            font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 500;
+        }
+        .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .name {
+            font-family: 'Cormorant Garamond', serif; font-size: 2.25rem;
+            font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.25rem;
+        }
+        .handle { font-size: 0.85rem; color: var(--signature); margin-bottom: 0.5rem; font-weight: 500; }
+        .profile-flags { font-size: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em; }
+        .profile-citizen {
+            display: inline-block; font-family: 'Space Mono', monospace; font-size: 0.65rem;
+            color: var(--signature); background: rgba(26,58,58,0.06); padding: 0.3rem 0.6rem;
+            border-radius: 4px; letter-spacing: 0.05em; text-transform: uppercase;
+            border: 1px solid rgba(26,58,58,0.1); margin-bottom: 0.75rem;
+        }
+        .bio { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.6; }
+
+        .lightbox {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox-img { max-width: 90vw; max-height: 90vh; border-radius: 50%; }
+
+        .content-section { margin-bottom: 2.5rem; animation: slideUp 0.8s ease backwards; }
+        .section-label {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--accent); margin-bottom: 0.75rem; font-weight: 500;
         }
 
-        .signature-brand:hover { color: rgba(255,255,255,1); }
-
-        /* ══════════════════════════════════════
-           PAGE LAYOUT
-           ══════════════════════════════════════ */
-        .page {
-            margin-left: 28px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
+        .spotlight-card {
+            display: block; background: var(--signature); color: white;
+            border-radius: 16px; overflow: hidden; text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-
-        .profile-container {
-            width: 100%;
-            max-width: 480px;
-        }
-
-        /* ══════════════════════════════════════
-           LOADING STATE
-           ══════════════════════════════════════ */
-        .loading-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-            gap: 1rem;
-        }
-
-        .loading-state.hidden { display: none; }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--surface);
-            border-top-color: var(--signature);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 0.9rem;
-            color: var(--ink-soft);
-        }
-
-        /* ══════════════════════════════════════
-           ERROR STATE (404)
-           ══════════════════════════════════════ */
-        .error-state {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-            text-align: center;
-            gap: 1rem;
-        }
-
-        .error-state.active { display: flex; }
-
-        .error-icon {
-            font-size: 4rem;
-            opacity: 0.4;
-        }
-
-        .error-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
-            font-weight: 500;
-        }
-
-        .error-text {
-            color: var(--ink-soft);
-            font-size: 1rem;
-            max-width: 300px;
-        }
-
-        .error-cta {
-            margin-top: 1.5rem;
-            padding: 1rem 2rem;
-            background: var(--signature);
-            color: var(--bg-main);
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .error-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(26,58,58,0.25);
-        }
-
-        /* ══════════════════════════════════════
-           PROFILE CONTENT
-           ══════════════════════════════════════ */
-        .profile-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .profile-content.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Header */
-        .profile-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--signature);
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.25rem;
-            font-weight: 500;
-            color: white;
-            overflow: hidden;
-            border: 4px solid white;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-        }
-
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.25rem;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .profile-handle {
-            font-size: 1rem;
-            color: var(--signature);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .profile-flags {
-            font-size: 1.25rem;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.75rem;
-        }
-
-        .profile-bio {
-            font-size: 1rem;
-            color: var(--ink-soft);
-            line-height: 1.6;
-            max-width: 360px;
-            margin: 0 auto;
-        }
-
-        /* ══════════════════════════════════════
-           SPOTLIGHT
-           ══════════════════════════════════════ */
-        .profile-spotlight {
-            background: var(--signature);
-            color: white;
-            border-radius: 16px;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 1.5rem;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s ease;
-        }
-
-        .profile-spotlight:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(26,58,58,0.3);
-        }
-
-        .spotlight-label {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            opacity: 0.7;
-            margin-bottom: 0.5rem;
-        }
-
-        .spotlight-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.35rem;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .spotlight-desc {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-bottom: 0.75rem;
-        }
-
+        .spotlight-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(26,58,58,0.25); }
+        .spotlight-image { width: 100%; height: 160px; object-fit: cover; }
+        .spotlight-content { padding: 1.5rem 2rem 2rem; }
+        .spotlight-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; margin-bottom: 0.5rem; }
+        .spotlight-subtitle { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; }
         .spotlight-cta {
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1.25rem; background: white; color: var(--signature);
+            border-radius: 8px; font-size: 0.85rem; font-weight: 500;
         }
 
-        /* ══════════════════════════════════════
-           LINKS
-           ══════════════════════════════════════ */
-        .profile-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+        .links-stack { display: flex; flex-direction: column; gap: 0.75rem; }
+        .link-card {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem;
+            background: var(--surface); border-radius: 12px; text-decoration: none;
+            color: var(--ink); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-
-        .profile-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
-            background: var(--surface);
-            border-radius: 14px;
-            text-decoration: none;
-            color: var(--ink);
-            transition: all 0.3s ease;
-        }
-
-        .profile-link:hover {
-            background: var(--surface-hover);
-            transform: translateX(4px);
-        }
-
+        .link-card:hover { background: var(--surface-hover); transform: translateX(4px); }
         .link-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--bg-main);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            background: var(--bg-main); border-radius: 8px; font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem; font-weight: 600; color: var(--signature);
         }
+        .link-content { flex: 1; }
+        .link-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; }
+        .link-arrow { color: var(--accent); opacity: 0; transform: translateX(-8px); transition: all 0.3s ease; }
+        .link-card:hover .link-arrow { opacity: 1; transform: translateX(0); }
 
-        .link-icon svg {
-            width: 22px;
-            height: 22px;
-            color: var(--signature);
+        .contact-card { background: var(--surface); border-radius: 12px; padding: 1.25rem 1.5rem; text-align: center; }
+        .contact-label { font-size: 0.75rem; color: var(--ink-soft); margin-bottom: 0.25rem; }
+        .contact-email { color: var(--signature); text-decoration: none; font-weight: 500; }
+
+        .socials-section { padding-top: 1.5rem; border-top: 1px solid var(--surface); margin-top: 1rem; }
+        .socials-row { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+        .social-link {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: var(--surface); border-radius: 10px; color: var(--ink-soft); transition: all 0.3s ease;
         }
+        .social-link:hover { background: var(--signature); color: white; transform: translateY(-2px); }
+        .social-link svg { width: 18px; height: 18px; }
+        .social-link.instagram:hover { background: #E4405F; }
+        .social-link.tiktok:hover { background: #000; }
+        .social-link.twitter:hover { background: #000; }
+        .social-link.linkedin:hover { background: #0A66C2; }
+        .social-link.youtube:hover { background: #FF0000; }
+        .social-link.whatsapp:hover { background: #25D366; }
 
-        .link-icon.initial {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--signature);
+        .page-footer {
+            margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--surface);
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.75rem; color: var(--ink-soft);
         }
-
-        .link-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .link-title {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .link-subtitle {
-            font-size: 0.8rem;
-            color: var(--ink-soft);
-        }
-
-        .link-arrow {
-            color: var(--ink-soft);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .profile-link:hover .link-arrow { opacity: 1; }
-
-        /* ══════════════════════════════════════
-           SOCIALS
-           ══════════════════════════════════════ */
-        .profile-socials {
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem;
-            padding: 1.25rem 0;
-            border-top: 1px solid var(--surface);
-            margin-bottom: 1.5rem;
-        }
-
-        .social-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: var(--surface);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ink-soft);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .social-icon:hover {
-            background: var(--signature);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .social-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* ══════════════════════════════════════
-           CONTACT
-           ══════════════════════════════════════ */
-        .profile-contact {
-            text-align: center;
-            padding: 1.25rem;
-            background: var(--surface);
-            border-radius: 14px;
-            margin-bottom: 1.5rem;
-        }
-
-        .contact-label {
-            font-size: 0.75rem;
-            color: var(--ink-soft);
-            margin-bottom: 0.25rem;
-        }
-
-        .contact-email {
-            font-size: 1rem;
-            color: var(--signature);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .contact-email:hover { text-decoration: underline; }
-
-        /* ══════════════════════════════════════
-           FOOTER
-           ══════════════════════════════════════ */
-        .profile-footer {
-            text-align: center;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--surface);
-        }
-
-        .footer-brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--ink-soft);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-brand:hover { color: var(--signature); }
-
-        .footer-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--signature);
-            border-radius: 50%;
-        }
-
-        /* ══════════════════════════════════════
-           CONNECT BUTTON
-           ══════════════════════════════════════ */
+        .privacy-signal { display: flex; align-items: center; gap: 0.4rem; }
+        .privacy-dot { width: 6px; height: 6px; background: var(--signature); border-radius: 50%; }
         .connect-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 0.875rem 1.5rem;
-            background: var(--signature);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 6px 20px rgba(26,58,58,0.3);
-            transition: all 0.3s ease;
-            z-index: 50;
+            display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem;
+            background: var(--signature); color: white; border: none; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;
+        }
+        .connect-btn svg { width: 16px; height: 16px; }
+
+        .connect-modal {
+            position: fixed; inset: 0; background: rgba(28,28,28,0.6);
+            backdrop-filter: blur(12px); z-index: 9999;
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .connect-modal.active { opacity: 1; pointer-events: all; }
+        .connect-card {
+            background: white; border-radius: 20px; width: 100%; max-width: 340px;
+            padding: 2rem; position: relative;
+        }
+        .close-modal {
+            position: absolute; top: 1rem; right: 1rem; width: 32px; height: 32px;
+            border: none; background: var(--surface); border-radius: 50%;
+            font-size: 1.25rem; color: var(--ink-soft); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .connect-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 1.5rem; }
+        .connect-avatar {
+            width: 72px; height: 72px; border-radius: 50%; background: var(--signature);
+            background-size: cover; margin-bottom: 0.75rem;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+        }
+        .connect-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .connect-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; }
+        .connect-handle { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); }
+        .qr-section { margin-bottom: 1.5rem; }
+        .qr-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; font-size: 0.85rem; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background: var(--surface); border-radius: 24px; transition: 0.3s;
+        }
+        .toggle-slider::before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--signature); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+        .qr-wrapper { background: var(--bg-main); border-radius: 16px; padding: 1.5rem; text-align: center; }
+        .qr-hint { font-size: 0.75rem; color: var(--ink-soft); margin-top: 0.75rem; }
+        .wallet-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+        .wallet-btn {
+            display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            padding: 0.875rem; border-radius: 12px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+        }
+        .wallet-btn.apple { background: #000; color: white; }
+        .wallet-btn.google { background: white; color: var(--ink); border: 1px solid var(--surface); }
+        .wallet-btn svg { width: 20px; height: 20px; }
+        .share-actions { display: flex; gap: 0.75rem; }
+        .action-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+            padding: 0.75rem; background: var(--surface); border: none; border-radius: 10px;
+            font-size: 0.8rem; font-weight: 500; color: var(--ink); cursor: pointer; font-family: inherit;
         }
 
-        .connect-btn.visible { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-        .connect-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(26,58,58,0.4);
-        }
-
-        .connect-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* ══════════════════════════════════════
-           QR MODAL
-           ══════════════════════════════════════ */
-        .qr-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            backdrop-filter: blur(4px);
-        }
-
-        .qr-modal.active { display: flex; }
-
-        .qr-content {
-            background: var(--bg-main);
-            padding: 2.5rem;
-            border-radius: 24px;
-            text-align: center;
-            max-width: 360px;
-            width: 90%;
-            position: relative;
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .qr-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 40px;
-            height: 40px;
-            background: var(--surface);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ink-soft);
-            transition: all 0.2s ease;
-        }
-
-        .qr-close:hover {
-            background: var(--surface-hover);
-            color: var(--ink);
-        }
-
-        .qr-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.75rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .qr-subtitle {
-            font-size: 0.9rem;
-            color: var(--ink-soft);
-            margin-bottom: 1.5rem;
-        }
-
-        .qr-code {
-            background: white;
-            padding: 1.25rem;
-            border-radius: 16px;
-            display: inline-block;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-        }
-
-        .qr-code canvas { display: block; }
-
-        .qr-url {
-            font-size: 0.9rem;
-            color: var(--signature);
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-            font-family: 'Space Mono', monospace;
-        }
-
-        .qr-actions {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-        }
-
-        .qr-btn {
-            padding: 0.875rem 1.75rem;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-        }
-
-        .qr-btn.primary {
-            background: var(--signature);
-            color: white;
-        }
-
-        .qr-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(26,58,58,0.25);
-        }
-
-        .qr-btn.secondary {
-            background: var(--surface);
-            color: var(--ink);
-        }
-
-        .qr-btn.secondary:hover { background: var(--surface-hover); }
-
-        /* ══════════════════════════════════════
-           MOBILE RESPONSIVE
-           ══════════════════════════════════════ */
         @media (max-width: 640px) {
             .signature-bar {
-                position: fixed;
-                top: auto;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 40px;
-                flex-direction: row;
-                padding: 0 1.5rem;
+                position: fixed; top: auto; bottom: 0; left: 0; right: 0;
+                width: 100%; height: 32px; flex-direction: row; padding: 0 1.5rem;
             }
-
-            .signature-top {
-                flex-direction: row;
-                gap: 0.75rem;
-            }
-
-            .signature-citizen {
-                writing-mode: horizontal-tb;
-                transform: none;
-            }
-
-            .signature-brand {
-                writing-mode: horizontal-tb;
-                transform: none;
-            }
-
-            .page {
-                margin-left: 0;
-                margin-bottom: 40px;
-                padding: 1.5rem;
-            }
-
-            .profile-avatar {
-                width: 88px;
-                height: 88px;
-                font-size: 2rem;
-            }
-
-            .profile-name { font-size: 1.85rem; }
-
-            .connect-btn {
-                bottom: calc(40px + 1rem);
-                right: 1rem;
-                padding: 0.75rem 1.25rem;
-                font-size: 0.85rem;
-            }
-
-            .qr-content {
-                margin: 1rem;
-                padding: 2rem;
-            }
+            .signature-brand { writing-mode: horizontal-tb; transform: none; }
+            .signature-citizen { display: none; }
+            .page { margin-left: 0; margin-bottom: 32px; padding: 3rem 1.25rem; }
+            .avatar { width: 88px; height: 88px; }
+            .name { font-size: 1.875rem; }
+            .page-footer { flex-direction: column; gap: 0.75rem; text-align: center; }
         }
     </style>
 </head>
 <body>
-    <!-- Signature Bar -->
     <aside class="signature-bar">
         <div class="signature-top">
             <div class="signature-pulse"></div>
-            <span class="signature-citizen" id="signatureCitizen"></span>
+            <div class="signature-citizen" id="sidebarCitizen"></div>
         </div>
         <a href="/" class="signature-brand">myOolala</a>
     </aside>
 
-    <div class="page">
+    <main class="page">
         <div class="profile-container">
-            <!-- Loading State -->
-            <div class="loading-state" id="loadingState">
-                <div class="loading-spinner"></div>
-                <p class="loading-text">Loading profile...</p>
-            </div>
-
-            <!-- Error State (404) -->
-            <div class="error-state" id="errorState">
+            <div id="loadingState" class="loading-state"><div class="spinner"></div></div>
+            <div id="errorState" class="error-state hidden">
                 <div class="error-icon">🔍</div>
-                <h1 class="error-title">Profile not found</h1>
-                <p class="error-text">This username doesn't exist yet. Want to claim it?</p>
-                <a href="/auth?tab=signup" class="error-cta" id="claimBtn">Claim this name</a>
+                <h2>Profile not found</h2>
+                <p>This username doesn't exist yet. Want to claim it?</p>
+                <a href="/auth?tab=signup" class="claim-btn" id="claimBtn">Claim this name</a>
             </div>
 
-            <!-- Profile Content -->
-            <div class="profile-content" id="profileContent">
-                <div class="profile-header">
-                    <div class="profile-avatar" id="profileAvatar">
-                        <span id="profileInitials">?</span>
+            <div id="profileContent" class="profile-content">
+                <header class="profile-header">
+                    <div class="avatar-wrapper" onclick="openLightbox()">
+                        <div class="avatar" id="profileAvatar"><span id="profileInitials"></span></div>
                     </div>
-                    <h1 class="profile-name" id="profileName">Loading...</h1>
-                    <p class="profile-handle" id="profileHandle">@username</p>
-                    <p class="profile-flags" id="profileFlags"></p>
-                    <p class="profile-bio" id="profileBio"></p>
+                    <h1 class="name" id="profileName"></h1>
+                    <div class="handle" id="profileHandle"></div>
+                    <div class="profile-flags" id="profileFlags"></div>
+                    <div class="profile-citizen" id="profileCitizen"></div>
+                    <p class="bio" id="profileBio"></p>
+                </header>
+
+                <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+                    <img src="" alt="" class="lightbox-img" id="lightboxImg">
                 </div>
 
-                <!-- Spotlight (dynamic) -->
-                <div id="spotlightContainer"></div>
+                <section class="content-section" id="spotlightSection" style="display:none;"></section>
+                <section class="content-section" id="linksSection" style="display:none;">
+                    <div class="section-label">Links</div>
+                    <div class="links-stack" id="linksContainer"></div>
+                </section>
+                <section class="content-section socials-section" id="socialsSection" style="display:none;">
+                    <div class="socials-row" id="socialsContainer"></div>
+                </section>
+                <section class="content-section" id="contactSection" style="display:none;">
+                    <div class="contact-card">
+                        <div class="contact-label">Get in touch</div>
+                        <a href="" class="contact-email" id="contactEmail"></a>
+                    </div>
+                </section>
 
-                <!-- Links (dynamic) -->
-                <div class="profile-links" id="linksContainer"></div>
+                <footer class="page-footer">
+                    <div class="privacy-signal"><span class="privacy-dot"></span><span>No tracking</span></div>
+                    <button class="connect-btn" onclick="openConnectModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        Connect & Save
+                    </button>
+                    <span id="footerUrl"></span>
+                </footer>
+            </div>
+        </div>
+    </main>
 
-                <!-- Socials (dynamic) -->
-                <div class="profile-socials" id="socialsContainer"></div>
-
-                <!-- Contact (dynamic) -->
-                <div id="contactContainer"></div>
-
-                <!-- Footer -->
-                <div class="profile-footer">
-                    <a href="/" class="footer-brand">
-                        <span class="footer-dot"></span>
-                        <span>Made with myOolala</span>
-                    </a>
+    <div id="connectModal" class="connect-modal">
+        <div class="connect-card">
+            <button class="close-modal" onclick="closeConnectModal()">×</button>
+            <div class="connect-header">
+                <div class="connect-avatar" id="modalAvatar"><span id="modalInitials"></span></div>
+                <div class="connect-name" id="modalName"></div>
+                <div class="connect-handle" id="modalHandle"></div>
+            </div>
+            <div class="qr-section">
+                <div class="qr-toggle">
+                    <span>Show QR Code</span>
+                    <label class="toggle-switch"><input type="checkbox" id="qrToggle" checked onchange="toggleQR()"><span class="toggle-slider"></span></label>
                 </div>
+                <div class="qr-wrapper" id="qrWrapper"><div id="qrCode"></div><p class="qr-hint">Scan to connect</p></div>
+            </div>
+            <div class="wallet-actions">
+                <a href="#" class="wallet-btn apple"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Add to Apple Wallet</a>
+                <a href="#" class="wallet-btn google"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Add to Google Wallet</a>
+            </div>
+            <div class="share-actions">
+                <button class="action-btn" onclick="copyLink(this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>
+                <button class="action-btn" onclick="nativeShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
             </div>
         </div>
     </div>
 
-    <!-- Connect Button -->
-    <button class="connect-btn" id="connectBtn" onclick="openQRModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"/>
-            <rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/>
-            <rect x="3" y="14" width="7" height="7"/>
-        </svg>
-        Connect
-    </button>
-
-    <!-- QR Modal -->
-    <div class="qr-modal" id="qrModal">
-        <div class="qr-content">
-            <button class="qr-close" onclick="closeQRModal()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-            </button>
-            <h3 class="qr-title">Scan to connect</h3>
-            <p class="qr-subtitle">Save this profile instantly</p>
-            <div class="qr-code">
-                <canvas id="qrCanvas"></canvas>
-            </div>
-            <p class="qr-url" id="qrUrl">myoolala.com/u/username</p>
-            <div class="qr-actions">
-                <button class="qr-btn primary" onclick="shareProfile()">Share</button>
-                <button class="qr-btn secondary" onclick="copyUrl(this)">Copy link</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ══════════════════════════════════════
-        // SUPABASE CONFIG
-        // ══════════════════════════════════════
         const SUPABASE_URL = 'https://txbteobudstggbhlcsyz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4YnRlb2J1ZHN0Z2diaGxjc3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyMjQwMTMsImV4cCI6MjA4MzgwMDAxM30.gbHggS8GtVVRsrYmtHS08fppmiWDKcwemqN3Aj4PYfg';
         
-        let supabaseClient;
-        let currentProfile = null;
-        let currentUsername = '';
+        let supabaseClient, currentProfile = null, currentHandle = '';
 
-        // Social icons SVG
         const socialIcons = {
             instagram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>',
             tiktok: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>',
             twitter: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-            linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
+            linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
             youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
-            website: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-            email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>',
-            whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>'
+            whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>',
+            website: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+            email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'
         };
 
-        // Link type icons
-        const linkIcons = {
-            default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
-        };
-
-        // ══════════════════════════════════════
-        // INIT
-        // ══════════════════════════════════════
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', async function() {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✓ Supabase initialized');
-            
-            // Get username from URL path: /u/username
-            const pathParts = window.location.pathname.split('/');
-            currentUsername = pathParts[2]?.toLowerCase() || '';
-            
-            console.log('Looking for username:', currentUsername);
-            
-            if (!currentUsername) {
-                showError();
-                return;
-            }
-            
-            // Update claim button with username
-            document.getElementById('claimBtn').href = `/auth?tab=signup&name=${encodeURIComponent(currentUsername)}`;
-            
-            await loadProfile(currentUsername);
+            const match = window.location.pathname.match(/\/u\/([^\/]+)/);
+            if (match && match[1]) {
+                currentHandle = match[1].toLowerCase();
+                await loadProfile(currentHandle);
+            } else { showError(); }
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            document.getElementById('qrToggle').checked = !isMobile;
+            toggleQR();
         });
 
-        // ══════════════════════════════════════
-        // LOAD PROFILE
-        // ══════════════════════════════════════
         async function loadProfile(handle) {
             try {
-                // Fetch profile by handle
-                const { data: profile, error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('handle', handle)
-                    .single();
-
-                if (profileError || !profile) {
-                    console.log('Profile not found:', profileError);
-                    showError();
-                    return;
-                }
-
+                const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('handle', handle).single();
+                if (error || !profile) { showError(); return; }
                 currentProfile = profile;
-                console.log('✓ Profile loaded:', profile.display_name);
 
-                // Get the "social" view for this profile
-                const { data: socialView, error: viewError } = await supabaseClient
-                    .from('views')
-                    .select('id')
-                    .eq('user_id', profile.id)
-                    .eq('name', 'social')
-                    .single();
-
+                const { data: socialView } = await supabaseClient.from('views').select('id').eq('user_id', profile.id).eq('name', 'social').single();
                 let blocks = [];
                 if (socialView) {
-                    // Fetch blocks for the social view
-                    const { data: viewBlocks, error: blocksError } = await supabaseClient
-                        .from('blocks')
-                        .select('*')
-                        .eq('view_id', socialView.id)
-                        .order('order', { ascending: true });
-
-                    if (!blocksError && viewBlocks) {
-                        blocks = viewBlocks;
-                    }
+                    const { data: viewBlocks } = await supabaseClient.from('blocks').select('*').eq('view_id', socialView.id).order('order', { ascending: true });
+                    if (viewBlocks) blocks = viewBlocks;
                 }
-
-                // Fetch socials from socials table
-                const { data: socials, error: socialsError } = await supabaseClient
-                    .from('socials')
-                    .select('*')
-                    .eq('user_id', profile.id)
-                    .order('order', { ascending: true });
-
-                // Render profile
+                const { data: socials } = await supabaseClient.from('socials').select('*').eq('user_id', profile.id).order('order', { ascending: true });
                 renderProfile(profile, blocks, socials || []);
-
-            } catch (err) {
-                console.error('Error loading profile:', err);
-                showError();
-            }
+            } catch (err) { console.error(err); showError(); }
         }
 
-        // ══════════════════════════════════════
-        // RENDER PROFILE
-        // ══════════════════════════════════════
         function renderProfile(profile, blocks, socials) {
-            // Hide loading, show content
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('profileContent').classList.add('active');
-            document.getElementById('connectBtn').classList.add('visible');
-
-            // Update page title
             document.title = `${profile.display_name} — myOolala`;
 
-            // Update meta tags
-            document.querySelector('meta[property="og:title"]')?.setAttribute('content', profile.display_name);
-            document.querySelector('meta[property="og:description"]')?.setAttribute('content', profile.bio || '');
-
-            // Avatar
-            const avatarEl = document.getElementById('profileAvatar');
+            const initials = getInitials(profile.display_name);
             if (profile.avatar_url) {
-                avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="${escapeHtml(profile.display_name)}">`;
+                document.getElementById('profileAvatar').innerHTML = `<img src="${esc(profile.avatar_url)}" alt="">`;
+                document.getElementById('modalAvatar').innerHTML = `<img src="${esc(profile.avatar_url)}" alt="">`;
+                document.getElementById('lightboxImg').src = profile.avatar_url;
             } else {
-                document.getElementById('profileInitials').textContent = getInitials(profile.display_name);
+                document.getElementById('profileInitials').textContent = initials;
+                document.getElementById('modalInitials').textContent = initials;
             }
 
-            // Basic info
             document.getElementById('profileName').textContent = profile.display_name;
             document.getElementById('profileHandle').textContent = '@' + profile.handle;
             document.getElementById('profileBio').textContent = profile.bio || '';
+            document.getElementById('modalName').textContent = profile.display_name;
 
-            // Flags - use origin_flags array and based_in_flag
+            const cid = profile.citizen_id || '';
+            const cidDisplay = cid ? cid.replace('#', '').replace('-', ' · ') : '';
+            document.getElementById('sidebarCitizen').textContent = cidDisplay;
+            document.getElementById('profileCitizen').textContent = cidDisplay;
+            document.getElementById('modalHandle').textContent = cidDisplay;
+            if (!cid) document.getElementById('profileCitizen').style.display = 'none';
+
             const flagsEl = document.getElementById('profileFlags');
-            const originFlag = profile.origin_flags && profile.origin_flags.length > 0 ? profile.origin_flags[0] : null;
-            const locationFlag = profile.based_in_flag || null;
-            
-            if (originFlag || locationFlag) {
-                if (originFlag && locationFlag && originFlag !== locationFlag) {
-                    flagsEl.textContent = `${originFlag} → ${locationFlag}`;
-                } else {
-                    flagsEl.textContent = originFlag || locationFlag;
-                }
-            } else {
-                flagsEl.style.display = 'none';
-            }
+            const oFlag = profile.origin_flags?.[0] || null;
+            const lFlag = profile.based_in_flag || null;
+            if (oFlag || lFlag) {
+                flagsEl.textContent = (oFlag && lFlag && oFlag !== lFlag) ? `${oFlag} → ${lFlag}` : (oFlag || lFlag);
+            } else { flagsEl.style.display = 'none'; }
 
-            // Signature bar citizen ID
-            const citizenEl = document.getElementById('signatureCitizen');
-            if (profile.citizen_id) {
-                citizenEl.textContent = profile.citizen_id;
-            }
-
-            // Render blocks and socials
-            const linksContainer = document.getElementById('linksContainer');
-            const socialsContainer = document.getElementById('socialsContainer');
-            const spotlightContainer = document.getElementById('spotlightContainer');
-            const contactContainer = document.getElementById('contactContainer');
-
-            linksContainer.innerHTML = '';
-            socialsContainer.innerHTML = '';
-            spotlightContainer.innerHTML = '';
-            contactContainer.innerHTML = '';
-
-            let hasLinks = false;
-
-            // Process blocks
-            blocks.forEach(block => {
-                switch (block.type) {
-                    case 'spotlight':
-                        const spotlightData = block.data || {};
-                        const spotlightUrl = block.url || '#';
-                        spotlightContainer.innerHTML = `
-                            <a href="${escapeHtml(spotlightUrl)}" class="profile-spotlight" target="_blank" rel="noopener">
-                                <div class="spotlight-label">✦ Featured</div>
-                                <div class="spotlight-title">${escapeHtml(block.title || '')}</div>
-                                <div class="spotlight-desc">${escapeHtml(spotlightData.description || '')}</div>
-                                <div class="spotlight-cta">${escapeHtml(spotlightData.cta || 'Learn more')} →</div>
-                            </a>
-                        `;
-                        break;
-
-                    case 'link':
-                        if (block.url) {
-                            hasLinks = true;
-                            const initial = (block.title || 'L')[0].toUpperCase();
-                            const linkData = block.data || {};
-                            linksContainer.innerHTML += `
-                                <a href="${escapeHtml(block.url)}" class="profile-link" target="_blank" rel="noopener">
-                                    <div class="link-icon initial">${initial}</div>
-                                    <div class="link-content">
-                                        <div class="link-title">${escapeHtml(block.title)}</div>
-                                        ${linkData.subtitle ? `<div class="link-subtitle">${escapeHtml(linkData.subtitle)}</div>` : ''}
-                                    </div>
-                                    <svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                                    </svg>
-                                </a>
-                            `;
-                        }
-                        break;
-                }
-            });
-
-            // Process socials from socials table
-            let hasSocials = false;
-            socials.forEach(social => {
-                if (social.platform && socialIcons[social.platform]) {
-                    hasSocials = true;
-                    const url = getSocialUrl(social.platform, social.username || social.url || '');
-                    socialsContainer.innerHTML += `
-                        <a href="${escapeHtml(url)}" class="social-icon" target="_blank" rel="noopener" title="${social.platform}">
-                            ${socialIcons[social.platform]}
-                        </a>
-                    `;
-                }
-            });
-
-            // Contact email from profile
-            if (profile.contact_email) {
-                contactContainer.innerHTML = `
-                    <div class="profile-contact">
-                        <div class="contact-label">Get in touch</div>
-                        <a href="mailto:${escapeHtml(profile.contact_email)}" class="contact-email">${escapeHtml(profile.contact_email)}</a>
-                    </div>
-                `;
-            }
-
-            // Hide empty containers
-            if (!hasLinks) linksContainer.style.display = 'none';
-            if (!hasSocials) socialsContainer.style.display = 'none';
-
-            // Generate QR code
+            document.getElementById('footerUrl').textContent = `myoolala.com/u/${profile.handle}`;
+            renderBlocks(blocks);
+            renderSocials(socials, profile.contact_email);
             generateQR();
         }
 
-        // ══════════════════════════════════════
-        // HELPERS
-        // ══════════════════════════════════════
+        function renderBlocks(blocks) {
+            const spotS = document.getElementById('spotlightSection');
+            const linksS = document.getElementById('linksSection');
+            const linksC = document.getElementById('linksContainer');
+            let hasLinks = false;
+
+            blocks.forEach(b => {
+                if (b.type === 'spotlight') {
+                    const d = b.data || {};
+                    spotS.innerHTML = `<a href="${esc(b.url||'#')}" class="spotlight-card" target="_blank">${d.image_url?`<img src="${esc(d.image_url)}" class="spotlight-image">`:''}<div class="spotlight-content"><div class="spotlight-title">${esc(b.title||'')}</div><div class="spotlight-subtitle">${esc(d.description||'')}</div><span class="spotlight-cta">${esc(d.cta||'Learn more')} →</span></div></a>`;
+                    spotS.style.display = 'block';
+                } else if (b.type === 'link' && b.url) {
+                    hasLinks = true;
+                    linksC.innerHTML += `<a href="${esc(b.url)}" class="link-card" target="_blank"><div class="link-icon">${(b.title||'L')[0].toUpperCase()}</div><div class="link-content"><div class="link-title">${esc(b.title||'')}</div></div><svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>`;
+                }
+            });
+            if (hasLinks) linksS.style.display = 'block';
+        }
+
+        function renderSocials(socials, email) {
+            const sS = document.getElementById('socialsSection');
+            const sC = document.getElementById('socialsContainer');
+            const cS = document.getElementById('contactSection');
+            let has = false;
+
+            socials.forEach(s => {
+                if (s.platform && socialIcons[s.platform]) {
+                    has = true;
+                    const url = getSocialUrl(s.platform, s.username || s.url || '');
+                    sC.innerHTML += `<a href="${esc(url)}" class="social-link ${s.platform}" target="_blank">${socialIcons[s.platform]}</a>`;
+                }
+            });
+
+            if (email) {
+                has = true;
+                sC.innerHTML += `<a href="mailto:${esc(email)}" class="social-link email">${socialIcons.email}</a>`;
+                cS.style.display = 'block';
+                document.getElementById('contactEmail').href = `mailto:${esc(email)}`;
+                document.getElementById('contactEmail').textContent = email;
+            }
+            if (has) sS.style.display = 'block';
+        }
+
+        function getSocialUrl(p, v) {
+            if (!v) return '#';
+            if (v.startsWith('http')) return v;
+            const b = {instagram:'https://instagram.com/',tiktok:'https://tiktok.com/@',twitter:'https://x.com/',linkedin:'https://linkedin.com/in/',youtube:'https://youtube.com/@',whatsapp:'https://wa.me/'};
+            return (b[p]||'') + v.replace(/^@/,'');
+        }
+
+        function getInitials(n) { return n ? n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2) : '?'; }
+        function esc(s) { if(!s)return''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
         function showError() {
             document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('errorState').classList.add('active');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('claimBtn').href = `/auth?tab=signup&name=${encodeURIComponent(currentHandle)}`;
         }
 
-        function getInitials(name) {
-            if (!name) return '?';
-            const words = name.trim().split(/\s+/);
-            if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
-            return words.slice(0, 2).map(w => w[0]).join('').toUpperCase();
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        function getSocialUrl(platform, value) {
-            const bases = {
-                instagram: 'https://instagram.com/',
-                tiktok: 'https://tiktok.com/@',
-                twitter: 'https://x.com/',
-                linkedin: 'https://linkedin.com/in/',
-                youtube: 'https://youtube.com/@',
-                whatsapp: 'https://wa.me/'
-            };
-
-            // If already a URL, return as-is
-            if (value.startsWith('http')) return value;
-
-            // Clean handle
-            let handle = value.replace(/^@/, '');
-            
-            return (bases[platform] || '') + handle;
-        }
-
+        function openConnectModal() { document.getElementById('connectModal').classList.add('active'); document.body.style.overflow='hidden'; }
+        function closeConnectModal() { document.getElementById('connectModal').classList.remove('active'); document.body.style.overflow=''; }
+        document.getElementById('connectModal').addEventListener('click', e => { if(e.target===document.getElementById('connectModal')) closeConnectModal(); });
+        document.addEventListener('keydown', e => { if(e.key==='Escape') closeConnectModal(); });
+        function toggleQR() { document.getElementById('qrWrapper').style.display = document.getElementById('qrToggle').checked ? 'block' : 'none'; }
         function generateQR() {
-            const url = `https://myoolala.com/u/${currentUsername}`;
-            document.getElementById('qrUrl').textContent = `myoolala.com/u/${currentUsername}`;
-            
-            const canvas = document.getElementById('qrCanvas');
-            if (canvas && typeof QRCode !== 'undefined') {
-                QRCode.toCanvas(canvas, url, {
-                    width: 180,
-                    margin: 0,
-                    color: { dark: '#1A3A3A', light: '#FFFFFF' }
-                });
+            const c = document.getElementById('qrCode');
+            if (c && typeof QRCode !== 'undefined') {
+                QRCode.toCanvas(document.createElement('canvas'), window.location.href, {width:180,margin:0,color:{dark:'#1A3A3A',light:'#FFFFFF'}}, (e,cv) => { if(!e){cv.style.borderRadius='12px';c.appendChild(cv);} });
             }
         }
-
-        // ══════════════════════════════════════
-        // QR MODAL
-        // ══════════════════════════════════════
-        function openQRModal() {
-            document.getElementById('qrModal').classList.add('active');
+        function openLightbox() { if(currentProfile?.avatar_url) document.getElementById('lightbox').classList.add('active'); }
+        function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+        async function copyLink(btn) {
+            await navigator.clipboard.writeText(window.location.href);
+            const o = btn.innerHTML;
+            btn.innerHTML = '✓ Copied!';
+            setTimeout(() => btn.innerHTML = o, 2000);
         }
-
-        function closeQRModal() {
-            document.getElementById('qrModal').classList.remove('active');
-        }
-
-        async function shareProfile() {
-            const url = `https://myoolala.com/u/${currentUsername}`;
-            const title = currentProfile?.display_name || currentUsername;
-            
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title, url });
-                } catch (err) {
-                    // User cancelled or error
-                }
-            } else {
-                copyUrl(document.querySelector('.qr-btn.secondary'));
-            }
-        }
-
-        function copyUrl(btn) {
-            const url = `https://myoolala.com/u/${currentUsername}`;
-            navigator.clipboard.writeText(url);
-            
-            if (btn) {
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = originalText, 1500);
-            }
-        }
-
-        // Close modal on background click
-        document.getElementById('qrModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeQRModal();
-        });
-
-        // Close on Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeQRModal();
-        });
+        function nativeShare() { if(navigator.share) navigator.share({title:document.title,url:window.location.href}); else copyLink(event.currentTarget); }
     </script>
 </body>
 </html>
