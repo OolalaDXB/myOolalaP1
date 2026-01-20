@@ -852,13 +852,13 @@
         // ══════════════════════════════════════
         // LOAD PROFILE
         // ══════════════════════════════════════
-        async function loadProfile(username) {
+        async function loadProfile(handle) {
             try {
-                // Fetch profile
+                // Fetch profile by handle
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
                     .select('*')
-                    .eq('username', username)
+                    .eq('handle', handle)
                     .single();
 
                 if (profileError || !profile) {
@@ -870,19 +870,37 @@
                 currentProfile = profile;
                 console.log('✓ Profile loaded:', profile.display_name);
 
-                // Fetch blocks
-                const { data: blocks, error: blocksError } = await supabaseClient
-                    .from('blocks')
-                    .select('*')
-                    .eq('profile_id', profile.id)
-                    .order('position', { ascending: true });
+                // Get the "social" view for this profile
+                const { data: socialView, error: viewError } = await supabaseClient
+                    .from('views')
+                    .select('id')
+                    .eq('user_id', profile.id)
+                    .eq('name', 'social')
+                    .single();
 
-                if (blocksError) {
-                    console.warn('Error loading blocks:', blocksError);
+                let blocks = [];
+                if (socialView) {
+                    // Fetch blocks for the social view
+                    const { data: viewBlocks, error: blocksError } = await supabaseClient
+                        .from('blocks')
+                        .select('*')
+                        .eq('view_id', socialView.id)
+                        .order('order', { ascending: true });
+
+                    if (!blocksError && viewBlocks) {
+                        blocks = viewBlocks;
+                    }
                 }
 
+                // Fetch socials from socials table
+                const { data: socials, error: socialsError } = await supabaseClient
+                    .from('socials')
+                    .select('*')
+                    .eq('user_id', profile.id)
+                    .order('order', { ascending: true });
+
                 // Render profile
-                renderProfile(profile, blocks || []);
+                renderProfile(profile, blocks, socials || []);
 
             } catch (err) {
                 console.error('Error loading profile:', err);
@@ -893,7 +911,7 @@
         // ══════════════════════════════════════
         // RENDER PROFILE
         // ══════════════════════════════════════
-        function renderProfile(profile, blocks) {
+        function renderProfile(profile, blocks, socials) {
             // Hide loading, show content
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('profileContent').classList.add('active');
@@ -916,15 +934,15 @@
 
             // Basic info
             document.getElementById('profileName').textContent = profile.display_name;
-            document.getElementById('profileHandle').textContent = '@' + profile.username;
+            document.getElementById('profileHandle').textContent = '@' + profile.handle;
             document.getElementById('profileBio').textContent = profile.bio || '';
 
-            // Flags
+            // Flags - use origin_flags array and based_in_flag
             const flagsEl = document.getElementById('profileFlags');
-            if (profile.country_origin || profile.country_location) {
-                const originFlag = profile.country_origin || '';
-                const locationFlag = profile.country_location || '';
-                
+            const originFlag = profile.origin_flags && profile.origin_flags.length > 0 ? profile.origin_flags[0] : null;
+            const locationFlag = profile.based_in_flag || null;
+            
+            if (originFlag || locationFlag) {
                 if (originFlag && locationFlag && originFlag !== locationFlag) {
                     flagsEl.textContent = `${originFlag} → ${locationFlag}`;
                 } else {
@@ -934,13 +952,13 @@
                 flagsEl.style.display = 'none';
             }
 
-            // Signature bar citizen ID (if available)
+            // Signature bar citizen ID
             const citizenEl = document.getElementById('signatureCitizen');
             if (profile.citizen_id) {
                 citizenEl.textContent = profile.citizen_id;
             }
 
-            // Render blocks
+            // Render blocks and socials
             const linksContainer = document.getElementById('linksContainer');
             const socialsContainer = document.getElementById('socialsContainer');
             const spotlightContainer = document.getElementById('spotlightContainer');
@@ -952,34 +970,34 @@
             contactContainer.innerHTML = '';
 
             let hasLinks = false;
-            let hasSocials = false;
 
+            // Process blocks
             blocks.forEach(block => {
                 switch (block.type) {
                     case 'spotlight':
-                        if (block.payload) {
-                            const url = block.payload.url || '#';
-                            spotlightContainer.innerHTML = `
-                                <a href="${escapeHtml(url)}" class="profile-spotlight" target="_blank" rel="noopener">
-                                    <div class="spotlight-label">✦ Featured</div>
-                                    <div class="spotlight-title">${escapeHtml(block.title || '')}</div>
-                                    <div class="spotlight-desc">${escapeHtml(block.payload.description || '')}</div>
-                                    <div class="spotlight-cta">${escapeHtml(block.payload.cta || 'Learn more')} →</div>
-                                </a>
-                            `;
-                        }
+                        const spotlightData = block.data || {};
+                        const spotlightUrl = block.url || '#';
+                        spotlightContainer.innerHTML = `
+                            <a href="${escapeHtml(spotlightUrl)}" class="profile-spotlight" target="_blank" rel="noopener">
+                                <div class="spotlight-label">✦ Featured</div>
+                                <div class="spotlight-title">${escapeHtml(block.title || '')}</div>
+                                <div class="spotlight-desc">${escapeHtml(spotlightData.description || '')}</div>
+                                <div class="spotlight-cta">${escapeHtml(spotlightData.cta || 'Learn more')} →</div>
+                            </a>
+                        `;
                         break;
 
                     case 'link':
-                        if (block.payload && block.payload.url) {
+                        if (block.url) {
                             hasLinks = true;
                             const initial = (block.title || 'L')[0].toUpperCase();
+                            const linkData = block.data || {};
                             linksContainer.innerHTML += `
-                                <a href="${escapeHtml(block.payload.url)}" class="profile-link" target="_blank" rel="noopener">
+                                <a href="${escapeHtml(block.url)}" class="profile-link" target="_blank" rel="noopener">
                                     <div class="link-icon initial">${initial}</div>
                                     <div class="link-content">
                                         <div class="link-title">${escapeHtml(block.title)}</div>
-                                        ${block.payload.subtitle ? `<div class="link-subtitle">${escapeHtml(block.payload.subtitle)}</div>` : ''}
+                                        ${linkData.subtitle ? `<div class="link-subtitle">${escapeHtml(linkData.subtitle)}</div>` : ''}
                                     </div>
                                     <svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -988,35 +1006,32 @@
                             `;
                         }
                         break;
-
-                    case 'socials':
-                        if (block.payload) {
-                            Object.entries(block.payload).forEach(([platform, value]) => {
-                                if (value && socialIcons[platform]) {
-                                    hasSocials = true;
-                                    const url = getSocialUrl(platform, value);
-                                    socialsContainer.innerHTML += `
-                                        <a href="${escapeHtml(url)}" class="social-icon" target="_blank" rel="noopener" title="${platform}">
-                                            ${socialIcons[platform]}
-                                        </a>
-                                    `;
-                                }
-                            });
-                        }
-                        break;
-
-                    case 'contact':
-                        if (block.payload && block.payload.email) {
-                            contactContainer.innerHTML = `
-                                <div class="profile-contact">
-                                    <div class="contact-label">Get in touch</div>
-                                    <a href="mailto:${escapeHtml(block.payload.email)}" class="contact-email">${escapeHtml(block.payload.email)}</a>
-                                </div>
-                            `;
-                        }
-                        break;
                 }
             });
+
+            // Process socials from socials table
+            let hasSocials = false;
+            socials.forEach(social => {
+                if (social.platform && socialIcons[social.platform]) {
+                    hasSocials = true;
+                    const url = getSocialUrl(social.platform, social.username || social.url || '');
+                    socialsContainer.innerHTML += `
+                        <a href="${escapeHtml(url)}" class="social-icon" target="_blank" rel="noopener" title="${social.platform}">
+                            ${socialIcons[social.platform]}
+                        </a>
+                    `;
+                }
+            });
+
+            // Contact email from profile
+            if (profile.contact_email) {
+                contactContainer.innerHTML = `
+                    <div class="profile-contact">
+                        <div class="contact-label">Get in touch</div>
+                        <a href="mailto:${escapeHtml(profile.contact_email)}" class="contact-email">${escapeHtml(profile.contact_email)}</a>
+                    </div>
+                `;
+            }
 
             // Hide empty containers
             if (!hasLinks) linksContainer.style.display = 'none';

@@ -1441,7 +1441,7 @@
             status.textContent = '...'; status.className = 'username-status';
             usernameCheckTimeout = setTimeout(async () => {
                 try {
-                    const { data, error } = await supabaseClient.from('profiles').select('id').eq('username', val).maybeSingle();
+                    const { data, error } = await supabaseClient.from('profiles').select('id').eq('handle', val).maybeSingle();
                     if (error) throw error;
                     const taken = data !== null;
                     status.textContent = taken ? '✗ Taken' : '✓';
@@ -1563,11 +1563,11 @@
         function closeMobilePreview() { document.getElementById('mobilePreview').classList.remove('active'); }
 
         async function finish() {
-            const username = document.getElementById('username').value.trim().toLowerCase();
+            const handle = document.getElementById('username').value.trim().toLowerCase();
             const displayName = document.getElementById('displayName').value.trim();
             const bio = document.getElementById('bio').value.trim();
             
-            if (!username) { oolalaToast('Please enter a username', 'error'); return; }
+            if (!handle) { oolalaToast('Please enter a username', 'error'); return; }
             if (!displayName) { oolalaToast('Please enter your name', 'error'); return; }
             
             const finishBtn = document.querySelector('.btn-primary[onclick="finish()"]');
@@ -1576,55 +1576,117 @@
             finishBtn.disabled = true;
             
             try {
-                const { data: existingUser } = await supabaseClient.from('profiles').select('id').eq('username', username).maybeSingle();
+                // Check if handle is already taken
+                const { data: existingUser } = await supabaseClient.from('profiles').select('id').eq('handle', handle).maybeSingle();
                 if (existingUser) throw new Error('Username is already taken');
                 
                 const userId = currentUser.id;
-                const countryOrigin = originFlags.length > 0 ? extractFlagCode(originFlags[0]) : null;
-                const countryLocation = locationFlags.length > 0 ? extractFlagCode(locationFlags[0]) : null;
                 
-                const { error: profileError } = await supabaseClient.from('profiles').insert([{
-                    id: userId, username, display_name: displayName, bio,
-                    country_origin: countryOrigin, country_location: countryLocation,
-                    avatar_url: avatarImage || null
+                // Get flag emojis for origin and location
+                const originFlag = originFlags.length > 0 ? originFlags[0] : null;
+                const locationFlag = locationFlags.length > 0 ? locationFlags[0] : null;
+                
+                // Insert profile (trigger will auto-create views and citizen_id)
+                const { data: newProfile, error: profileError } = await supabaseClient.from('profiles').insert([{
+                    id: userId,
+                    handle: handle,
+                    display_name: displayName,
+                    bio: bio || null,
+                    origin_flags: originFlags.length > 0 ? originFlags : null,
+                    based_in_flag: locationFlag,
+                    avatar_url: avatarImage || null,
+                    contact_email: document.getElementById('contactEmail')?.value.trim() || null
                 }]).select().single();
                 
                 if (profileError) throw profileError;
+                console.log('✓ Profile created:', newProfile);
                 
+                // Get the "social" view that was auto-created by trigger
+                const { data: socialView, error: viewError } = await supabaseClient
+                    .from('views')
+                    .select('id')
+                    .eq('user_id', userId)
+                    .eq('name', 'social')
+                    .single();
+                
+                if (viewError || !socialView) {
+                    console.error('Could not find social view:', viewError);
+                    throw new Error('Failed to setup profile views');
+                }
+                
+                const viewId = socialView.id;
+                console.log('✓ Social view ID:', viewId);
+                
+                // Prepare blocks for the social view
                 const blocks = [];
-                let position = 100;
+                let order = 0;
                 
+                // Spotlight block
                 if (spotlightEnabled) {
                     const spotlightTitle = document.getElementById('spotlightTitle')?.value.trim();
                     const spotlightDesc = document.getElementById('spotlightDesc')?.value.trim();
                     const spotlightCta = document.getElementById('spotlightCta')?.value.trim() || 'Learn more';
                     const spotlightUrl = document.getElementById('spotlightUrl')?.value.trim();
                     if (spotlightTitle || spotlightDesc) {
-                        blocks.push({ profile_id: userId, type: 'spotlight', title: spotlightTitle, position, visibility_mask: 1, payload: { description: spotlightDesc, cta: spotlightCta, url: spotlightUrl } });
-                        position += 100;
+                        blocks.push({
+                            view_id: viewId,
+                            type: 'spotlight',
+                            title: spotlightTitle,
+                            url: spotlightUrl || null,
+                            order: order++,
+                            data: { description: spotlightDesc, cta: spotlightCta }
+                        });
                     }
                 }
                 
+                // Link blocks
                 document.querySelectorAll('#linksList .link-item').forEach(item => {
                     const title = item.querySelector('.link-title')?.value.trim();
                     const url = item.querySelector('.link-url')?.value.trim();
-                    if (title && url) { blocks.push({ profile_id: userId, type: 'link', title, position, visibility_mask: 1, payload: { url } }); position += 100; }
+                    if (title && url) {
+                        blocks.push({
+                            view_id: viewId,
+                            type: 'link',
+                            title: title,
+                            url: url,
+                            order: order++,
+                            data: null
+                        });
+                    }
                 });
                 
-                const socials = {};
+                // Insert blocks
+                if (blocks.length > 0) {
+                    const { error: blocksError } = await supabaseClient.from('blocks').insert(blocks);
+                    if (blocksError) console.error('Blocks insert error:', blocksError);
+                    else console.log('✓ Blocks created:', blocks.length);
+                }
+                
+                // Insert socials into socials table
+                const socialsToInsert = [];
+                let socialOrder = 0;
                 document.querySelectorAll('.social-item input').forEach(input => {
                     const value = input.value.trim();
-                    if (value) socials[input.dataset.social] = value;
+                    const platform = input.dataset.social;
+                    if (value && platform) {
+                        socialsToInsert.push({
+                            user_id: userId,
+                            platform: platform,
+                            username: value.replace(/^@/, ''), // Remove @ if present
+                            order: socialOrder++
+                        });
+                    }
                 });
-                if (Object.keys(socials).length > 0) { blocks.push({ profile_id: userId, type: 'socials', title: 'Social Links', position, visibility_mask: 1, payload: socials }); position += 100; }
                 
-                const contactEmail = document.getElementById('contactEmail')?.value.trim();
-                if (contactEmail) blocks.push({ profile_id: userId, type: 'contact', title: 'Contact', position, visibility_mask: 1, payload: { email: contactEmail } });
+                if (socialsToInsert.length > 0) {
+                    const { error: socialsError } = await supabaseClient.from('socials').insert(socialsToInsert);
+                    if (socialsError) console.error('Socials insert error:', socialsError);
+                    else console.log('✓ Socials created:', socialsToInsert.length);
+                }
                 
-                if (blocks.length > 0) await supabaseClient.from('blocks').insert(blocks);
-                
-                const url = 'https://myoolala.com/' + username;
-                document.getElementById('successUrl').textContent = 'myoolala.com/' + username;
+                // Success!
+                const url = 'https://myoolala.com/u/' + handle;
+                document.getElementById('successUrl').textContent = 'myoolala.com/u/' + handle;
                 document.getElementById('viewPageBtn').href = url;
                 document.getElementById('successOverlay').classList.add('active');
                 
@@ -1635,6 +1697,7 @@
                 
                 oolalaToast('Voilà!');
             } catch (error) {
+                console.error('Finish error:', error);
                 oolalaToast(error.message || 'Something went wrong', 'error');
                 finishBtn.textContent = originalText;
                 finishBtn.disabled = false;
@@ -1657,9 +1720,9 @@
         }
 
         async function sharePage() {
-            const username = document.getElementById('username').value.trim();
-            const url = 'https://myoolala.com/' + username;
-            if (navigator.share) { try { await navigator.share({ title: username, url }); } catch { copyUrl(); } }
+            const handle = document.getElementById('username').value.trim();
+            const url = 'https://myoolala.com/u/' + handle;
+            if (navigator.share) { try { await navigator.share({ title: handle, url }); } catch { copyUrl(); } }
             else copyUrl();
         }
 

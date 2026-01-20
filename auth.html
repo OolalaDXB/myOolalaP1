@@ -381,6 +381,91 @@
             color: var(--ink-soft);
         }
 
+        /* Email Confirmation Box */
+        .confirmation-box {
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .confirmation-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirmation-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--ink);
+        }
+
+        .confirmation-text {
+            font-size: 1rem;
+            color: var(--ink-soft);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .confirmation-text strong {
+            color: var(--signature);
+            font-weight: 600;
+        }
+
+        .confirmation-note {
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .confirmation-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--signature);
+            color: var(--white);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirmation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26,58,58,0.2);
+        }
+
+        .confirmation-help {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+        }
+
+        .resend-link {
+            background: none;
+            border: none;
+            color: var(--signature);
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: underline;
+            font-family: inherit;
+        }
+
+        .resend-link:hover {
+            color: var(--ink);
+        }
+
         /* Mobile */
         @media (max-width: 640px) {
             .signature-bar {
@@ -677,17 +762,26 @@
             try {
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
-                    password
+                    password,
+                    options: {
+                        emailRedirectTo: window.location.origin + '/auth'
+                    }
                 });
 
                 if (error) throw error;
 
                 if (data.user) {
-                    showToast('Account created!');
-                    // New user → Onboarding
-                    setTimeout(() => {
-                        window.location.href = '/onboarding';
-                    }, 500);
+                    // Check if email confirmation is required
+                    if (data.user.identities && data.user.identities.length === 0) {
+                        // User already exists
+                        showToast('An account with this email already exists', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Create account';
+                        return;
+                    }
+                    
+                    // Show confirmation message
+                    showEmailConfirmation(email);
                 }
 
             } catch (err) {
@@ -696,6 +790,54 @@
                 btn.disabled = false;
                 btn.textContent = 'Create account';
             }
+        }
+
+        function showEmailConfirmation(email) {
+            const container = document.querySelector('.auth-container');
+            container.innerHTML = `
+                <div class="auth-header">
+                    <a href="/" class="auth-logo">Oolala</a>
+                </div>
+                <div class="confirmation-box">
+                    <div class="confirmation-icon">✉️</div>
+                    <h2 class="confirmation-title">Check your email</h2>
+                    <p class="confirmation-text">
+                        We've sent a confirmation link to<br>
+                        <strong>${escapeHtml(email)}</strong>
+                    </p>
+                    <p class="confirmation-note">
+                        Click the link in the email to activate your account, then come back here to sign in.
+                    </p>
+                    <a href="/auth" class="confirmation-btn">Back to Sign in</a>
+                    <p class="confirmation-help">
+                        Didn't receive the email? Check your spam folder or 
+                        <button onclick="resendConfirmation('${escapeHtml(email)}')" class="resend-link">resend it</button>
+                    </p>
+                </div>
+            `;
+        }
+
+        async function resendConfirmation(email) {
+            try {
+                const { error } = await supabaseClient.auth.resend({
+                    type: 'signup',
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.origin + '/auth'
+                    }
+                });
+                
+                if (error) throw error;
+                showToast('Confirmation email resent!');
+            } catch (err) {
+                showToast('Could not resend email', 'error');
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
 
         // Social Auth (Google/Apple)
