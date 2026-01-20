@@ -388,26 +388,82 @@
 
         async function loadProfile(handle) {
             try {
-                const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('handle', handle).single();
+                // Utiliser la RPC pour charger toutes les données publiques en un seul appel
+                // Plus sûr que select('*') - retourne uniquement les colonnes autorisées
+                const { data: result, error } = await supabaseClient
+                    .rpc('get_public_profile', { 
+                        p_handle: handle, 
+                        p_view_name: 'social' 
+                    });
+                
+                if (error || !result || !result.profile) { 
+                    console.error('Profile not found or RPC error:', error);
+                    showError(); 
+                    return; 
+                }
+                
+                currentProfile = result.profile;
+                const view = result.view;
+                const blocks = result.blocks || [];
+                const socials = result.socials || [];
+                
+                renderProfile(currentProfile, view, blocks, socials);
+            } catch (err) { 
+                console.error('loadProfile error:', err); 
+                showError(); 
+            }
+        }
+
+        // Fallback if RPC doesn't exist (for backwards compatibility)
+        async function loadProfileFallback(handle) {
+            try {
+                // Explicit columns only - never use select('*')
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('id, handle, display_name, avatar_url, citizen_id, origin_flags, based_in_flag, based_in_city')
+                    .eq('handle', handle)
+                    .single();
+                    
                 if (error || !profile) { showError(); return; }
                 currentProfile = profile;
 
-                // Get the social view with all its data
+                // Get the social view with explicit columns
                 const { data: socialView } = await supabaseClient
                     .from('views')
-                    .select('*')
+                    .select('id, name, label, bio, spotlight, origin_flags, based_in_flag, based_in_flags, based_in_city, based_in_cities, based_in_airport, based_in_airports')
                     .eq('user_id', profile.id)
                     .eq('name', 'social')
+                    .eq('visibility', 'public')
                     .single();
                 
                 let blocks = [];
                 if (socialView) {
-                    const { data: viewBlocks } = await supabaseClient.from('blocks').select('*').eq('view_id', socialView.id).order('order', { ascending: true });
+                    const { data: viewBlocks } = await supabaseClient
+                        .from('blocks')
+                        .select('id, type, title, url, icon, order, data')
+                        .eq('view_id', socialView.id)
+                        .order('order', { ascending: true });
                     if (viewBlocks) blocks = viewBlocks;
                 }
-                const { data: socials } = await supabaseClient.from('socials').select('*').eq('user_id', profile.id).order('order', { ascending: true });
-                renderProfile(profile, socialView, blocks, socials || []);
+                
+                // Get visible socials via socials_views
+                let socials = [];
+                if (socialView) {
+                    const { data: visibleSocials } = await supabaseClient
+                        .from('socials_views')
+                        .select('social_id, socials(id, platform, username, url)')
+                        .eq('view_id', socialView.id)
+                        .eq('visible', true)
+                        .order('order', { ascending: true });
+                    
+                    if (visibleSocials) {
+                        socials = visibleSocials.map(sv => sv.socials).filter(Boolean);
+                    }
+                }
+                
+                renderProfile(profile, socialView, blocks, socials);
             } catch (err) { console.error(err); showError(); }
+        }
         }
 
         function renderProfile(profile, view, blocks, socials) {
@@ -434,10 +490,29 @@
             document.getElementById('modalName').textContent = profile.display_name;
 
             // Citizen ID - clean display with airport and city
+            // Support multiple airports/cities (use first one for display)
             const cid = profile.citizen_id || '';
             const cleanCid = cid.replace(/^#+/, '');
-            const airport = view?.based_in_airport || profile.based_in_airport || '';
-            const city = view?.based_in_city || profile.based_in_city || '';
+            
+            // Get airport (array or single)
+            let airport = '';
+            if (view?.based_in_airports && Array.isArray(view.based_in_airports) && view.based_in_airports.length > 0) {
+                airport = view.based_in_airports[0];
+            } else if (view?.based_in_airport) {
+                airport = view.based_in_airport;
+            } else if (profile.based_in_airport) {
+                airport = profile.based_in_airport;
+            }
+            
+            // Get city (array or single)
+            let city = '';
+            if (view?.based_in_cities && Array.isArray(view.based_in_cities) && view.based_in_cities.length > 0) {
+                city = view.based_in_cities[0];
+            } else if (view?.based_in_city) {
+                city = view.based_in_city;
+            } else if (profile.based_in_city) {
+                city = profile.based_in_city;
+            }
             
             // Sidebar: Airport • CitizenID
             const sidebarText = airport ? `${airport} • ${cleanCid}` : cleanCid;
@@ -451,12 +526,36 @@
             if (!cid && !airport) document.getElementById('profileCitizen').style.display = 'none';
 
             // Use view-specific flags if available, fallback to profile
+            // Support multiple flags: origin_flags[] → based_in_flags[]
             const flagsEl = document.getElementById('profileFlags');
-            const oFlag = view?.origin_flags?.[0] || profile.origin_flags?.[0] || null;
-            const lFlag = view?.based_in_flag || profile.based_in_flag || null;
-            if (oFlag || lFlag) {
-                flagsEl.textContent = (oFlag && lFlag && oFlag !== lFlag) ? `${oFlag} → ${lFlag}` : (oFlag || lFlag);
-            } else { flagsEl.style.display = 'none'; }
+            
+            // Get origin flags (array or single)
+            let originEmojis = '';
+            if (view?.origin_flags && Array.isArray(view.origin_flags) && view.origin_flags.length > 0) {
+                originEmojis = view.origin_flags.join('');
+            } else if (profile.origin_flags && Array.isArray(profile.origin_flags) && profile.origin_flags.length > 0) {
+                originEmojis = profile.origin_flags.join('');
+            }
+            
+            // Get location flags (array or single)
+            let locationEmojis = '';
+            if (view?.based_in_flags && Array.isArray(view.based_in_flags) && view.based_in_flags.length > 0) {
+                locationEmojis = view.based_in_flags.join('');
+            } else if (view?.based_in_flag) {
+                locationEmojis = view.based_in_flag;
+            } else if (profile.based_in_flag) {
+                locationEmojis = profile.based_in_flag;
+            }
+            
+            if (originEmojis || locationEmojis) {
+                if (originEmojis && locationEmojis && originEmojis !== locationEmojis) {
+                    flagsEl.textContent = `${originEmojis} → ${locationEmojis}`;
+                } else {
+                    flagsEl.textContent = originEmojis || locationEmojis;
+                }
+            } else { 
+                flagsEl.style.display = 'none'; 
+            }
 
             document.getElementById('footerUrl').textContent = `myoolala.com/u/${profile.handle}`;
             renderBlocks(blocks);
