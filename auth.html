@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign in — Oolala</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='serif' font-style='italic' fill='%231A3A3A'>Oo</text></svg>">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -656,13 +657,13 @@
             try {
                 const { data: profile, error } = await supabaseClient
                     .from('profiles')
-                    .select('id, handle')
+                    .select('id, username')
                     .eq('id', userId)
                     .maybeSingle();
 
                 if (error) throw error;
 
-                if (profile && profile.handle) {
+                if (profile && profile.username) {
                     // Profile exists → Cockpit
                     window.location.href = '/cockpit';
                 } else {
@@ -811,21 +812,13 @@
                     <a href="/auth" class="confirmation-btn">Back to Sign in</a>
                     <p class="confirmation-help">
                         Didn't receive the email? Check your spam folder or 
-                        <button onclick="resendConfirmation()" class="resend-link">resend it</button>
+                        <button onclick="resendConfirmation('${escapeHtml(email)}')" class="resend-link">resend it</button>
                     </p>
                 </div>
             `;
-            // Store email for resend
-            window._pendingConfirmationEmail = email;
         }
 
-        async function resendConfirmation() {
-            const email = window._pendingConfirmationEmail;
-            if (!email) {
-                showToast('No email to resend to', 'error');
-                return;
-            }
-            
+        async function resendConfirmation(email) {
             try {
                 const { error } = await supabaseClient.auth.resend({
                     type: 'signup',
@@ -838,8 +831,7 @@
                 if (error) throw error;
                 showToast('Confirmation email resent!');
             } catch (err) {
-                console.error('Resend error:', err);
-                showToast(err.message || 'Could not resend email', 'error');
+                showToast('Could not resend email', 'error');
             }
         }
 

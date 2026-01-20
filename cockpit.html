@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
     <title>Cockpit — MyOolala</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='serif' font-style='italic' fill='%231A3A3A'>Oo</text></svg>">
 
     <script src="/js/countries.js"></script>
     
@@ -5239,7 +5240,7 @@
             try {
                 const demoProfile = {
                     id: 'demo-user',
-                    username: 'sofiarey',
+                    handle: 'sofiarey',
                     display_name: 'Sofia Reyes',
                     bio: 'Creative director & digital nomad. Building beautiful things from Dubai.',
                     spotlight: 'The journey is the destination.',
@@ -5248,19 +5249,14 @@
                     views: 2847,
                     clicks: 156,
                     created_at: '2024-03-15',
-                    country_origin: 'MX',
-                    country_location: 'AE',
-                    socials: {
-                        instagram: '@sofiarey',
-                        twitter: '@sofiarey',
-                        linkedin: '/in/sofiarey'
-                    }
+                    origin_flags: ['🇲🇽'],
+                    based_in_flag: '🇦🇪'
                 };
                 
                 const demoBlocks = [
-                    { id: '1', type: 'link', title: 'My Portfolio', payload: { url: 'https://sofiarey.com' }, position: 0 },
-                    { id: '2', type: 'link', title: 'Book a Call', payload: { url: 'https://cal.com/sofiarey' }, position: 1 },
-                    { id: '3', type: 'link', title: 'Latest Project', payload: { url: 'https://behance.net/sofiarey' }, position: 2 }
+                    { id: '1', type: 'link', title: 'My Portfolio', url: 'https://sofiarey.com', order: 0 },
+                    { id: '2', type: 'link', title: 'Book a Call', url: 'https://cal.com/sofiarey', order: 1 },
+                    { id: '3', type: 'link', title: 'Latest Project', url: 'https://behance.net/sofiarey', order: 2 }
                 ];
                 
                 currentProfile = demoProfile;
@@ -5269,7 +5265,7 @@
                 populateCitizenPanel(demoProfile);
                 populateProfileForm(demoProfile);
                 populateBlocks(demoBlocks);
-                updatePreviewUrl(demoProfile.username);
+                updatePreviewUrl(demoProfile.handle);
             } catch (err) {
                 console.warn('Error loading demo data:', err);
             }
@@ -5294,20 +5290,31 @@
                 
                 currentProfile = profile;
                 
-                // Get blocks
-                const { data: blocks } = await supabaseClient
-                    .from('blocks')
-                    .select('*')
-                    .eq('profile_id', currentUser.id)
-                    .order('position', { ascending: true });
+                // Get "social" view for this user
+                const { data: socialView } = await supabaseClient
+                    .from('views')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('name', 'social')
+                    .single();
                 
-                currentBlocks = blocks || [];
+                let blocks = [];
+                if (socialView) {
+                    const { data: viewBlocks } = await supabaseClient
+                        .from('blocks')
+                        .select('*')
+                        .eq('view_id', socialView.id)
+                        .order('order', { ascending: true });
+                    blocks = viewBlocks || [];
+                }
+                
+                currentBlocks = blocks;
                 
                 // Populate UI
                 populateCitizenPanel(profile);
                 populateProfileForm(profile);
                 populateBlocks(blocks);
-                updatePreviewUrl(profile.username);
+                updatePreviewUrl(profile.handle);
                 
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -5402,34 +5409,44 @@
             };
 
             setVal('input-display-name', profile.display_name);
-            setVal('input-username', profile.username);
+            setVal('input-username', profile.handle);
             setVal('input-bio', profile.bio);
             setVal('input-spotlight', profile.spotlight);
             
             // Update previews
-            setText('username-preview', profile.username || 'username');
+            setText('username-preview', profile.handle || 'username');
             setText('spotlight-preview-text', `"${profile.spotlight || 'The journey is the destination...'}"`);
             
             // Update char counts
             updateCharCount('input-bio', 'bio-count');
             updateCharCount('input-spotlight', 'spotlight-count');
             
-            // Flags
-            if (profile.country_origin || profile.country_location) {
-                const origin = profile.country_origin ? isoToFlag(profile.country_origin) : '🌍';
-                const location = profile.country_location ? isoToFlag(profile.country_location) : '🌍';
-                setText('flags-preview', `${origin} → ${location}`);
-            }
+            // Flags (use origin_flags array and based_in_flag)
+            const originFlag = profile.origin_flags && profile.origin_flags.length > 0 ? profile.origin_flags[0] : '🌍';
+            const locationFlag = profile.based_in_flag || '🌍';
+            setText('flags-preview', `${originFlag} → ${locationFlag}`);
             
-            // Socials
-            if (profile.socials) {
-                const socials = profile.socials;
-                if (socials.instagram) setVal('social-instagram', socials.instagram);
-                if (socials.twitter) setVal('social-twitter', socials.twitter);
-                if (socials.tiktok) setVal('social-tiktok', socials.tiktok);
-                if (socials.linkedin) setVal('social-linkedin', socials.linkedin);
-                if (socials.youtube) setVal('social-youtube', socials.youtube);
-                if (socials.github) setVal('social-github', socials.github);
+            // Socials from socials table - load async
+            loadSocials();
+        }
+        
+        async function loadSocials() {
+            if (!currentUser) return;
+            try {
+                const { data: socials } = await supabaseClient
+                    .from('socials')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('order', { ascending: true });
+                
+                if (socials) {
+                    socials.forEach(s => {
+                        const el = document.getElementById(`social-${s.platform}`);
+                        if (el) el.value = s.username || '';
+                    });
+                }
+            } catch (err) {
+                console.warn('Could not load socials:', err);
             }
         }
 
@@ -5449,8 +5466,8 @@
             }
             
             links.forEach(block => {
-                const payload = block.payload || {};
-                const linkHtml = createLinkItem(block.id, block.title, payload.url);
+                // Schema uses block.url directly, not payload.url
+                const linkHtml = createLinkItem(block.id, block.title, block.url);
                 linksContainer.insertAdjacentHTML('beforeend', linkHtml);
             });
             
@@ -5913,31 +5930,52 @@
         async function saveAllChanges() {
             if (!currentProfile) return;
             
-            const updates = {
-                display_name: document.getElementById('input-display-name').value.trim(),
-                bio: document.getElementById('input-bio').value.trim(),
-                spotlight: document.getElementById('input-spotlight').value.trim(),
-                socials: {
-                    instagram: document.getElementById('social-instagram').value.trim(),
-                    twitter: document.getElementById('social-twitter').value.trim(),
-                    tiktok: document.getElementById('social-tiktok').value.trim(),
-                    linkedin: document.getElementById('social-linkedin').value.trim(),
-                    youtube: document.getElementById('social-youtube').value.trim(),
-                    github: document.getElementById('social-github').value.trim()
-                }
+            const profileUpdates = {
+                display_name: document.getElementById('input-display-name')?.value.trim(),
+                bio: document.getElementById('input-bio')?.value.trim(),
+                spotlight: document.getElementById('input-spotlight')?.value.trim()
             };
             
             try {
-                const { error } = await supabaseClient
+                // Update profile
+                const { error: profileError } = await supabaseClient
                     .from('profiles')
-                    .update(updates)
+                    .update(profileUpdates)
                     .eq('id', currentUser.id);
                 
-                if (error) throw error;
+                if (profileError) throw profileError;
                 
-                currentProfile = { ...currentProfile, ...updates };
+                // Update socials in socials table
+                const socialPlatforms = ['instagram', 'twitter', 'tiktok', 'linkedin', 'youtube', 'whatsapp', 'website'];
+                
+                for (let i = 0; i < socialPlatforms.length; i++) {
+                    const platform = socialPlatforms[i];
+                    const el = document.getElementById(`social-${platform}`);
+                    const value = el?.value.trim() || '';
+                    
+                    if (value) {
+                        // Upsert: insert or update
+                        await supabaseClient
+                            .from('socials')
+                            .upsert({
+                                user_id: currentUser.id,
+                                platform: platform,
+                                username: value,
+                                order: i
+                            }, { onConflict: 'user_id,platform' });
+                    } else {
+                        // Delete if empty
+                        await supabaseClient
+                            .from('socials')
+                            .delete()
+                            .eq('user_id', currentUser.id)
+                            .eq('platform', platform);
+                    }
+                }
+                
+                currentProfile = { ...currentProfile, ...profileUpdates };
                 hasUnsavedChanges = false;
-                document.getElementById('save-btn').classList.remove('has-changes');
+                document.getElementById('save-btn')?.classList.remove('has-changes');
                 oolalaToast('Changes saved');
                 
             } catch (error) {
@@ -5962,10 +6000,10 @@
         // ══════════════════════════════════════
         // UPDATE PREVIEW URL
         // ══════════════════════════════════════
-        function updatePreviewUrl(username) {
+        function updatePreviewUrl(handle) {
             const sidebarUrl = document.getElementById('sidebar-url');
             if (sidebarUrl) {
-                sidebarUrl.textContent = `myoolala.com/${username || 'username'}`;
+                sidebarUrl.textContent = `myoolala.com/u/${handle || 'username'}`;
             }
             
             // Preview iframe - don't load external URL in standalone mode
@@ -5973,7 +6011,7 @@
         }
 
         function copyProfileUrl() {
-            const url = `https://myoolala.com/${currentProfile?.username || 'username'}`;
+            const url = `https://myoolala.com/u/${currentProfile?.handle || 'username'}`;
             navigator.clipboard.writeText(url);
             oolalaToast('URL copied!');
         }
