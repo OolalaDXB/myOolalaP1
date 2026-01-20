@@ -108,6 +108,39 @@ Table de liaison : quels socials sont visibles sur quelle view.
 
 ---
 
+### phones
+Liste globale des téléphones de l'utilisateur.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid, PK | |
+| `user_id` | uuid, FK → profiles.id | |
+| `label` | text | 'Personal', 'Work', 'WhatsApp' |
+| `number` | text | Numéro complet |
+| `country_code` | text | '+971', '+33' |
+| `order` | int | Ordre d'affichage |
+| `created_at` | timestamptz | |
+
+**Contrainte unique :** `(user_id, number)`
+
+---
+
+### phones_views
+Table de liaison : quels téléphones sont visibles sur quelle view.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid, PK | |
+| `phone_id` | uuid, FK → phones.id | |
+| `view_id` | uuid, FK → views.id | |
+| `visible` | boolean | Affiché ou masqué |
+| `order` | int | Ordre spécifique à cette view |
+| `created_at` | timestamptz | |
+
+**Contrainte unique :** `(phone_id, view_id)`
+
+---
+
 ## Supabase Config
 
 ```javascript

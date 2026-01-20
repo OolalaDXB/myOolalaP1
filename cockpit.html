@@ -6426,31 +6426,28 @@
             if (footerIcons) {
                 footerIcons.innerHTML = '';
                 
-                // Get current social values from form inputs
-                const socialIcons = {
-                    instagram: '📷',
-                    twitter: '𝕏',
-                    tiktok: '🎵',
-                    linkedin: '💼',
-                    youtube: '▶️',
-                    spotify: '🎧',
-                    github: '💻',
-                    facebook: 'f',
-                    whatsapp: '📱',
-                    website: '🌐'
+                // SVG icons for socials (compact for iframe)
+                const socialSVGs = {
+                    instagram: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>',
+                    twitter: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+                    linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
+                    whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>',
+                    spotify: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>',
+                    youtube: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+                    tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>',
+                    github: '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>',
+                    website: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>',
+                    email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'
                 };
                 
-                const platforms = Object.keys(socialIcons);
+                const platforms = Object.keys(socialSVGs);
                 platforms.forEach(platform => {
                     const input = document.getElementById(`social-${platform}`);
                     if (input && input.value.trim()) {
                         const iconEl = iframeDoc.createElement('div');
                         iconEl.className = 'footer-icon';
-                        iconEl.style.display = 'flex';
-                        iconEl.style.alignItems = 'center';
-                        iconEl.style.justifyContent = 'center';
-                        iconEl.style.fontSize = '10px';
-                        iconEl.textContent = socialIcons[platform];
+                        iconEl.style.cssText = 'display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(26,58,58,0.08);border-radius:50%;color:#1A3A3A;';
+                        iconEl.innerHTML = socialSVGs[platform];
                         footerIcons.appendChild(iconEl);
                     }
                 });
@@ -6595,18 +6592,11 @@
         }
 
         function copyViewUrl(viewName) {
-            const viewItem = document.querySelector(`.view-item[data-view="${viewName}"]`);
-            const visibility = viewItem?.dataset.visibility || 'public';
-            const username = document.getElementById('input-handle')?.value || 'sofia';
+            const handle = currentProfile?.handle || 'username';
             
-            let url;
-            if (visibility === 'public') {
-                url = `https://myoolala.com/${username}/${viewName}`;
-            } else {
-                // Copy permanent link for private views
-                const tokens = { work: 'Kp7mQ9x', exclusive: 'x7k9m2p3', social: 'Ab3cD4e', events: 'Fg5hI6j' };
-                url = `https://myoolala.com/${username}/v/${tokens[viewName] || 'abc123'}`;
-            }
+            // For now, all views are public with /u/handle/viewName format
+            // Later: private views will use permanent tokens
+            const url = `https://myoolala.com/u/${handle}/${viewName}`;
             
             navigator.clipboard.writeText(url).then(() => {
                 oolalaToast(`${viewName.charAt(0).toUpperCase() + viewName.slice(1)} link copied!`);
@@ -6614,9 +6604,11 @@
         }
 
         function copyPermanentLink(viewName) {
-            const username = document.getElementById('input-handle')?.value || 'sofia';
-            const tokens = { work: 'Kp7mQ9x', exclusive: 'x7k9m2p3', social: 'Ab3cD4e', events: 'Fg5hI6j' };
-            const url = `https://myoolala.com/${username}/v/${tokens[viewName] || 'abc123'}`;
+            const handle = currentProfile?.handle || 'username';
+            // TODO: Get actual permanent token from view data
+            const view = currentViews.find(v => v.name === viewName);
+            const token = view?.permanent_token || 'abc123';
+            const url = `https://myoolala.com/u/${handle}/v/${token}`;
             navigator.clipboard.writeText(url).then(() => {
                 oolalaToast('Permanent link copied!');
             });
