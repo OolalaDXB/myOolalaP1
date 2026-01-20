@@ -5276,6 +5276,8 @@
         // ══════════════════════════════════════
         async function loadUserData() {
             try {
+                console.log('Loading user data for:', currentUser.id);
+                
                 // Get profile
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
@@ -5283,31 +5285,50 @@
                     .eq('id', currentUser.id)
                     .single();
                 
-                if (profileError || !profile) {
-                    console.error('Profile not found');
+                if (profileError) {
+                    console.error('Profile error:', profileError);
+                    oolalaToast('Profile not found - redirecting to onboarding');
+                    window.location.href = '/onboarding';
                     return;
                 }
                 
+                if (!profile) {
+                    console.error('No profile data');
+                    window.location.href = '/onboarding';
+                    return;
+                }
+                
+                console.log('Profile loaded:', profile.handle);
                 currentProfile = profile;
                 
                 // Get "social" view for this user
-                const { data: socialView } = await supabaseClient
+                const { data: socialView, error: viewError } = await supabaseClient
                     .from('views')
                     .select('id')
                     .eq('user_id', currentUser.id)
                     .eq('name', 'social')
                     .single();
                 
+                if (viewError) {
+                    console.warn('No social view found:', viewError.message);
+                }
+                
                 let blocks = [];
                 if (socialView) {
-                    const { data: viewBlocks } = await supabaseClient
+                    console.log('Social view found:', socialView.id);
+                    const { data: viewBlocks, error: blocksError } = await supabaseClient
                         .from('blocks')
                         .select('*')
                         .eq('view_id', socialView.id)
                         .order('order', { ascending: true });
+                    
+                    if (blocksError) {
+                        console.warn('Blocks error:', blocksError.message);
+                    }
                     blocks = viewBlocks || [];
                 }
                 
+                console.log('Blocks loaded:', blocks.length);
                 currentBlocks = blocks;
                 
                 // Populate UI
@@ -5316,9 +5337,11 @@
                 populateBlocks(blocks);
                 updatePreviewUrl(profile.handle);
                 
+                console.log('UI populated successfully');
+                
             } catch (error) {
                 console.error('Error loading data:', error);
-                oolalaToast('Error loading your data');
+                oolalaToast('Error loading your data: ' + error.message);
             }
         }
 
@@ -5458,6 +5481,11 @@
             if (!linksContainer) return;
             
             linksContainer.innerHTML = '';
+            
+            // Handle null/undefined blocks
+            if (!blocks || !Array.isArray(blocks)) {
+                blocks = [];
+            }
             
             const links = blocks.filter(b => b.type === 'link');
             const linksCount = document.getElementById('links-count');
@@ -5787,14 +5815,27 @@
             }
 
             try {
+                // Get the social view id first
+                const { data: socialView } = await supabaseClient
+                    .from('views')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('name', 'social')
+                    .single();
+                
+                if (!socialView) {
+                    oolalaToast('Error: No view found');
+                    return;
+                }
+                
                 const { data: block, error } = await supabaseClient
                     .from('blocks')
                     .insert({
-                        profile_id: currentUser.id,
+                        view_id: socialView.id,
                         type: 'link',
                         title: title,
-                        payload: { url: url },
-                        position: currentBlocks.length
+                        url: url,
+                        order: currentBlocks.length
                     })
                     .select()
                     .single();
@@ -6514,6 +6555,6 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/js/supabase-config.js"></script>
+    <!-- supabase-config.js removed - config is inline -->
 </body>
 </html>
