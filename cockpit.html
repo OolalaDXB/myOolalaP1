@@ -5064,6 +5064,11 @@
                                     font-size: 0.65rem;
                                     color: #6A635D;
                                 }
+                                .links-container {
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 0.4rem;
+                                }
                                 .footer-icons {
                                     display: flex;
                                     justify-content: center;
@@ -5096,30 +5101,12 @@
                                 <div class='flags'>🇫🇷 → 🇦🇪</div>
                                 <div class='citizen-badge'>JFK • 0010-2005 · New York</div>
                                 <div class='bio'>Your bio will appear here...</div>
-                                <div class='featured'>
+                                <div class='featured' style='display:none;'>
                                     <div class='featured-title'>Featured Content</div>
                                     <div class='featured-desc'>Your spotlight moment</div>
                                 </div>
-                                <a class='link'>
-                                    <div class='link-icon'>🔗</div>
-                                    <div>
-                                        <div class='link-title'>Your first link</div>
-                                        <div class='link-sub'>Description</div>
-                                    </div>
-                                </a>
-                                <a class='link'>
-                                    <div class='link-icon'>📱</div>
-                                    <div>
-                                        <div class='link-title'>Another link</div>
-                                        <div class='link-sub'>Description</div>
-                                    </div>
-                                </a>
-                                <div class='footer-icons'>
-                                    <div class='footer-icon'></div>
-                                    <div class='footer-icon'></div>
-                                    <div class='footer-icon'></div>
-                                    <div class='footer-icon'></div>
-                                </div>
+                                <div class='links-container'></div>
+                                <div class='footer-icons'></div>
                             </div>
                         </body>
                         </html>
@@ -6403,16 +6390,14 @@
                 citizenEl.textContent = badgeText;
             }
             
-            // Update links
-            const linksContainer = iframeDoc.querySelector('.main');
-            if (linksContainer && currentBlocks.length > 0) {
-                // Remove existing links
-                iframeDoc.querySelectorAll('.link').forEach(el => el.remove());
-                
-                // Find where to insert (before footer-icons)
-                const footerIcons = iframeDoc.querySelector('.footer-icons');
-                
-                // Add real links
+            // Update links - ALWAYS clear first, then add
+            const linksContainer = iframeDoc.querySelector('.links-container') || iframeDoc.querySelector('.main');
+            
+            // Always remove existing links first
+            iframeDoc.querySelectorAll('.link').forEach(el => el.remove());
+            
+            // Add real links from currentBlocks
+            if (linksContainer && currentBlocks && currentBlocks.length > 0) {
                 currentBlocks.filter(b => b.type === 'link').forEach(block => {
                     const linkEl = iframeDoc.createElement('a');
                     linkEl.className = 'link';
@@ -6423,11 +6408,7 @@
                             <div class='link-sub'>${block.url || ''}</div>
                         </div>
                     `;
-                    if (footerIcons) {
-                        linksContainer.insertBefore(linkEl, footerIcons);
-                    } else {
-                        linksContainer.appendChild(linkEl);
-                    }
+                    linksContainer.appendChild(linkEl);
                 });
             }
             
