@@ -7,7 +7,18 @@
     { "source": "/signup", "destination": "/auth.html?tab=signup" },
     { "source": "/onboarding", "destination": "/onboarding.html" },
     { "source": "/cockpit", "destination": "/cockpit.html" },
+    { "source": "/dashboard", "destination": "/cockpit.html" },
     { "source": "/product", "destination": "/product.html" },
-    { "source": "/u/:username", "destination": "/profile.html" }
+    { "source": "/profile", "destination": "/profile.html" },
+    { "source": "/u/:username", "destination": "/u.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
   ]
 }
