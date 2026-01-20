@@ -222,9 +222,44 @@
            MAIN CONTENT — EDITOR PANELS
            ══════════════════════════════════════ */
         .main-content {
-            padding: 2rem;
+            padding: 0;
             overflow-y: auto;
             max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: rgba(252, 251, 249, 0.95);
+            border-bottom: 1px solid var(--surface);
+            backdrop-filter: blur(8px);
+            min-height: 60px;
+        }
+        
+        .main-header-title h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0;
+        }
+        
+        .main-header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .main-panels {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
         }
 
         .panel {
@@ -3258,6 +3293,25 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Sticky Header with Save/Reset -->
+            <div class="main-header">
+                <div class="main-header-title">
+                    <h2 id="current-section-title">My Citizen</h2>
+                </div>
+                <div class="main-header-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="resetChanges()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        Reset
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="save-btn" onclick="saveAllChanges()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Scrollable Panels Container -->
+            <div class="main-panels">
             
             <!-- ══════════════════════════════════════
                  MY CITIZEN PANEL
@@ -4885,6 +4939,7 @@
                 </div>
             </section>
 
+            </div><!-- /.main-panels -->
         </main>
 
         <!-- Preview Panel -->
@@ -5112,16 +5167,6 @@
                         </html>
                     "></iframe>
                 </div>
-            </div>
-            <div class="preview-actions">
-                <button class="btn btn-secondary" onclick="resetChanges()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                    Reset
-                </button>
-                <button class="btn btn-primary" id="save-btn" onclick="saveAllChanges()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    Save Changes
-                </button>
             </div>
         </aside>
 
@@ -5582,6 +5627,24 @@
             setVal('input-display-name', currentProfile.display_name);
             setVal('input-username', currentProfile.handle);
             
+            // Load avatar into Identity section
+            const avatarPreview = document.getElementById('avatar-preview');
+            if (avatarPreview && currentProfile.avatar_url) {
+                avatarPreview.style.backgroundImage = `url(${currentProfile.avatar_url})`;
+                avatarPreview.style.backgroundSize = 'cover';
+                avatarPreview.style.backgroundPosition = 'center';
+            } else if (avatarPreview) {
+                // Show initials as placeholder
+                const initials = (currentProfile.display_name || 'U')
+                    .split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase();
+                avatarPreview.style.backgroundImage = 'none';
+                avatarPreview.innerHTML = `<span style="font-size: 1.5rem; color: var(--ink-soft);">${initials}</span>`;
+            }
+            
             // View-specific data
             setVal('input-bio', view.bio);
             setVal('input-spotlight', view.spotlight);
@@ -5690,6 +5753,22 @@
         // ══════════════════════════════════════
         // NAVIGATION
         // ══════════════════════════════════════
+        const sectionTitles = {
+            citizen: 'My Citizen',
+            identity: 'Identity',
+            views: 'Multi-Views',
+            spotlight: 'Spotlight',
+            links: 'Links',
+            socials: 'Socials',
+            shop: 'Shop',
+            locked: 'Locked Content',
+            music: 'Music',
+            sport: 'Sport',
+            analytics: 'Analytics',
+            ranking: 'Ranking',
+            settings: 'Settings'
+        };
+        
         function initNavigation() {
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', () => {
@@ -5708,6 +5787,12 @@
                     // Update panels
                     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
                     panelElement.classList.add('active');
+                    
+                    // Update sticky header title
+                    const headerTitle = document.getElementById('current-section-title');
+                    if (headerTitle) {
+                        headerTitle.textContent = sectionTitles[panel] || panel.charAt(0).toUpperCase() + panel.slice(1);
+                    }
                 });
             });
         }
@@ -6865,15 +6950,102 @@
             switchPreviewView(viewName);
         }
 
-        function switchPreviewView(viewName) {
-            // Update view badge in preview
+        async function switchPreviewView(viewName) {
+            // Find the view data from currentViews
+            const view = currentViews?.find(v => v.name === viewName);
+            
+            if (!view) {
+                // Just update the badge if view data not loaded yet
+                const iframe = document.getElementById('preview-iframe');
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const viewBadge = iframeDoc.querySelector('.view-badge');
+                if (viewBadge) {
+                    viewBadge.textContent = viewName.charAt(0).toUpperCase() + viewName.slice(1);
+                }
+                oolalaToast(`Previewing ${viewName} view`);
+                return;
+            }
+            
+            // Load blocks for this view
+            try {
+                const { data: blocks } = await supabaseClient
+                    .from('blocks')
+                    .select('*')
+                    .eq('view_id', view.id)
+                    .order('order', { ascending: true });
+                
+                // Update current view and blocks
+                currentView = view;
+                currentBlocks = blocks || [];
+                
+                // Update the preview with view-specific data
+                updatePreviewForView(view, blocks || []);
+                
+                oolalaToast(`Previewing ${viewName} view`);
+            } catch (err) {
+                console.error('Error loading view blocks:', err);
+            }
+        }
+        
+        function updatePreviewForView(view, blocks) {
             const iframe = document.getElementById('preview-iframe');
+            if (!iframe) return;
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            if (!iframeDoc) return;
+            
+            // Update view badge
             const viewBadge = iframeDoc.querySelector('.view-badge');
             if (viewBadge) {
-                viewBadge.textContent = viewName.charAt(0).toUpperCase() + viewName.slice(1);
+                viewBadge.textContent = (view.name || 'social').charAt(0).toUpperCase() + (view.name || 'social').slice(1);
             }
-            oolalaToast(`Previewing ${viewName} view`);
+            
+            // Update bio
+            const bioEl = iframeDoc.querySelector('.bio');
+            if (bioEl) {
+                bioEl.textContent = view.bio || currentProfile?.bio || 'Your bio will appear here...';
+            }
+            
+            // Update flags
+            const flagsEl = iframeDoc.querySelector('.flags');
+            if (flagsEl) {
+                const originFlags = view.origin_flags?.join('') || currentProfile?.origin_flags?.join('') || '🇫🇷';
+                const basedFlags = view.based_in_flags?.join('') || view.based_in_flag || currentProfile?.based_in_flag || '🇦🇪';
+                flagsEl.textContent = `${originFlags} → ${basedFlags}`;
+            }
+            
+            // Update citizen badge
+            const citizenBadge = iframeDoc.querySelector('.citizen-badge');
+            if (citizenBadge) {
+                const airport = view.based_in_airports?.[0] || view.based_in_airport || 'DXB';
+                const city = view.based_in_cities?.[0] || view.based_in_city || 'Dubai';
+                const citizenId = currentProfile?.citizen_id || '#0000';
+                citizenBadge.textContent = `${airport} • ${citizenId} · ${city}`;
+            }
+            
+            // Update spotlight
+            const featuredEl = iframeDoc.querySelector('.featured');
+            const featuredDesc = iframeDoc.querySelector('.featured-desc');
+            if (featuredEl && featuredDesc) {
+                if (view.spotlight) {
+                    featuredEl.style.display = 'block';
+                    featuredDesc.textContent = view.spotlight;
+                } else {
+                    featuredEl.style.display = 'none';
+                }
+            }
+            
+            // Update links
+            const linksContainer = iframeDoc.querySelector('.links-container');
+            if (linksContainer) {
+                const links = blocks.filter(b => b.type === 'link');
+                if (links.length > 0) {
+                    linksContainer.innerHTML = links.map(link => 
+                        `<a class='link' href='#'>${link.title || 'Link'}</a>`
+                    ).join('');
+                } else {
+                    linksContainer.innerHTML = "<a class='link' href='#'>Your links appear here</a>";
+                }
+            }
         }
 
         function setDefaultView(viewName) {
