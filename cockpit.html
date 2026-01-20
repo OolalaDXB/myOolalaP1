@@ -6702,6 +6702,7 @@
         function showQR(viewName) {
             const handle = currentProfile?.handle || 'username';
             const url = `https://myoolala.com/u/${handle}/${viewName}`;
+            const displayName = currentProfile?.display_name || 'My Profile';
             
             // Create modal if it doesn't exist
             let modal = document.getElementById('qr-modal');
@@ -6710,32 +6711,54 @@
                 modal.id = 'qr-modal';
                 modal.className = 'modal';
                 modal.innerHTML = `
-                    <div class="modal-content" style="max-width: 400px; text-align: center;">
+                    <div class="modal-content" style="max-width: 420px; text-align: center;">
                         <div class="modal-header">
-                            <span class="modal-title">QR Code</span>
+                            <span class="modal-title">Share <span id="share-view-name">Profile</span></span>
                             <button class="icon-btn" onclick="closeModal('qr-modal')">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                             </button>
                         </div>
-                        <div class="modal-body" style="padding: 2rem;">
-                            <div id="qr-display" style="background: white; padding: 1.5rem; border-radius: 12px; display: inline-block; margin-bottom: 1rem;"></div>
-                            <p id="qr-url" style="font-size: 0.85rem; color: var(--ink-soft); word-break: break-all; margin-bottom: 1.5rem;"></p>
-                            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                        <div class="modal-body" style="padding: 1.5rem 2rem 2rem;">
+                            <div id="qr-display" style="background: white; padding: 1.25rem; border-radius: 12px; display: inline-block; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);"></div>
+                            <p id="qr-url" style="font-size: 0.8rem; color: var(--ink-soft); word-break: break-all; margin-bottom: 1.25rem; font-family: 'Space Mono', monospace;"></p>
+                            
+                            <!-- Primary actions -->
+                            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1rem;">
+                                <button class="btn btn-primary" onclick="copyLink()" style="flex: 1;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    Copy Link
+                                </button>
                                 <button class="btn btn-secondary" onclick="downloadQR()">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    Download
+                                    QR
                                 </button>
-                                <button class="btn btn-secondary" onclick="shareQR('twitter')">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                    X/Twitter
+                            </div>
+                            
+                            <!-- AirDrop / Native Share (iOS/Mac) -->
+                            <div id="native-share-container" style="margin-bottom: 1rem; display: none;">
+                                <button class="btn btn-secondary" onclick="nativeShare()" style="width: 100%; background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); color: white; border: none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                    Share via AirDrop / More...
                                 </button>
-                                <button class="btn btn-secondary" onclick="shareQR('linkedin')">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                                    LinkedIn
+                            </div>
+                            
+                            <!-- Social share buttons -->
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="shareQR('twitter')" style="padding: 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                    <span style="font-size: 0.65rem;">X</span>
                                 </button>
-                                <button class="btn btn-secondary" onclick="shareQR('whatsapp')">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.917.918l4.462-1.494A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.487 0-4.807-.798-6.694-2.151l-.48-.353-2.972.995.994-2.968-.387-.503A9.96 9.96 0 012 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                                    WhatsApp
+                                <button class="btn btn-secondary" onclick="shareQR('linkedin')" style="padding: 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                    <span style="font-size: 0.65rem;">LinkedIn</span>
+                                </button>
+                                <button class="btn btn-secondary" onclick="shareQR('whatsapp')" style="padding: 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.917.918l4.462-1.494A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.487 0-4.807-.798-6.694-2.151l-.48-.353-2.972.995.994-2.968-.387-.503A9.96 9.96 0 012 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                                    <span style="font-size: 0.65rem;">WhatsApp</span>
+                                </button>
+                                <button class="btn btn-secondary" onclick="shareQR('telegram')" style="padding: 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0088cc"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                                    <span style="font-size: 0.65rem;">Telegram</span>
                                 </button>
                             </div>
                         </div>
@@ -6744,17 +6767,34 @@
                 document.body.appendChild(modal);
             }
             
+            // Update view name in title
+            const viewNameDisplay = viewName.charAt(0).toUpperCase() + viewName.slice(1);
+            document.getElementById('share-view-name').textContent = viewNameDisplay;
+            
             // Generate QR code using QR Server API
-            const qrSize = 200;
+            const qrSize = 180;
             const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&bgcolor=ffffff&color=1A3A3A`;
             
             document.getElementById('qr-display').innerHTML = `<img src="${qrImg}" alt="QR Code" style="width: ${qrSize}px; height: ${qrSize}px;">`;
             document.getElementById('qr-url').textContent = url;
             
             // Store current QR data for download/share
-            window._currentQR = { url, viewName, qrImg };
+            window._currentQR = { url, viewName, qrImg, displayName };
+            
+            // Show native share button if supported (iOS/Mac Safari, Android)
+            const nativeShareContainer = document.getElementById('native-share-container');
+            if (navigator.share) {
+                nativeShareContainer.style.display = 'block';
+            }
             
             modal.classList.add('active');
+        }
+        
+        function copyLink() {
+            if (!window._currentQR) return;
+            navigator.clipboard.writeText(window._currentQR.url).then(() => {
+                oolalaToast('Link copied!');
+            });
         }
         
         function downloadQR() {
@@ -6767,10 +6807,29 @@
             oolalaToast('QR Code downloaded!');
         }
         
+        async function nativeShare() {
+            if (!window._currentQR || !navigator.share) return;
+            
+            const { url, viewName, displayName } = window._currentQR;
+            
+            try {
+                await navigator.share({
+                    title: `${displayName} on myOolala`,
+                    text: `Check out my ${viewName} profile!`,
+                    url: url
+                });
+                oolalaToast('Shared!');
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Share failed:', err);
+                }
+            }
+        }
+        
         function shareQR(platform) {
             if (!window._currentQR) return;
             
-            const { url, viewName } = window._currentQR;
+            const { url, viewName, displayName } = window._currentQR;
             const text = `Check out my ${viewName} profile on myOolala!`;
             
             let shareUrl;
@@ -6784,14 +6843,20 @@
                 case 'whatsapp':
                     shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
                     break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+                    break;
             }
             
             if (shareUrl) {
-                window.open(shareUrl, '_blank', 'width=600,height=400');
+                window.open(shareUrl, '_blank', 'width=600,height=500');
             }
         }
 
-        function revokeAlias(btn) {
+        // Quick Share buttons now open the share modal
+        function copyViewUrl(viewName) {
+            showQR(viewName);
+        }
             const aliasItem = btn.closest('.alias-item');
             if (aliasItem) {
                 // Mark as revoked instead of removing (keeps history)
